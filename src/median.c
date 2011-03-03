@@ -1,19 +1,32 @@
 
-/* Use and redistribution of this software is covered by the GNU Public License 
-   Version 3 (GPLv3) or later, as detailed below. A copy of the GPLv3 is also 
-   available at <http://www.gnu.org/licenses/>.
+/*
+  Copyright (C) 2011 Jacek Becla
 
-   The "median" user defined function for MySQL. Compatible with mysql 5.x
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License v3 as published
+  by the Free Software Foundation, or any later version.
 
-   Input parameters:
-    * the values (double)
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+
+
   
-   Output:
-    * median value of the distribution of the values (double)
-
-   Authors:
-    * Jacek Becla <becla@slac.stanford.edu>
+  This program provide a "median" user defined function for MySQL.
+  It is compatible with mysql 5.x
+  
+  Input parameters:
+    - the values (double)
+  Output:
+    - median value of the distribution of the values (double)
 */
+
 
 #include <stdio.h>
 #include <stdlib.h>
