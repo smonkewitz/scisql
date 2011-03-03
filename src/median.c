@@ -1,19 +1,19 @@
 
-// Use and redistribution of this software is covered by the GNU Public License 
-// Version 3 (GPLv3) or later, as detailed below. A copy of the GPLv3 is also 
-// available at <http://www.gnu.org/licenses/>.
+/* Use and redistribution of this software is covered by the GNU Public License 
+   Version 3 (GPLv3) or later, as detailed below. A copy of the GPLv3 is also 
+   available at <http://www.gnu.org/licenses/>.
 
-// The "median" user defined function for MySQL. Compatible with mysql 5.x
-//
-// Input parameters:
-//  * the values (double)
-//
-// Output:
-//  * median value of the distribution of the values (double)
-//
-// Authors:
-//  * Jacek Becla <becla@slac.stanford.edu>
+   The "median" user defined function for MySQL. Compatible with mysql 5.x
 
+   Input parameters:
+    * the values (double)
+  
+   Output:
+    * median value of the distribution of the values (double)
+
+   Authors:
+    * Jacek Becla <becla@slac.stanford.edu>
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,27 +25,28 @@
 #include "mysql/mysql.h"
 
 
-// The function uses malloc to keep the first 8K values.
-// In case there are more than 8K values, it transparently
-// switches to mmap file (in a /tmp directory). (In the future
-// versions we might consider using mysql's TMP_DIR instead)
-// At the moment, it can handle up to ~134 million values
-// (see MAX_NELEMS below).
-
+/*
+ The function uses malloc to keep the first 8K values.
+ In case there are more than 8K values, it transparently
+ switches to mmap file (in a /tmp directory). (In the future
+ versions we might consider using mysql's TMP_DIR instead)
+ At the moment, it can handle up to ~270 million values
+ (see MAX_NELEMS below).
+*/
 
 struct
 MedianStruct {
-    int64_t nValues;   // current number of values stored
-    double *values;    // the values stored
-    int mmapFDescr;    // file descr, or 0 if malloc used
+    int64_t nValues;   /* current number of values stored */
+    double *values;    /* the values stored */
+    int mmapFDescr;    /* file descr, or 0 if malloc used */
 };
-const int N_SLOTS_4MALLOC = 8192; // use malloc for the first 8K elements (64KB)
+/* use malloc for the first 8K elements (64KB) */
+const int N_SLOTS_4MALLOC = 8192;
 char tempFName[32] = "/tmp/mysql.median.XXXXXX";
-const int64_t MMAP_FSIZE = 1ULL << 30;  // 1GB
-const int64_t MAX_NELEMS = (1ULL << 30) / sizeof(double);
+#define MMAP_FSIZE 2147483640  /* 2GB */
+const int64_t MAX_NELEMS = MMAP_FSIZE / sizeof(double);
 
 char errMsg[MYSQL_ERRMSG_SIZE] = "";
-
 
 void median_freeValues(struct MedianStruct*);
 my_bool median_init(UDF_INIT*, UDF_ARGS*, char*);
@@ -54,6 +55,7 @@ void median_clear(UDF_INIT *, char *, char *);
 void median_reset(UDF_INIT*, UDF_ARGS*, char*, char*);
 void median_add(UDF_INIT*, UDF_ARGS*, char*, char*);
 double median(UDF_INIT*, UDF_ARGS*, char*, char*);
+
 
 
 void
@@ -74,6 +76,7 @@ median_freeValues(struct MedianStruct* buffer) {
 
 my_bool
 median_init(UDF_INIT* initId, UDF_ARGS* args, char* message) {
+    struct MedianStruct *buffer;
     if ( args->arg_count != 1 ) {
         strncpy(message, "1 argument expected", MYSQL_ERRMSG_SIZE - 1);
         message[MYSQL_ERRMSG_SIZE - 1] = '\0';
@@ -89,8 +92,7 @@ median_init(UDF_INIT* initId, UDF_ARGS* args, char* message) {
         message[MYSQL_ERRMSG_SIZE - 1] = '\0';
         return 1;
     }
-    struct MedianStruct *buffer =
-        (struct MedianStruct*) malloc(sizeof(struct MedianStruct));
+    buffer = (struct MedianStruct*) malloc(sizeof(struct MedianStruct));
     buffer->nValues = 0;
     buffer->values = NULL;
     buffer->mmapFDescr = 0;
@@ -132,10 +134,12 @@ median_reset(UDF_INIT* initId, UDF_ARGS* args, char* isNull, char* error) {
 
 void
 median_add(UDF_INIT* initId, UDF_ARGS* args, char* isNull, char* error) {
+    struct MedianStruct *buffer;
+    double* dPtr;
     if ( args->args[0] == NULL ) {
         return;
     }
-    struct MedianStruct *buffer = (struct MedianStruct*) initId->ptr;
+    buffer = (struct MedianStruct*) initId->ptr;
     if ( buffer->nValues >= MAX_NELEMS ) {
         *error = 1;
         strncpy(errMsg,
@@ -144,15 +148,15 @@ median_add(UDF_INIT* initId, UDF_ARGS* args, char* isNull, char* error) {
         return;
     }
     if ( buffer->nValues == N_SLOTS_4MALLOC ) {
-        // create temporary sparse file
+        /* create temporary sparse file */
         int fd = mkstemp(tempFName);
         ftruncate(fd, MMAP_FSIZE);
-        // memory map it
-        double* dPtr = mmap(NULL,
-                            MMAP_FSIZE,
-                            PROT_READ | PROT_WRITE, MAP_SHARED,
-                            fd,
-                            0);
+        /* memory map it */
+        dPtr = (double*) mmap(NULL,
+                              MMAP_FSIZE,
+                              PROT_READ | PROT_WRITE, MAP_SHARED,
+                              fd,
+                              0);
         if ( dPtr == MAP_FAILED ) {
             *error = 1;
             strncpy(errMsg,
@@ -160,7 +164,7 @@ median_add(UDF_INIT* initId, UDF_ARGS* args, char* isNull, char* error) {
                     MYSQL_ERRMSG_SIZE - 1);
             return;
         }
-        // copy data to the memory mapped file, clean up
+        /* copy data to the memory mapped file, clean up */
         memcpy(dPtr, buffer->values, N_SLOTS_4MALLOC*sizeof(double));
         free(buffer->values);
         buffer->values = dPtr;

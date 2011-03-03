@@ -2,7 +2,7 @@
 # this really needs to be completely reworked very soon...
 
 
-gcc -fno-stack-protector -DMYSQL_DYNAMIC_PLUGIN -fPIC -Wall -I /usr/include/mysql -c median.c -o median.o
+gcc -fno-stack-protector -DMYSQL_DYNAMIC_PLUGIN -fPIC -Wall -pedantic -I /usr/include/mysql -c median.c -o median.o
 ld -shared -o median.so median.o
 
 
