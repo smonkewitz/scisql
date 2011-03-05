@@ -16,9 +16,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
 
+  Authors:
+   - Jacek Becla, SLAC
+     (The work on this project has been sponsored by LSST and SLAC/DOE)
 
-  
-  This program provide a "median" user defined function for MySQL.
+
+  This program provides a "median" user defined function for MySQL.
   It is compatible with mysql 5.x
   
   Input parameters:
