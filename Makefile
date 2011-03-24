@@ -20,14 +20,14 @@ install:
 uninstall:
 	@$(WAF) uninstall
 
-load:
-	@$(WAF) load
+create:
+	@$(WAF) create
 
-unload:
-	@$(WAF) unload
+drop:
+	@$(WAF) drop
 
 test:
 	@$(WAF) test
 
-.PHONY: all sharedlib clean distclean list install uninstall load unload test
+.PHONY: all sharedlib clean distclean list install uninstall create drop test
 
