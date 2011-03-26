@@ -125,7 +125,7 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
             const_pos = 0;
         }
     }
-    for (i = 3; i < args->arg_count; ++i) {
+    for (i = 2; i < args->arg_count; ++i) {
         if (args->arg_count != 3) {
             args->arg_type[i] = REAL_RESULT;
         }
@@ -137,7 +137,7 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
     initid->maybe_null = 1;
     initid->const_item = const_item;
     initid->ptr = 0;
-    if (const_pos || const_poly) {
+    if (const_pos != 0 || const_poly != 0) {
         _scisql_ptpoly_state *state =
             (_scisql_ptpoly_state *) malloc(sizeof(_scisql_ptpoly_state));
         if (state != 0) {
@@ -167,7 +167,7 @@ SCISQL_API long long s2PtInCPoly(UDF_INIT *initid,
     s.const_poly = 0;
     state = (initid->ptr == 0) ? &s : (_scisql_ptpoly_state *) initid->ptr;
 
-    if (!state->valid || !state->const_pos) {
+    if (state->valid == 0 || state->const_pos == 0) {
         /* if position isn't constant or isn't cached yet, extract it
            from the arguments and convert it to a unit vector. */
         double **a = (double **) args->args;
@@ -180,7 +180,7 @@ SCISQL_API long long s2PtInCPoly(UDF_INIT *initid,
         }
         scisql_sctov3(&state->pos, &pt);
     }
-    if (!state->valid || !state->const_poly) {
+    if (state->valid == 0 || state->const_poly == 0) {
         /* if polygon isn't constant or isn't cached yet, build one
            from the arguments. */
         for (i = 2; i < args->arg_count; ++i) {

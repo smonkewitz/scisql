@@ -199,6 +199,7 @@ SCISQL_LOCAL int scisql_s2cpoly_frombin(scisql_s2cpoly *out,
         s += sizeof(double);
         SCISQL_COPY_DBL_BYTES(dbytes.bytes, s);
         out->edges[i].z = dbytes.value;
+        s += sizeof(double);
     }
     return 0;
 }
@@ -213,7 +214,7 @@ SCISQL_LOCAL size_t scisql_s2cpoly_tobin(unsigned char *out,
         return 0;
     }
     n = cp->n;
-    if (n * 3 * sizeof(double) < len) {
+    if (n * 3 * sizeof(double) > len) {
         return 0;
     }
     for (i = 0; i < n; ++i) {

@@ -16,7 +16,8 @@ def configure(ctx):
     ctx.load('mysql', tooldir='tools')
     ctx.check_mysql(atleast_version='5')
     ctx.env['CFLAGS'] = ['-Wall',
-                         '-Wextra'
+                         '-Wextra',
+                         '-O3'
                         ]
 
     # Test for __attribute__ support
@@ -31,7 +32,10 @@ def configure(ctx):
                              int main() { return 0; }''',
                  define_name='HAVE_ATTRIBUTE_UNUSED',
                  msg='Checking for __attribute__ ((unused))')
- 
+
+    # Check for libm
+    ctx.check_cc(lib='m', uselib_store='M')
+
     # Add scisql version to configuration header
     ctx.define(APPNAME.upper() + '_VERSION_STRING', VERSION)
     ctx.define(APPNAME.upper() + '_VERSION_STRING_LENGTH', len(VERSION))
@@ -55,7 +59,7 @@ def build(ctx):
         includes=['src'],
         target='scisql',
         name='scisql',
-        use='MYSQL',
+        use=['MYSQL', 'M'],
         install_path=install_path
     )
 

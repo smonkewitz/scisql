@@ -107,6 +107,8 @@ SCISQL_API my_bool percentile_init(UDF_INIT* initid,
         message[MYSQL_ERRMSG_SIZE - 1] = '\0';
         return 1;
     }
+    args->arg_type[0] = REAL_RESULT;
+    args->arg_type[1] = REAL_RESULT;
     initid->maybe_null = 1;
     initid->decimals = 31;
     initid->ptr = (char *) state;

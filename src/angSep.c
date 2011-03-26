@@ -119,16 +119,16 @@ SCISQL_API double angSep(UDF_INIT *initid SCISQL_UNUSED,
     }
     if (args->arg_count == 4) {
        scisql_sc p1, p2;
-       if (scisql_sc_init(&p1, *a[0], *a[1]) ||
-           scisql_sc_init(&p2, *a[2], *a[3])) {
+       if (scisql_sc_init(&p1, *a[0], *a[1]) != 0 ||
+           scisql_sc_init(&p2, *a[2], *a[3]) != 0) {
            *is_null = 1;
            return 0.0;
        }
        return scisql_sc_angsep(&p1, &p2);
     } else {
        scisql_v3 v1, v2;
-       if (scisql_v3_init(&v1, *a[0], *a[1], *a[2]) ||
-           scisql_v3_init(&v2, *a[3], *a[4], *a[5])) {
+       if (scisql_v3_init(&v1, *a[0], *a[1], *a[2]) != 0 ||
+           scisql_v3_init(&v2, *a[3], *a[4], *a[5]) != 0) {
            *is_null = 1;
            return 0.0;
        }
