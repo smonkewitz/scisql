@@ -1,11 +1,8 @@
--- Miscellaneous
-DROP FUNCTION IF EXISTS scisqlVersion;
+USE mysql;
 
--- Statistics
+DROP FUNCTION IF EXISTS scisqlVersion;
 DROP FUNCTION IF EXISTS median;
 DROP FUNCTION IF EXISTS percentile;
-
--- Spherical geometry
 DROP FUNCTION IF EXISTS angSep;
 DROP FUNCTION IF EXISTS s2PtInBox;
 DROP FUNCTION IF EXISTS s2PtInCircle;

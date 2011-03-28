@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from waflib import Build, Scripting, Task
+from waflib import Build, Options, Scripting, Task
 
 APPNAME = 'scisql'
 VERSION = '0.1'
@@ -48,15 +48,10 @@ def configure(ctx):
                versions[0]*100**2 + versions[1]*100 + versions[2])
     ctx.write_config_header('src/config.h')
 
-def post(ctx):
-    if ctx.cmd in ('install', 'uninstall', 'create', 'drop', 'test') and not ctx.env.MYSQL_PLUGIN_DIR:
-        ctx.fatal('Invalid or missing MySQL plugin installation dir: ' +
-                  'cannot install, uninstall, create, drop or test UDFs')
 
 def build(ctx):
-    ctx.add_post_fun(post)
     install_path = ctx.env.MYSQL_PLUGIN_DIR
-    ctx.shlib(
+    node = ctx.shlib(
         source=ctx.path.ant_glob('src/*.c'),
         includes=['src'],
         target='scisql',
@@ -64,22 +59,33 @@ def build(ctx):
         use=['MYSQL', 'M'],
         install_path=install_path
     )
+    if ctx.cmd in ('install', 'create'):
+        ctx.add_post_fun(create_post)
+    elif ctx.cmd == 'uninstall':
+        drop(ctx)
 
 
 class CreateContext(Build.InstallContext):
     cmd = 'create'
-    fun = 'create'
+    fun = 'build'
 
-def create(ctx):
-    ctx(source='scripts/create_udfs.mysql', always=True)
-
+def create_post(ctx):
+    """Run create_udfs script in a separate build context, from a post-build function.
+    This ensures that the scisql shared library has already been installed.
+    """
+    bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir)
+    bld.init_dirs()
+    bld.env = ctx.env
+    bld(source='scripts/create_udfs.mysql')
+    bld.compile()
 
 class DropContext(Build.BuildContext):
     cmd = 'drop'
     fun = 'drop'
 
 def drop(ctx):
-    ctx(source='scripts/drop_udfs.mysql', always=True)
+    ctx(source='scripts/drop_udfs.mysql')
+    
 
 
 def test(ctx):
