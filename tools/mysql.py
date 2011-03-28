@@ -3,8 +3,7 @@
 import operator
 import os, os.path
 
-from waflib import Logs
-from waflib.Configure import conf
+from waflib import Configure, Logs, Task, TaskGen
 
 __ver = {
     'atleast_version': operator.ge,
@@ -19,7 +18,8 @@ def __parse_version(version):
 def options(ctx):
     ctx.add_option('--mysql', type='string', dest='mysql',
                    help='''Path to the mysql command line client (e.g. /usr/local/bin/mysql).
-                           Used to CREATE and DROP the scisql UDFs after installation.''')
+                           Used to CREATE and DROP the scisql UDFs after installation.
+                           Defaults to ${PREFIX}/bin/mysql.''')
     ctx.add_option('--mysql-config', type='string', dest='mysql_config',
                    help='''Path to the mysql_config script (e.g. /usr/local/bin/mysql_config).
                            Used to obtain the location of MySQL header files and plugins.''')
@@ -29,8 +29,12 @@ def options(ctx):
     ctx.add_option('--mysql-plugins', type='string', dest='mysql_plugins',
                    help='''Path to the MySQL server plugin directory (UDF installation directory).
                            Defaults to ${PREFIX}/lib/mysql/plugin/; ignored if --mysql-config is used.''')
+    ctx.add_option('--mysql-user', type='string', dest='mysql_user', default='root',
+                   help='MySQL user name with admin priviledges')
+    ctx.add_option('--mysql-socket', type='string', dest='mysql_socket', default='/tmp/mysql.sock',
+                   help='UNIX socket file for connecting to MySQL')
 
-@conf
+@Configure.conf
 def check_mysql(self, **kw):
     # Check for the MySQL command line client
     self.start_msg('Checking for mysql command line client')
@@ -38,13 +42,15 @@ def check_mysql(self, **kw):
     if mysql:
         if not os.path.isfile(mysql) or not os.access(mysql, os.X_OK):
             self.fatal('--mysql does not identify an executable')
-        self.env.MYSQL = mysql
         self.end_msg(mysql)
     else:
         mysql = os.path.join(self.env.PREFIX, 'bin', 'mysql')
         if not os.path.isfile(mysql) or not os.access(mysql, os.X_OK):
-            self.fatal('--mysql does not identify an executable')
+            self.fatal('${PREFIX}/bin/mysql does not identify an executable')
+    self.env.MYSQL = mysql
     self.end_msg(mysql)
+    self.env.MYSQL_USER = self.options.mysql_user
+    self.env.MYSQL_SOCKET = self.options.mysql_socket
 
     # Check for the MySQL config script
     config = self.options.mysql_config
@@ -57,13 +63,21 @@ def check_mysql(self, **kw):
         includes = self.options.mysql_includes or os.path.join(self.env.PREFIX, 'include', 'mysql')
         plugins = self.options.mysql_plugins or os.path.join(self.env.PREFIX, 'lib', 'mysql', 'plugin')
 
-    # Make sure we have a mysql includes directory
+    # Get include directory
     self.start_msg('Checking for mysql include directory')
     if not includes or not os.path.isdir(includes):
         self.fatal('Invalid/missing mysql header directory')
     else:
         self.end_msg(includes)
     self.env.INCLUDES_MYSQL = [includes]
+
+    # Get plugin directory (for UDF installation)
+    self.start_msg('Checking for mysql plugins directory')
+    if not plugins or not os.path.isdir(plugins):
+        self.fatal('Invalid/missing MySQL plugin directory.')
+    else:
+        self.end_msg(plugins)
+    self.env.MYSQL_PLUGIN_DIR = plugins
 
     # Get the server version
     version = self.check_cc(fragment='''#include "mysql.h"
@@ -92,10 +106,19 @@ def check_mysql(self, **kw):
                     self.fatal('MySQL server version %s violates %s=%s' % (version, constraint, kw[constraint]))
         self.end_msg(version)
 
-    # Get plugin directory (for UDF installation)
-    if not plugins or not os.path.isdir(plugins):
-        Logs.pprint('YELLOW', 'Invalid/missing MySQL plugin directory. You will not ' +
-                    'be able to install, load, or test the scisql UDFs.')
-    else:
-        self.env.MYSQL_PLUGIN_DIR = plugins
+
+# Task generator for running .mysql script files
+
+@TaskGen.extension('.mysql')
+def process_mysql(self, node): 
+    self.create_task('MySqlScript', node, []) 
+
+@Task.always_run
+class MySqlScript(Task.Task):
+    run_str = '${MYSQL} -vvv -S ${MYSQL_SOCKET} -u ${MYSQL_USER} -p < ${SRC}'
+    color = 'PINK'
+    shell = True
+    ext_in = '.mysql'
+    reentrant = False
+    install_path = False
 

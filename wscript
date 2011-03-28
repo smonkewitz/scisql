@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+from waflib import Build, Scripting, Task
+
 APPNAME = 'scisql'
 VERSION = '0.1'
 
@@ -63,13 +65,22 @@ def build(ctx):
         install_path=install_path
     )
 
+
+class CreateContext(Build.InstallContext):
+    cmd = 'create'
+    fun = 'create'
+
 def create(ctx):
-    # TODO
-    ctx.fatal('Not implemented yet')
+    ctx(source='scripts/create_udfs.mysql', always=True)
+
+
+class DropContext(Build.BuildContext):
+    cmd = 'drop'
+    fun = 'drop'
 
 def drop(ctx):
-    # TODO
-    ctx.fatal('Not implemented yet')
+    ctx(source='scripts/drop_udfs.mysql', always=True)
+
 
 def test(ctx):
     # TODO
