@@ -27,6 +27,7 @@
 # Tests for the angSep() UDF.
 #
 
+from __future__ import with_statement
 import random
 
 from base import *
@@ -39,14 +40,14 @@ class AngSepTestCase(MySqlUdfTestCase):
         random.seed(123456789)
 
     def _angSep(self, result, *args):
-        query = "SELECT angSep(%s, %s, %s, %s)" % tuple(map(dbparam, args))
-        self._cursor.execute(query)
-        rows = self._cursor.fetchall()
+        stmt = "SELECT angSep(%s, %s, %s, %s)" % tuple(map(dbparam, args))
+        rows = self.query(stmt)
+        self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         if result is None:
-            self.assertEqual(rows[0][0], result, query + " did not return NULL.")
+            self.assertEqual(rows[0][0], None, stmt + " did not return NULL.")
         else:
-            msg = query + " not close enough to %s" % dbparam(result)
-            self.assertAlmostEqual(rows[0][0], result, 11, msg)
+            self.assertAlmostEqual(rows[0][0], result, 11,
+                stmt + " not close enough to %s" % dbparam(result))
 
     def testConstArgs(self):
         """Test with constant arguments.
@@ -69,5 +70,20 @@ class AngSepTestCase(MySqlUdfTestCase):
     def testColumnArgs(self):
         """Test with arguments taken from a table.
         """
-        pass
+        with self.tempTable("AngSep", ("i INTEGER",
+                                       "ra1 DOUBLE PRECISION",
+                                       "decl1 DOUBLE PRECISION",
+                                       "ra2 DOUBLE PRECISION",
+                                       "decl2 DOUBLE PRECISION")) as t:
+            rows = [(i,
+                     random.uniform(0.0, 360.0),
+                     random.uniform(-90.0, 90.0),
+                     random.uniform(0.0, 360.0),
+                     random.uniform(-90.0, 90.0)) for i in xrange(100)]
+            t.insertMany(rows)
+            stmt = "SELECT i, angSep(ra1, decl1, ra2, decl2) FROM AngSep ORDER BY i"
+            for res in self.query(stmt):
+                self.assertAlmostEqual(res[1], angSep(*rows[res[0]][1:]), 11,
+                    "angSep(" + ",".join(map(repr, rows[res[0]][1:])) +
+                    "): Python and MySQL UDF do not agree to 11 decimal places")
 

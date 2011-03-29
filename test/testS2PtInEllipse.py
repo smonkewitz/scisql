@@ -84,7 +84,9 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
 
     def _s2PtInEllipse(self, result, *args):
         stmt = "SELECT s2PtInEllipse(%s, %s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
-        self.query(stmt, result)
+        rows = self.query(stmt)
+        self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
+        self.assertEquals(rows[0][0], result, stmt + " did not return " + repr(result))
 
     def testConstArgs(self):
         """Test with constant arguments.
@@ -117,7 +119,37 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
                     self._s2PtInEllipse(0, ra, dec, ra_cen, dec_cen, smaa, smia, ang)
 
     def testColumnArgs(self):
-        """Test with arguments taken from a table.
+        """Test with argument taken from a table.
         """
-        pass
+        with self.tempTable("S2PtInEllipse", ("inside INTEGER",
+                                              "ra DOUBLE PRECISION",
+                                              "decl DOUBLE PRECISION",
+                                              "cenRa DOUBLE PRECISION",
+                                              "cenDecl DOUBLE PRECISION",
+                                              "smaa DOUBLE PRECISION",
+                                              "smia DOUBLE PRECISION",
+                                              "posAng DOUBLE PRECISION")) as t:
+            for i in xrange(1000):
+                ra_cen = random.uniform(0.0, 360.0)
+                dec_cen = random.uniform(-90.0, 90.0)
+                smaa = random.uniform(0.0001, 36000.0)
+                smia = random.uniform(0.00001, smaa)
+                ang = random.uniform(-180.0, 180.0)
+                smaaDeg = smaa / 3600.0
+                delta = smaaDeg / math.cos(math.radians(dec_cen))
+                ra = random.uniform(ra_cen - delta, ra_cen + delta)
+                dec = random.uniform(max(dec_cen - smaaDeg, -90.0),
+                                     min(dec_cen + smaaDeg, 90.0))
+                r = s2PtInEllipse(ra, dec, ra_cen, dec_cen, smaa, smia, ang)
+                if r == True:
+                    t.insert((1, ra, dec, ra_cen, dec_cen, smaa, smia, ang))
+                elif r == False:
+                    t.insert((0, ra, dec, ra_cen, dec_cen, smaa, smia, ang))
+            stmt = """SELECT COUNT(*) FROM S2PtInEllipse
+                      WHERE s2PtInEllipse(ra, decl,
+                                          cenRa, cenDecl,
+                                          smaa, smia, posAng) != inside"""
+            rows = self.query(stmt)
+            self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
+            self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))
 

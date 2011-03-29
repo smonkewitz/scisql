@@ -32,11 +32,14 @@ from base import *
 
 
 class S2PtInBoxTestCase(MySqlUdfTestCase):
-    """s2PtInBox() UDF test-case.
+    """s2PtInBox() UDF test-case. Test with constant arguments only,
+    since the implementation does not perform caching of any sort.
     """
     def _s2PtInBox(self, result, *args):
         stmt = "SELECT s2PtInBox(%s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
-        self.query(stmt, result)
+        rows = self.query(stmt)
+        self.assertEquals(len(rows), 1, stmt + " returned multiple rows")
+        self.assertEquals(rows[0][0], result, stmt + " did not return " + repr(result))
 
     def testConstArgs(self):
         """Test UDF with constant arguments.
@@ -54,9 +57,4 @@ class S2PtInBoxTestCase(MySqlUdfTestCase):
             self._s2PtInBox(1, ra, dec, 350.0, 0.0, 370.0, 1.0)
         for ra, dec in ((0.0, 1.1), (0.0, -0.1), (10.1, 0.5), (349.9, 0.5)):
             self._s2PtInBox(0, ra, dec, 350.0, 0.0, 370.0, 1.0)
-
-    def testColumnArgs(self):
-        """Test UDF with arguments taken from a table.
-        """
-        pass
 
