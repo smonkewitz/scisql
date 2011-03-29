@@ -25,7 +25,7 @@
     scisqlVersion()
 
     A MySQL UDF returning the version of the sciSQL UDF library in use. The
-    result will be a VARCHAR string.
+    result is a string.
 
     Example:
     --------

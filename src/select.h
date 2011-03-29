@@ -45,7 +45,7 @@ extern "C" {
     -   array[i] <= array[k] for i < k
     -   array[i] >= array[k] for i > k
 
-    If array == NULL, n == 0 or k >= n, then a quiet NaN is returned.
+    If array == 0, n == 0 or k >= n, then a quiet NaN is returned.
 
     Inputs:
         array    Array to select from.
@@ -56,7 +56,7 @@ SCISQL_LOCAL double scisql_select(double *array, size_t n, size_t k);
 
 /*  Returns the smallest value in an array of doubles.
 
-    If array == NULL or n == 0, then a quiet NaN is returned.
+    If array == 0 or n == 0, then a quiet NaN is returned.
 
     Inputs:
         array    Array to select from.
@@ -76,16 +76,16 @@ SCISQL_LOCAL double scisql_min(const double *array, size_t n);
     median/percentile can be computed.
 
     The implementation uses malloc for the first SCISQL_MALLOC_SLOTS
-    values.  If more are added, the structure switches to using a memory
-    mapped file in /tmp.  In future versions, we might consider using
+    values.  If more are added, a memory mapped file in /tmp is used
+    instead.  In future versions, we might consider using
     MySQL TMP_DIR instead.
 
     At the moment, a maximum of 2^28, or ~270 million values can be
-    handled (see SCISQL_MAX_NELEMS below).
+    handled (SCISQL_MAX_NELEMS).
 */
 typedef struct {
     size_t n;           /* number of values stored */
-    double fraction;    /* percentile percentage divided by 100 */
+    double fraction;    /* percentage divided by 100 */
     double *malloc_buf; /* value buffer allocated with malloc */
     double *mmap_buf;   /* value buffer allocated with mmap and backed by fd */
     int fd;             /* descriptor for file backing mmap_buf */

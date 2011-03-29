@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from waflib import Build, Options, Scripting, Task
+from waflib import Build
 
 APPNAME = 'scisql'
 VERSION = '0.1'
@@ -51,7 +51,7 @@ def configure(ctx):
 
 def build(ctx):
     install_path = ctx.env.MYSQL_PLUGIN_DIR
-    node = ctx.shlib(
+    ctx.shlib(
         source=ctx.path.ant_glob('src/*.c'),
         includes=['src'],
         target='scisql',

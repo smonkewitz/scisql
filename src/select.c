@@ -173,7 +173,7 @@ static __inline size_t _median5(const double *array) {
 /*  Returns the index of the median of medians for an array. 
 
     The following pre-conditions are assumed:
-        -   array != NULL
+        -   array != 0
         -   n > 0
  */
 static size_t _medianOfMedians(double *array, size_t n) {
@@ -219,7 +219,7 @@ static size_t _medianOfMedians(double *array, size_t n) {
     The run-time of this function is O(n).
 
     The following pre-conditions are assumed:
-        -   array != NULL
+        -   array != 0
         -   n > 0
         -   i < n
  */
@@ -263,7 +263,7 @@ static size_t _worstCasePartition(double *array, size_t n, size_t i) {
     smallest element) using the linear time median-of-medians algorithm.
 
     The following pre-conditions are assumed:
-        -   array != NULL
+        -   array != 0
         -   n > 0
         -   k < n
  */
@@ -286,7 +286,7 @@ static void _medianOfMediansSelect(double *array, size_t n, size_t k) {
 /*  Chooses a pivot value using the median-of-3 strategy.
 
     The following pre-conditions are assumed:
-        -   array != NULL
+        -   array != 0
         -   n > 0
  */
 static size_t _median3Pivot(double *array, size_t n) {
@@ -317,7 +317,7 @@ static size_t _median3Pivot(double *array, size_t n) {
     returns the index of the pivot value after partitioning.
 
     The following pre-conditions are assumed:
-        -   array != NULL
+        -   array != 0
         -   n > 0
         -   i < n
  */
@@ -399,15 +399,15 @@ SCISQL_LOCAL double scisql_min(const double *array, size_t n) {
 SCISQL_LOCAL scisql_percentile_state * scisql_percentile_state_new() {
     scisql_percentile_state *p =
         (scisql_percentile_state *) malloc(sizeof(scisql_percentile_state));
-    if (p != NULL) {
+    if (p != 0) {
         p->n = 0;
         p->fraction = 0.5;
         p->fd = -1;
-        p->mmap_buf = NULL;
+        p->mmap_buf = 0;
         p->malloc_buf = (double *) malloc(SCISQL_MALLOC_SLOTS * sizeof(double));
-        if (p->malloc_buf == NULL) {
+        if (p->malloc_buf == 0) {
             free(p);
-            p = NULL;
+            p = 0;
         }
     }
     return p;
@@ -415,15 +415,15 @@ SCISQL_LOCAL scisql_percentile_state * scisql_percentile_state_new() {
 
 
 SCISQL_LOCAL void scisql_percentile_state_free(scisql_percentile_state *p) {
-    if (p != NULL) {
+    if (p != 0) {
         if (p->fd != -1) {
             munmap(p->mmap_buf, SCISQL_MMAP_FSIZE);
             close(p->fd);
-            p->mmap_buf = NULL;
+            p->mmap_buf = 0;
             p->fd = -1;
         }
         free(p->malloc_buf);
-        p->malloc_buf = NULL;
+        p->malloc_buf = 0;
         p->n = 0;
         free(p);
     }
@@ -431,7 +431,7 @@ SCISQL_LOCAL void scisql_percentile_state_free(scisql_percentile_state *p) {
 
 
 SCISQL_LOCAL void scisql_percentile_state_clear(scisql_percentile_state *p) {
-    if (p != NULL) {
+    if (p != 0) {
         p->n = 0;
     }
 }
@@ -443,10 +443,10 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
     double v;
     size_t n;
 
-    if (p == NULL) {
+    if (p == 0) {
         return 1;
     }
-    if (value == NULL) {
+    if (value == 0) {
         return 0;
     }
     v = *value;
@@ -488,7 +488,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                     return 1;
                 }
                 /* memory map it */
-                buf = (double *) mmap(NULL, SCISQL_MMAP_FSIZE,
+                buf = (double *) mmap(0, SCISQL_MMAP_FSIZE,
                                       PROT_READ | PROT_WRITE,
                                       MAP_SHARED, fd, 0);
                 if (buf == MAP_FAILED) {
