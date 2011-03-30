@@ -27,7 +27,8 @@ drop:
 	@$(WAF) drop
 
 test:
-	@$(WAF) test
+	python -m unittest test
+#	@$(WAF) test
 
 .PHONY: all sharedlib clean distclean list install uninstall create drop test
 
