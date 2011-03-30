@@ -1,0 +1,13 @@
+
+- Allow clock-wise vertex ordering in spherical convex polygons 
+
+- Implement the test command in the waf build system
+
+- Low-level unit tests for selection algorithm
+
+- Documentation - HTML via doxygen? Whatever system we use, descriptions of
+  individual UDFs must be easy to extract for use in the LSST schema browser.
+
+- Consider creating temp file for median() and select() in the MySQL TMP_DIR
+  instead of /tmp
+

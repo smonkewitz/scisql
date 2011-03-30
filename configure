@@ -1,0 +1,14 @@
+#! /bin/sh
+
+# Get absolute path of directory containing the configure script
+CUR_DIR=`pwd`
+SCISQL_DIR=`dirname $0`
+cd "${SCISQL_DIR}"
+SCISQL_DIR=`pwd`
+# Change back to original working directory in case arguments contain relative paths
+cd "${CUR_DIR}"
+
+"${SCISQL_DIR}/waf" --jobs=1 configure $*
+
+exit $?
+
