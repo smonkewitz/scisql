@@ -24,8 +24,8 @@ SciSQL configuration:
 ---------------------
 
     Run ./configure from the top-level SciSQL directory. Passing --help will
-yield a list of configuration options. Here of the ones most likely to require
-tweaking::
+yield a list of configuration options. Here are the ones most likely to require
+tweaking:
 
   --prefix        Set this to the top-level MySQL server install directory
   --mysql-user    Set this to the name of a MySQL admin user
@@ -35,7 +35,7 @@ tweaking::
 Building and installation:
 --------------------------
 
-    SciSQL is built, installed, and unintalled with the usual make,
+    SciSQL is built, installed, and uninstalled with the usual make,
 make install, and make uninstall commands.
 
 Note that install/uninstall will CREATE/DROP the SciSQL UDFs. You will
@@ -57,7 +57,7 @@ you specified during configuration.
 Reporting bugs and getting help:
 --------------------------------
 
-    If you encounter test-case failures, or a think you've identified a
+    If you encounter test-case failures, or think you've identified a
 bug in the SciSQL code, please file a report here:
 
 https://bugs.launchpad.net/scisql/+filebug
