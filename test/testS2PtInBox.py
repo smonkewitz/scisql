@@ -38,8 +38,8 @@ class S2PtInBoxTestCase(MySqlUdfTestCase):
     def _s2PtInBox(self, result, *args):
         stmt = "SELECT s2PtInBox(%s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
         rows = self.query(stmt)
-        self.assertEquals(len(rows), 1, stmt + " returned multiple rows")
-        self.assertEquals(rows[0][0], result, stmt + " did not return " + repr(result))
+        self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
+        self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
 
     def testConstArgs(self):
         """Test UDF with constant arguments.

@@ -86,7 +86,7 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
         stmt = "SELECT s2PtInEllipse(%s, %s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
-        self.assertEquals(rows[0][0], result, stmt + " did not return " + repr(result))
+        self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
 
     def testConstArgs(self):
         """Test with constant arguments.
