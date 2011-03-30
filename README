@@ -1,0 +1,68 @@
+Science Tools for MySQL
+=======================
+
+    Science-specific tools and extensions for SQL. Currently the project
+contains user defined functions (UDFs) for MySQL including spatial geometry,
+astronomy specific functions and mathematical functions.
+
+
+Installation prerequisites:
+---------------------------
+
+- Python 2.5.x or later   (http://www.python.org/download/)
+- MySQL server 5.x        (http://dev.mysql.com/downloads/)
+- MySQLdb 1.2.x           (http://sourceforge.net/projects/mysql-python/)
+
+MySQLdb, a Python DB API 2.0 implementation for MySQL, is only required
+in order to run the unit tests.
+ 
+In order to install the UDFs, you need write permission to the MySQL server
+plug-in directory as well as a MySQL account with admin priviledges.
+
+
+SciSQL configuration:
+---------------------
+
+    Run ./configure from the top-level SciSQL directory. Passing --help will
+yield a list of configuration options. Here of the ones most likely to require
+tweaking::
+
+  --prefix        Set this to the top-level MySQL server install directory
+  --mysql-user    Set this to the name of a MySQL admin user
+  --mysql-socket  Set this to the name of the MySQL server UNIX socket file
+
+
+Building and installation:
+--------------------------
+
+    SciSQL is built, installed, and unintalled with the usual make,
+make install, and make uninstall commands.
+
+Note that install/uninstall will CREATE/DROP the SciSQL UDFs. You will
+be prompted for the password of the MySQL admin user that was specified
+during configuration.
+
+
+Testing the SciSQL UDFs:
+------------------------
+
+    First of all, make sure you've got MySQLdb installed. Then run:
+
+make test
+
+Again, you'll be prompted for the password of the MySQL admin user that
+you specified during configuration.
+
+
+Reporting bugs and getting help:
+--------------------------------
+
+    If you encounter test-case failures, or a think you've identified a
+bug in the SciSQL code, please file a report here:
+
+https://bugs.launchpad.net/scisql/+filebug
+
+    For other help, submit your questions here:
+
+https://answers.launchpad.net/scisql/+addquestion
+
