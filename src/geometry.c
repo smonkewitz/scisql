@@ -129,18 +129,31 @@ SCISQL_LOCAL int scisql_s2cpoly_init(scisql_s2cpoly *out,
                                      const scisql_v3 *verts,
                                      size_t n)
 {
+    scisql_v3 cen;
     size_t i;
     if (out == 0 || verts == 0 || n < 3 || n > SCISQL_MAX_VERTS) {
         return 1;
     }
     out->n = n;
+    memcpy(&cen, &verts[n - 1], sizeof(scisql_v3));
     for (i = 0; i < n - 1; ++i) {
-        /* the cross product two consecutive vertices gives a vector
+        /* the cross product of two consecutive vertices gives a vector
            parallel to the edge plane normal. */
         scisql_v3_cross(&out->edges[i], &verts[i], &verts[i + 1]);
+        scisql_v3_add(&cen, &cen, &verts[i]);
     }
     /* compute last edge plane */
     scisql_v3_cross(&out->edges[n - 1], &verts[n - 1], &verts[0]);
+    /* if vertices are clockwise, then the dot-product of cen with
+       any edge plane is negative. */
+    if (scisql_v3_dot(&cen, &out->edges[0]) < 0.0) {
+        /* invert edge plane normals */
+        for (i = 0; i < n; ++i) {
+            out->edges[i].x = - out->edges[i].x;
+            out->edges[i].y = - out->edges[i].y;
+            out->edges[i].z = - out->edges[i].z;
+        }
+    }
     return 0;
 }
 
@@ -203,6 +216,7 @@ SCISQL_LOCAL int scisql_s2cpoly_frombin(scisql_s2cpoly *out,
     }
     return 0;
 }
+
 
 SCISQL_LOCAL size_t scisql_s2cpoly_tobin(unsigned char *out,
                                          size_t len,
