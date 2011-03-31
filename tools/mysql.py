@@ -23,8 +23,10 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
+import getpass
 import operator
-import os, os.path
+import os
+import stat
 
 from waflib import Configure, Logs, Task, TaskGen
 
@@ -129,6 +131,21 @@ def check_mysql(self, **kw):
                     self.fatal('MySQL server version %s violates %s=%s' % (version, constraint, kw[constraint]))
         self.end_msg(version)
 
+    # Write MySQL connection parameters to a file to avoid
+    # constantly prompting for them
+    passwd = getpass.getpass('Enter password for MySQL user %s: ' % self.env.MYSQL_USER)
+    self.start_msg('Writing MySQL connection parameters')
+    my_cnf = self.path.get_bld().make_node('.my.cnf').abspath()
+    with open(my_cnf, 'wb') as f:
+        os.fchmod(f.fileno(), stat.S_IRUSR | stat.S_IWUSR)
+        f.write('[mysql]\n')
+        f.write('user=%s\n' % self.env.MYSQL_USER)
+        f.write('socket=%s\n' % self.env.MYSQL_SOCKET)
+        if len(passwd) != 0:
+            f.write('password=%s\n' % passwd)
+    self.env.MYSQL_CNF = my_cnf
+    self.end_msg(my_cnf)
+
 
 # Task generator for running .mysql script files
 
@@ -138,7 +155,7 @@ def process_mysql(self, node):
 
 @Task.always_run
 class MySqlScript(Task.Task):
-    run_str = '${MYSQL} -vvv -S ${MYSQL_SOCKET} -u ${MYSQL_USER} -p < ${SRC}'
+    run_str = '${MYSQL} --defaults-file=${MYSQL_CNF} < ${SRC}'
     color = 'PINK'
     shell = True
     ext_in = '.mysql'

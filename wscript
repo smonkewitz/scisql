@@ -31,9 +31,11 @@ VERSION = '0.1'
 top = '.'
 out = 'build'
 
+
 def options(ctx):
     ctx.load('compiler_c')
     ctx.load('mysql', tooldir='tools')
+
 
 def configure(ctx):
     ctx.load('compiler_c')
@@ -75,16 +77,25 @@ def build(ctx):
     install_path = ctx.env.MYSQL_PLUGIN_DIR
     ctx.shlib(
         source=ctx.path.ant_glob('src/*.c'),
-        includes=['src'],
+        includes='src',
         target='scisql',
         name='scisql',
-        use=['MYSQL', 'M'],
+        use='MYSQL M',
         install_path=install_path
+    )
+    ctx.program(
+        source='test/testSelect.c src/select.c',
+        target='testSelect',
+        includes='src',
+        install_path=False,
+        use='M'
     )
     if ctx.cmd in ('install', 'create'):
         ctx.add_post_fun(create_post)
     elif ctx.cmd == 'uninstall':
         drop(ctx)
+    elif ctx.cmd == 'test':
+        ctx.add_post_fun(test_post)
 
 
 class CreateContext(Build.InstallContext):
@@ -101,16 +112,24 @@ def create_post(ctx):
     bld(source='scripts/create_udfs.mysql')
     bld.compile()
 
+
 class DropContext(Build.BuildContext):
     cmd = 'drop'
     fun = 'drop'
 
 def drop(ctx):
     ctx(source='scripts/drop_udfs.mysql')
+
     
+class TestContext(Build.InstallContext):
+    cmd = 'test'
+    fun = 'build'
 
-
-def test(ctx):
+def test_post(ctx):
+    #bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir)
+    #bld.init_dirs()
+    #bld.env = ctx.env
+    #bld.compile()
     # TODO
-    ctx.fatal('Not implemented yet')
+    pass
 
