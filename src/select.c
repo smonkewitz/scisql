@@ -190,7 +190,7 @@ static size_t _medianOfMedians(double *array, size_t n) {
             break;
         }
         for (i = 0, j = 0; i < n - 4; i += 5, ++j) {
-            size_t m5 = _median5(array + i);
+            size_t m5 = _median5(array + i) + i;
             double tmp = array[j];
             array[j] = array[m5];
             array[m5] = tmp;
@@ -246,41 +246,16 @@ static size_t _worstCasePartition(double *array, size_t n, size_t i) {
         if (u + neq > (n >> 1)) {
             neq = (n >> 1) - u;
         }
-        for (u = u + 1, v = u + 1; neq != 0; ++v) {
+        for (v = u + 1; neq != 0; ++v) {
             if (array[v] == pivot) {
-                double tmp = array[u];
-                array[u] = array[v];
-                array[v] = tmp;
                 ++u;
+                array[v] = array[u];
+                array[u] = pivot;
                 --neq;
             }
         }
     }
     return u;
-}
-
-/*  Finds the k-th smallest value in an array of doubles (where k = 0 is the
-    smallest element) using the linear time median-of-medians algorithm.
-
-    The following pre-conditions are assumed:
-        -   array != 0
-        -   n > 0
-        -   k < n
- */
-static void _medianOfMediansSelect(double *array, size_t n, size_t k) {
-    while (1) {
-        size_t i = _medianOfMedians(array, n);
-        i = _worstCasePartition(array, n, i);
-        if (k == i) {
-            break;
-        } else if (k < i) {
-            n = i;
-        } else {
-            array += i + 1;
-            n -= i + 1;
-            k -= i + 1;
-        }
-    }
 }
 
 /*  Chooses a pivot value using the median-of-3 strategy.
@@ -343,6 +318,28 @@ static size_t _partition(double *array, size_t n, size_t i) {
 
 static const double SCISQL_QNAN = 0.0 / 0.0;
 
+
+SCISQL_LOCAL double scisql_selectmm(double *array, size_t n, size_t k) {
+    if (array == 0 || n == 0 || k >= n) {
+        return SCISQL_QNAN;
+    }
+    while (1) {
+        size_t i = _medianOfMedians(array, n);
+        i = _worstCasePartition(array, n, i);
+        if (k == i) {
+            break;
+        } else if (k < i) {
+            n = i;
+        } else {
+            array += i + 1;
+            n -= i + 1;
+            k -= i + 1;
+        }
+    }
+    return array[k];
+}
+
+
 /*  This implementation uses the quickselect algorithm with median-of-3
     pivots.  The quadratic worst case is detected by keeping a running sum
     of the partition sizes generated so far.  When this sum exceeds 3*n,
@@ -369,8 +366,7 @@ SCISQL_LOCAL double scisql_select(double *array, size_t n, size_t k) {
         }
         tot += n;
         if (tot > thresh) {
-            _medianOfMediansSelect(array, n, k);
-            break;
+            return scisql_selectmm(array, n, k);
         }
     }
     return array[k];
