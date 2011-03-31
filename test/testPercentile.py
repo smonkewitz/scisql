@@ -30,6 +30,8 @@
 from __future__ import with_statement
 import math
 import random
+import sys
+import unittest
 
 from base import *
 
@@ -75,4 +77,11 @@ class PercentileTestCase(MySqlUdfTestCase):
             self.assertAlmostEqual(rows[0][0], 0.0, 15)
             self.assertAlmostEqual(rows[1][0], 25.0, 15)
             self.assertAlmostEqual(rows[2][0], 50.0, 15)
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(PercentileTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 

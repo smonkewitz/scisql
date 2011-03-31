@@ -20,9 +20,6 @@ install:
 uninstall:
 	@$(WAF) uninstall
 
-create:
-	@$(WAF) create
-
 drop:
 	@$(WAF) drop
 

@@ -26,9 +26,10 @@
 #
 # Tests for the s2PtInBox() UDF.
 #
+import sys
+import unittest
 
 from base import *
-
 
 
 class S2PtInBoxTestCase(MySqlUdfTestCase):
@@ -57,4 +58,11 @@ class S2PtInBoxTestCase(MySqlUdfTestCase):
             self._s2PtInBox(1, ra, dec, 350.0, 0.0, 370.0, 1.0)
         for ra, dec in ((0.0, 1.1), (0.0, -0.1), (10.1, 0.5), (349.9, 0.5)):
             self._s2PtInBox(0, ra, dec, 350.0, 0.0, 370.0, 1.0)
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(S2PtInBoxTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 

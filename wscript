@@ -23,13 +23,19 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from waflib import Build
+from __future__ import with_statement
+import os
+import sys
+import traceback
+
+from waflib import Build, Logs, Utils
 
 APPNAME = 'scisql'
 VERSION = '0.1'
 
 top = '.'
 out = 'build'
+
 
 def options(ctx):
     ctx.load('compiler_c')
@@ -75,31 +81,37 @@ def build(ctx):
     install_path = ctx.env.MYSQL_PLUGIN_DIR
     ctx.shlib(
         source=ctx.path.ant_glob('src/*.c'),
-        includes=['src'],
+        includes='src',
         target='scisql',
         name='scisql',
-        use=['MYSQL', 'M'],
+        use='MYSQL M',
         install_path=install_path
     )
-    if ctx.cmd in ('install', 'create'):
+    ctx.program(
+        source='test/testSelect.c src/select.c',
+        target='test/testSelect',
+        includes='src',
+        install_path=False,
+        use='M'
+    )
+    if ctx.cmd == 'install':
         ctx.add_post_fun(create_post)
+        ctx.add_post_fun(test)
     elif ctx.cmd == 'uninstall':
         drop(ctx)
 
-
-class CreateContext(Build.InstallContext):
-    cmd = 'create'
-    fun = 'build'
 
 def create_post(ctx):
     """Run create_udfs script in a separate build context, from a post-build function.
     This ensures that the scisql shared library has already been installed.
     """
-    bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir)
+    dir = os.path.join(ctx.path.get_bld().abspath(), '.create_udfs')
+    bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
     bld.init_dirs()
     bld.env = ctx.env
     bld(source='scripts/create_udfs.mysql')
     bld.compile()
+
 
 class DropContext(Build.BuildContext):
     cmd = 'drop'
@@ -107,10 +119,58 @@ class DropContext(Build.BuildContext):
 
 def drop(ctx):
     ctx(source='scripts/drop_udfs.mysql')
-    
 
+
+class TestContext(Build.BuildContext):
+    cmd = 'test'
+    fun = 'test'
+
+class Tests(object):
+    def __init__(self):
+        self.unit_tests = []
+
+    def utest(self, **kw):
+        nodes = kw.get('source', [])
+        if not isinstance(nodes, list):
+            self.unit_tests.append(nodes)
+        else:
+            self.unit_tests.extend(nodes)
+
+    def run(self, ctx):
+        nok, nfail, nexcept = (0, 0, 0)
+        for utest in self.unit_tests:
+            msg = 'Running %s' % utest
+            msg += ' ' * max(0, 40 - len(msg))
+            Logs.pprint('CYAN', msg, sep=': ')
+            out = utest.change_ext('.log')
+            env = os.environ.copy()
+            env['MYSQL_CNF'] = ctx.env['MYSQL_CNF']
+            with open(out.abspath(), 'wb') as f:
+                try:
+                    proc = Utils.subprocess.Popen([utest.abspath()],
+                                                  shell=False, env=env, stderr=f, stdout=f)
+                    proc.communicate()
+                except:
+                    nexcept += 1
+                    ex_type, ex_val, _ = sys.exc_info()
+                    msg = traceback.format_exception_only(ex_type, ex_val)[-1].strip()
+                    Logs.pprint('RED', msg)
+                else:
+                    if proc.returncode != 0:
+                        nfail += 1
+                        Logs.pprint('YELLOW', 'FAIL [see %s]' % out.abspath())
+                    else:
+                        nok += 1
+                        Logs.pprint('CYAN', 'OK')
+        if nfail == 0 and nexcept == 0:
+            Logs.pprint('CYAN', '\nAll %d tests passed!\n' % nok)
+        else:
+            Logs.pprint('YELLOW', '\n%d tests passed, %d failed, and %d failed to run\n' %
+                        (nok, nfail, nexcept))
 
 def test(ctx):
-    # TODO
-    ctx.fatal('Not implemented yet')
+    tests = Tests()
+    tests.utest(source=ctx.path.get_bld().make_node('test/testSelect'))
+    tests.utest(source=ctx.path.ant_glob('test/test*.py'))
+    tests.run(ctx)
 

@@ -29,6 +29,8 @@
 
 import math
 import random
+import sys
+import unittest
 
 from base import *
 
@@ -152,4 +154,11 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(S2PtInEllipseTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 

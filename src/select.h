@@ -36,6 +36,19 @@ extern "C" {
 
 /* ---- Selection functions ---- */
 
+/*  Finds the k-th smallest value in an array of doubles (where k = 0 is the
+    smallest element) using the linear time median-of-medians algorithm.
+    Except for pathological inputs (e.g. arrays of mostly/entirely identical
+    values and other median-of-3 killer sequences), scisql_select() will be
+    faster and should be preferred. Note that scisql_select() detects
+    such pathological sequences and switches to the median-of-medians
+    algorithm if necessary, so its runtime is also linear.
+
+    This function has the same inputs ond enforces the same invariants as
+    scisql_select().
+ */
+SCISQL_LOCAL double scisql_selectmm(double *array, size_t n, size_t k);
+
 /*  Returns the k-th smallest value in an array of doubles (where k = 0 is
     the smallest element). The implementation guarantees O(n) runtime
     even when faced with an array of identical elements. After this function

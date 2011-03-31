@@ -29,6 +29,8 @@
 
 from __future__ import with_statement
 import random
+import sys
+import unittest
 
 from base import *
 
@@ -90,11 +92,6 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                           (self, None, 0.0, 0.0, 0, 0, 90, 0, 60))
         self.assertRaises(Exception, self._s2PtInCPolyBin,
                           (self, None, 0, 0, 0, 0, 90, 0))
-        x = (0, 0);  nx = (180, 0)
-        y = (90, 0); ny = (270, 0)
-        z = (0, 90); nz = (0, -90)
-        tris = [ (x, y, z), (y, nx, z), (nx, ny, z), (ny, (360, 0), z),
-                 ((360, 0), ny, nz), (ny, nx, nz), (nx, y, nz), (y, x, nz) ]
         for t in self._tris:
             for i in xrange(100):
                 ra = random.uniform(0.0, 360.0)
@@ -106,7 +103,19 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                 else:
                     self._s2PtInCPoly(1, ra, dec, *flatten(t))
                     self._s2PtInCPolyBin(1, ra, dec, *flatten(t))
-
+        # Test with vertices specified in clockwise order
+        for t in self._tris:
+            rt = tuple(reversed(t))
+            for i in xrange(100):
+                ra = random.uniform(0.0, 360.0)
+                dec = random.uniform(-90.0, 90.0)
+                if ((t[2][1] > 0 and (dec < 0.0 or ra < t[0][0] or ra > t[1][0])) or
+                    (t[2][1] < 0 and (dec > 0.0 or ra < t[1][0] or ra > t[0][0]))):
+                    self._s2PtInCPoly(0, ra, dec, *flatten(rt))
+                    self._s2PtInCPolyBin(0, ra, dec, *flatten(rt))
+                else:
+                    self._s2PtInCPoly(1, ra, dec, *flatten(rt))
+                    self._s2PtInCPolyBin(1, ra, dec, *flatten(rt))
 
     def testColumnArgs(self):
         """Test with arguments taken from a table.
@@ -175,4 +184,11 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                       WHERE s2PtInCPoly(ra, decl, poly) != inside"""
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, stmt + " did not return 0")
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(S2CPolyTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 
