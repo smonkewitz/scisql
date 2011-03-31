@@ -29,6 +29,8 @@
 
 from __future__ import with_statement
 import random
+import sys
+import unittest
 
 from base import *
 
@@ -182,4 +184,11 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                       WHERE s2PtInCPoly(ra, decl, poly) != inside"""
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, stmt + " did not return 0")
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(S2CPolyTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 

@@ -29,6 +29,8 @@
 
 from __future__ import with_statement
 import random
+import sys
+import unittest
 
 from base import *
 
@@ -86,4 +88,11 @@ class AngSepTestCase(MySqlUdfTestCase):
                 self.assertAlmostEqual(res[1], angSep(*rows[res[0]][1:]), 11,
                     "angSep(" + ",".join(map(repr, rows[res[0]][1:])) +
                     "): Python and MySQL UDF do not agree to 11 decimal places")
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(AngSepTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 

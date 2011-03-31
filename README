@@ -31,6 +31,16 @@ tweaking:
   --mysql-user    Set this to the name of a MySQL admin user
   --mysql-socket  Set this to the name of the MySQL server UNIX socket file
 
+You will be prompted for the MySQL admin user password during configuration.
+Connection details, including this password, are stored in
+build/c4che/.my.cnf in the MySQL options file format. This allows various
+build steps to connect to MySQL without constantly prompting for a password.
+
+Though the .my.cnf file permissions are set such that only the creator is
+allowed read/write access, for security reasons it is still recommended to
+run `make distclean` once SciSQL has been installed - this will remove the
+entire build directory and its contents.
+
 
 Building and installation:
 --------------------------
@@ -38,20 +48,9 @@ Building and installation:
     SciSQL is built, installed, and uninstalled with the usual make,
 make install, and make uninstall commands.
 
-Note that install/uninstall will CREATE/DROP the SciSQL UDFs. You will
-be prompted for the password of the MySQL admin user that was specified
-during configuration.
-
-
-Testing the SciSQL UDFs:
-------------------------
-
-    First of all, make sure you've got MySQLdb installed. Then run:
-
-make test
-
-Again, you'll be prompted for the password of the MySQL admin user that
-you specified during configuration.
+Note that install/uninstall will CREATE/DROP the SciSQL UDFs. The install
+command will also automatically run the test cases. You can re-run the
+tests anytime with `make test`.
 
 
 Reporting bugs and getting help:

@@ -135,7 +135,7 @@ def check_mysql(self, **kw):
     # constantly prompting for them
     passwd = getpass.getpass('Enter password for MySQL user %s: ' % self.env.MYSQL_USER)
     self.start_msg('Writing MySQL connection parameters')
-    my_cnf = self.path.get_bld().make_node('.my.cnf').abspath()
+    my_cnf = self.path.get_bld().make_node('c4che/.my.cnf').abspath()
     with open(my_cnf, 'wb') as f:
         os.fchmod(f.fileno(), stat.S_IRUSR | stat.S_IWUSR)
         f.write('[mysql]\n')
@@ -161,4 +161,6 @@ class MySqlScript(Task.Task):
     ext_in = '.mysql'
     reentrant = False
     install_path = False
+    after = ['vnum', 'inst']
+    vars = ['MYSQL', 'MYSQL_CNF']
 

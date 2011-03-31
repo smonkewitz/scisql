@@ -29,6 +29,8 @@
 
 from __future__ import with_statement
 import random
+import sys
+import unittest
 
 from base import *
 
@@ -69,4 +71,11 @@ class MedianTestCase(MySqlUdfTestCase):
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
                 self.assertAlmostEqual(rows[0][0], 1.0, 15,
                     "median() of %d ones not close enough to one" % n)
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(MedianTestCase)
+    runner = unittest.TextTestRunner()
+    if not runner.run(suite).wasSuccessful():
+        sys.exit(1)
 
