@@ -26,6 +26,7 @@ from __future__ import with_statement
 
 import getpass
 import math
+import os
 import unittest
 
 import MySQLdb as sql
@@ -59,28 +60,30 @@ def dbparam(x):
     else:
         return repr(x)
 
+def _parseMyCnf(my_cnf):
+    if not isinstance(my_cnf, basestring):
+        raise RuntimeError('invalid MySQL options file path')
+    kw = {}
+    with open(my_cnf, 'rb') as f:
+        for line in f:
+           kv = [s.strip() for s in line.split('=')]
+           if len(kv) == 2:
+               if kv[0] == 'user':
+                   kw['user'] = kv[1]
+               elif kv[0] == 'password':
+                   kw['passwd'] = kv[1]
+               elif kv[0] == 'socket':
+                   kw['unix_socket'] = kv[1]
+    return kw
 
-_user = None
-_password = None
-_socket = None
 
 class MySqlUdfTestCase(unittest.TestCase):
     """Base class for MySQL UDF test-cases.
     """
     @classmethod
     def setUpClass(self):
-        global _user, _password, _socket
-        if _user == None:
-            defUser = getpass.getuser()
-            _user = raw_input("MySQL user name [%s]: " % defUser) or defUser
-        if _password == None:
-            _password = raw_input("MySQL password []: ")
-        if _socket == None:
-            defSocket = "/tmp/mysql.sock"
-            _socket = raw_input("MySQL socket[%s]: " % defSocket) or defSocket 
-        self._conn = sql.connect(unix_socket=_socket,
-                                 user=_user,
-                                 passwd=_password)
+        connkw = _parseMyCnf(os.environ['MYSQL_CNF'])
+        self._conn = sql.connect(**connkw)
         try:
             self._cursor = self._conn.cursor()
             try:
