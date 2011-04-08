@@ -136,9 +136,9 @@ def check_mysql(self, **kw):
     passwd = getpass.getpass('Enter password for MySQL user %s: ' % self.env.MYSQL_USER)
     self.start_msg('Writing MySQL connection parameters')
     my_cnf = self.path.get_bld().make_node('c4che/.my.cnf').abspath()
-    # avoid fchmod to allow Python 2.5
-    os.chmod(my_cnf, stat.S_IRUSR | stat.S_IWUSR) 
     with open(my_cnf, 'wb') as f:
+        # avoid fchmod to allow Python 2.5
+        os.chmod(my_cnf, stat.S_IRUSR | stat.S_IWUSR)
         f.write('[mysql]\n')
         f.write('user=%s\n' % self.env.MYSQL_USER)
         f.write('socket=%s\n' % self.env.MYSQL_SOCKET)
