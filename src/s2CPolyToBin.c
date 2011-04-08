@@ -34,7 +34,7 @@
     A MySQL UDF returning a byte-string representation of the given spherical
     convex polygon, and 0 otherwise. The polygon must be specified as a
     sequence of at least 3 and at most 20 vertex pairs. An N vertex input
-    will result in a binary string of length exactly 24*N.
+    will result in a binary string of length exactly 24*(N + 1).
 
     Example:
     --------

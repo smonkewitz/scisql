@@ -130,6 +130,15 @@ SCISQL_INLINE void scisql_v3_sub(scisql_v3 *out,
     out->z = v1->z - v2->z;
 }
 
+/*  Stores the vector v * -1 in out.  Arguments must not be null pointers,
+    but may alias.
+ */
+SCISQL_INLINE void scisql_v3_neg(scisql_v3 *out, const scisql_v3 *v) {
+    out->x = - v->x;
+    out->y = - v->y;
+    out->z = - v->z;
+}
+
 /*  Stores the vector-scalar product v * s in out.  Arguments must not be
     null pointers, but may alias.
  */
@@ -247,6 +256,7 @@ SCISQL_LOCAL double scisql_v3_angsep(const scisql_v3 *v1, const scisql_v3 *v2);
   */
 typedef struct {
     size_t n; /* number of edges (and vertices). */
+    scisql_v3 vsum; /* sum of all vertices in polygon. */
     scisql_v3 edges[SCISQL_MAX_VERTS];
 } scisql_s2cpoly;
 
@@ -277,7 +287,7 @@ SCISQL_LOCAL int scisql_s2cpoly_cv3(const scisql_s2cpoly *cp,
                                     const scisql_v3 *v);
 
 /*  Returns a byte string representation of a scisql_s2cpoly. For a polygon
-    with N vertices (and edges), 3*sizeof(double)*N bytes of storage are
+    with N vertices (and edges), 3*sizeof(double)*(N + 1) bytes of storage are
     required.
 
     Returns the number of bytes written. This will be zero if out
