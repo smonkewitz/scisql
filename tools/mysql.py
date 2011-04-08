@@ -22,7 +22,7 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-
+from __future__ import with_statement
 import getpass
 import operator
 import os
@@ -82,7 +82,7 @@ def check_mysql(self, **kw):
     if config:
         if not os.path.isfile(config) or not os.access(config, os.X_OK):
             self.fatal('--mysql-config does not identify an executable')
-        includes = self.cmd_and_log([config, '--includes'])
+        includes = self.cmd_and_log([config, '--include'])
         plugins = self.cmd_and_log([config, '--plugindir'])
     else:
         includes = self.options.mysql_includes or os.path.join(self.env.PREFIX, 'include', 'mysql')
@@ -136,8 +136,9 @@ def check_mysql(self, **kw):
     passwd = getpass.getpass('Enter password for MySQL user %s: ' % self.env.MYSQL_USER)
     self.start_msg('Writing MySQL connection parameters')
     my_cnf = self.path.get_bld().make_node('c4che/.my.cnf').abspath()
+    # avoid fchmod to allow Python 2.5
+    os.chmod(my_cnf, stat.S_IRUSR | stat.S_IWUSR) 
     with open(my_cnf, 'wb') as f:
-        os.fchmod(f.fileno(), stat.S_IRUSR | stat.S_IWUSR)
         f.write('[mysql]\n')
         f.write('user=%s\n' % self.env.MYSQL_USER)
         f.write('socket=%s\n' % self.env.MYSQL_SOCKET)
@@ -153,7 +154,7 @@ def check_mysql(self, **kw):
 def process_mysql(self, node): 
     self.create_task('MySqlScript', node, []) 
 
-@Task.always_run
+#@Task.always_run
 class MySqlScript(Task.Task):
     run_str = '${MYSQL} --defaults-file=${MYSQL_CNF} < ${SRC}'
     color = 'PINK'
@@ -163,4 +164,4 @@ class MySqlScript(Task.Task):
     install_path = False
     after = ['vnum', 'inst']
     vars = ['MYSQL', 'MYSQL_CNF']
-
+MySqlScript = Task.always_run(MySqlScript)
