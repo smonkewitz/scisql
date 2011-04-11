@@ -461,7 +461,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                 double *buf;
                 int fd;
 
-                strcpy(fname, "/tmp/mysql.median.XXXXXX");
+                strcpy(fname, "/tmp/scisql_select_XXXXXX");
                 /* create temp file */
                 fd = mkstemp(fname);
                 if (fd == -1) {
