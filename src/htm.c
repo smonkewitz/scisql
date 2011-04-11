@@ -106,7 +106,7 @@ typedef enum {
     SCISQL_HTM_NROOTS = 8
 } _scisql_htmroot;
 
-/*  HTM triangle/region classification codes.
+/*  HTM triangle vs. region classification codes.
  */
 typedef enum {
     SCISQL_DISJOINT = 0,  /* HTM triangle disjoint from region */
@@ -311,11 +311,11 @@ static scisql_v3 * _scisql_htm_partition(const scisql_v3 *plane,
 {
     scisql_v3 tmp;
     for (; beg < end; ++beg) {
-        if (scisql_v3_dot(plane, beg) <= 0.0) {
+        if (scisql_v3_dot(plane, beg) < 0.0) {
             /* beg is outside plane, find end which is inside,
                swap contents of beg and end. */
             for (--end; end > beg; --end) {
-                if (scisql_v3_dot(plane, end) > 0.0) {
+                if (scisql_v3_dot(plane, end) >= 0.0) {
                     break;
                 }
             }
@@ -526,6 +526,88 @@ static _scisql_htmcov _scisql_s2cpoly_htmcov(const _scisql_htmnode *node,
     return SCISQL_INTERSECT;
 }
 
+/*  Returns the HTM root triangle for a point.
+ */
+SCISQL_INLINE _scisql_htmroot _scisql_v3_htmroot(const scisql_v3 *v) {
+    if (v->z < 0.0) {
+        /* S0, S1, S2, S3 */
+        if (v->y > 0.0) {
+            return (v->x > 0.0) ? SCISQL_HTM_S0 : SCISQL_HTM_S1;
+        } else if (v->y == 0.0) {
+            return (v->x >= 0.0) ? SCISQL_HTM_S0 : SCISQL_HTM_S2;
+        } else {
+            return (v->x < 0.0) ? SCISQL_HTM_S2 : SCISQL_HTM_S3;
+        }
+    } else {
+        /* N0, N1, N2, N3 */
+        if (v->y > 0.0) {
+            return (v->x > 0.0) ? SCISQL_HTM_N3 : SCISQL_HTM_N2;
+        } else if (v->y == 0.0) {
+            return (v->x >= 0.0) ? SCISQL_HTM_N3 : SCISQL_HTM_N1;
+        } else {
+            return (v->x < 0.0) ? SCISQL_HTM_N1 : SCISQL_HTM_N0;
+        }
+    }
+}
+
+/*  Partitions an array of points according to their root triangle numbers.
+ */
+static size_t _scisql_htm_rootpart(scisql_v3 *points,
+                                   unsigned char *ids,
+                                   size_t n,
+                                   _scisql_htmroot root)
+{
+    scisql_v3 tmp;
+    size_t beg, end;
+    unsigned char c;
+    for (beg = 0, end = n; beg < end; ++beg) {
+        if (ids[beg] > root) {
+            for (--end; end > beg; --end) {
+            }
+        }
+        if (end <= beg) {
+            break;
+        }
+        tmp = points[beg];
+        points[beg] = points[end];
+        points[end] = tmp;
+        c = ids[beg];
+        ids[beg] = ids[end];
+        ids[end] = c;
+    } 
+    return beg; 
+}
+
+/*  Sorts the given array of positions by root triangle number.
+ */
+static void _scisql_htm_rootsort(size_t roots[SCISQL_HTM_NROOTS + 1],
+                                 scisql_v3 *points,
+                                 unsigned char *ids,
+                                 size_t n)
+{
+    size_t i, n0, n2, s2;
+
+    /* compute root ids for all points */
+    for (i = 0; i < n; ++i) {
+        ids[i] = (unsigned char) _scisql_v3_htmroot(&points[i]);
+    }
+    n0 = _scisql_htm_rootpart(points, ids, n, SCISQL_HTM_N0);
+    s2 = _scisql_htm_rootpart(points, ids, n0, SCISQL_HTM_S2);
+    roots[SCISQL_HTM_S0] = 0;
+    roots[SCISQL_HTM_S1] = _scisql_htm_rootpart(points, ids, s2, SCISQL_HTM_S1);
+    roots[SCISQL_HTM_S2] = s2;
+    roots[SCISQL_HTM_S3] = _scisql_htm_rootpart(points + s2, ids + s2, n0 - s2,
+                                                SCISQL_HTM_S3);
+    n2 = _scisql_htm_rootpart(points + n0, ids + n0, n - n0, SCISQL_HTM_N2);
+    roots[SCISQL_HTM_N0] = n0;
+    roots[SCISQL_HTM_N1] = _scisql_htm_rootpart(points + n0, ids + n0, n2 - n0,
+                                                SCISQL_HTM_N1);
+    roots[SCISQL_HTM_N2] = n2;
+    roots[SCISQL_HTM_N3] = _scisql_htm_rootpart(points + n2, ids + n2, n - n2,
+                                                SCISQL_HTM_N3);
+    roots[SCISQL_HTM_NROOTS] = n;
+}
+
 
 /* ---- API ---- */
 
@@ -533,52 +615,26 @@ SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *point, int level) {
     _scisql_htmpath path;
     _scisql_htmnode *curnode;
     _scisql_htmnode *leaf;
-    _scisql_htmroot root;
 
     if (point == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return -1;
     }
     path.level = level;
-    root = SCISQL_HTM_S0;
-    /* The assignment of points to root triangles is slightly
-       different than the reference JHU code. This scheme
-       allows for fewer comparisons. */
-    if (point->z < 0.0) {
-        /* S0, S1, S2, S3 */
-        if (point->y > 0.0) {
-            root = (point->x > 0.0) ? SCISQL_HTM_S0 : SCISQL_HTM_S1;
-        } else {
-            root = (point->x <= 0.0) ? SCISQL_HTM_S2 : SCISQL_HTM_S3;
-        }
-    } else {
-        /* N0, N1, N2, N3 */
-        if (point->y <= 0.0) {
-            root = (point->x > 0.0) ? SCISQL_HTM_N0 : SCISQL_HTM_N1;
-        } else {
-            root = (point->x <= 0.0) ? SCISQL_HTM_N2 : SCISQL_HTM_N3;
-        }
-    }
-    _scisql_htmpath_root(&path, root);
+    _scisql_htmpath_root(&path, _scisql_v3_htmroot(point));
     curnode = path.node;
     leaf = path.node + level;
     for (; curnode < leaf; ++curnode) {
-        if (curnode->child == 0) {
-            _scisql_htmnode_prep0(curnode);
-        }
+        _scisql_htmnode_prep0(curnode);
         if (scisql_v3_dot(point, &curnode->mid_edge[1]) >= 0.0) {
             _scisql_htmnode_make0(curnode);
             continue;
         }
-        if (curnode->child <= 1) {
-            _scisql_htmnode_prep1(curnode);
-        }
+        _scisql_htmnode_prep1(curnode);
         if (scisql_v3_dot(point, &curnode->mid_edge[2]) >= 0.0) {
             _scisql_htmnode_make1(curnode);
             continue;
         }
-        if (curnode->child <= 2) {
-            _scisql_htmnode_prep2(curnode);
-        }
+        _scisql_htmnode_prep2(curnode);
         if (scisql_v3_dot(point, &curnode->mid_edge[0]) >= 0.0) {
             _scisql_htmnode_make2(curnode);
             continue;
@@ -595,8 +651,8 @@ SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3 *points,
                                    int level)
 {
     _scisql_htmpath path;
-    scisql_v3 *end;
-    scisql_v3 *z;
+    size_t roots[SCISQL_HTM_NROOTS + 1];
+    _scisql_htmroot r;
 
     if (n == 0) {
         return 0;
@@ -605,62 +661,12 @@ SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3 *points,
         return 1;
     }
     path.level = level;
-    end = points + n;
-    z = _scisql_htm_partition(SCISQL_HTM_NZ, points, end);
-    if (points < z) {
-        /* S0, S1, S2, S3 */
-        scisql_v3 *y = _scisql_htm_partition(SCISQL_HTM_Y, points, z);
-        if (points < y) {
-            /* S0, S1 */
-            scisql_v3 *x = _scisql_htm_partition(SCISQL_HTM_X, points, y);
-            if (points < x) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_S0);
-                _scisql_htmpath_sort(&path, points, x, ids);
-            }
-            if (x < y) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_S1);
-                _scisql_htmpath_sort(&path, x, y, ids + (x - points));
-            }
-        }
-        if (y < z) {
-            /* S2, S3 */
-            scisql_v3 *x = _scisql_htm_partition(SCISQL_HTM_NX, y, z);
-            if (y < x) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_S2);
-                _scisql_htmpath_sort(&path, y, x, ids + (y - points));
-            }
-            if (x < z) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_S3);
-                _scisql_htmpath_sort(&path, x, z, ids + (x - points));
-            }
-        }
-    }
-    if (z < end) {
-        /* N0, N1, N2, N3 */
-        scisql_v3 *y = _scisql_htm_partition(SCISQL_HTM_NY, z, end);
-        if (z < y) {
-            /* N0, N1 */
-            scisql_v3 *x = _scisql_htm_partition(SCISQL_HTM_X, z, y);
-            if (z < x) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_N0);
-                _scisql_htmpath_sort(&path, z, x, ids + (z - points));
-            }
-            if (x < y) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_N1);
-                _scisql_htmpath_sort(&path, x, y, ids + (x - points));
-            }
-        }
-        if (y < end) {
-            /* N2, N3 */
-            scisql_v3 *x = _scisql_htm_partition(SCISQL_HTM_NX, y, end);
-            if (y < x) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_N2);
-                _scisql_htmpath_sort(&path, y, x, ids + (y - points));
-            }
-            if (x < end) {
-                _scisql_htmpath_root(&path, SCISQL_HTM_N3);
-                _scisql_htmpath_sort(&path, x, end, ids + (x - points));
-            }
+    _scisql_htm_rootsort(roots, points, (unsigned char *) ids, n);
+    for (r = SCISQL_HTM_S0; r <= SCISQL_HTM_N3; ++r) {
+        if (roots[r] < roots[r + 1]) {
+            _scisql_htmpath_root(&path, r);
+            _scisql_htmpath_sort(&path, points + roots[r],
+                                 points + roots[r + 1], ids + roots[r]);
         }
     }
     return 0;
@@ -672,6 +678,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
                                                  int level)
 {
     _scisql_htmpath path;
+    double dist2;
     scisql_ids *out;
     _scisql_htmroot root;
 
@@ -694,6 +701,9 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
     }
 
     path.level = level;
+    /* compute square of secant distance corresponding to radius */
+    dist2 = sin(radius * 0.5 * SCISQL_RAD_PER_DEG);
+    dist2 = 4.0 * dist2 * dist2;
 
     for (root = SCISQL_HTM_S0; root <= SCISQL_HTM_N3; ++root) {
         _scisql_htmnode *curnode = path.node;
@@ -702,7 +712,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
         _scisql_htmpath_root(&path, root);
 
         while (1) {
-            _scisql_htmcov cov = _scisql_s2circle_htmcov(curnode, center, radius);
+            _scisql_htmcov cov = _scisql_s2circle_htmcov(curnode, center, dist2);
             switch (cov) {
                 case SCISQL_CONTAINS:
                     if (curlevel == 0) {
