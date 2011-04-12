@@ -47,7 +47,7 @@ extern "C" {
 /* Maximum HTM tree subdivision level */
 #define SCISQL_HTM_MAX_LEVEL 24
 
-/*  A sorted list of 64 bit integer ranges. 
+/*  A sorted list of 64 bit integer ranges.
  */
 typedef struct {
   size_t n;         /* number of ranges in list */
@@ -73,15 +73,74 @@ SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3 *unit_vecs,
                                    size_t n,
                                    int level);
 
-/*
+/*  Computes a list of HTM ID ranges corresponding to the HTM triangles
+    overlapping the given circle.
+
+    Inputs:
+        ids     Existing id range list or 0. If this argument is null, a
+                fresh range list is allocated and returned. If it is non-null,
+                all its entries are removed, but its memory is re-used. This
+                can be used to avoid malloc/realloc costs when this function
+                is being called inside of a loop.
+        center  Center of circle.
+        radius  Circle radius, degrees.
+        level   Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
+
+    Return:
+        A list of HTM ID ranges for the HTM triangles overlapping the given
+        circle. A null pointer is returned if center == 0, radius is negative
+        or level is not in the range [0, SCISQL_HTM_MAX_LEVEL], or if an
+        internal memory (re)allocation fails.
+
+        Note that the input range list may be reallocated (to grow its
+        capacity), and so the input range list pointer may no longer point to
+        valid memory. Always replace the input pointer with the return value
+        of this function!
+
+        If a memory (re)allocation fails, this function will free the memory
+        associated with the range list (even it came from a non-null input
+        pointer).
+
+        A pointer to a scisql_ids can be cleaned up simply by passing it to
+        free().
  */
-SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
+SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
+                                                 const scisql_v3 *center,
                                                  double radius,
                                                  int level);
 
-/*
+/*  Computes a list of HTM ID ranges corresponding to the HTM triangles
+    overlapping the given spherical convex polygon.
+
+    Inputs:
+        ids     Existing id range list or 0. If this argument is null, a
+                fresh range list is allocated and returned. If it is non-null,
+                all its entries are removed, but its memory is re-used. This
+                can be used to avoid malloc/realloc costs when this function
+                is being called inside of a loop.
+        poly    Spherical convex polygon.
+        level   Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
+
+    Return:
+        A list of HTM ID ranges for the HTM triangles overlapping the given
+        polygon. A null pointer is returned if poly == 0 or level is not in
+        the range [0, SCISQL_HTM_MAX_LEVEL], or if an internal memory
+        (re)allocation fails.
+
+        Note that the input range list may be reallocated (to grow its
+        capacity), and so the input range list pointer may no longer point to
+        valid memory. Always replace the input pointer with the return value
+        of this function!
+
+        If a memory (re)allocation fails, this function will free the memory
+        associated with the range list (even it came from a non-null input
+        pointer).
+
+        A pointer to a scisql_ids can be cleaned up simply by passing it to
+        free().
  */
-SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(const scisql_s2cpoly *poly,
+SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids *ids,
+                                                const scisql_s2cpoly *poly,
                                                 int level);
 
 #ifdef __cplusplus

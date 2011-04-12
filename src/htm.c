@@ -673,31 +673,35 @@ SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3 *points,
 }
 
 
-SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
+SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
+                                                 const scisql_v3 *center,
                                                  double radius,
                                                  int level)
 {
     _scisql_htmpath path;
     double dist2;
-    scisql_ids *out;
     _scisql_htmroot root;
 
     if (center == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return 0;
     }
-    out = _scisql_ids_init();
-    if (out == 0) {
-        return 0;
+    if (ids == 0) {
+        ids = _scisql_ids_init();
+        if (ids == 0) {
+            return 0;
+        }
+    } else {
+        ids->n = 0;
     }
     /* Deal with degenerate cases */
     if (radius < 0.0) {
         /* empty ID list */
-        return out;
+        return ids;
     } else if (radius >= 180.0) {
         /* the entire sky */
         int64_t min_id = (8 + SCISQL_HTM_S0) << level * 2;
         int64_t max_id = ((8 + SCISQL_HTM_NROOTS) << level * 2) - 1;
-        return _scisql_ids_add(out, min_id, max_id); 
+        return _scisql_ids_add(ids, min_id, max_id); 
     }
 
     path.level = level;
@@ -733,9 +737,9 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
                         continue;
                     }
                     /* reached a leaf, append leaf HTM ID to results */
-                    out = _scisql_ids_add(out, curnode->id, curnode->id);
-                    if (out == 0) {
-                        return out;
+                    ids = _scisql_ids_add(ids, curnode->id, curnode->id);
+                    if (ids == 0) {
+                        return ids;
                     }
                     break;
                 case SCISQL_INSIDE:
@@ -743,10 +747,10 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
                     {
                         int64_t id = curnode->id << (level - curlevel) * 2;
                         int64_t n = ((int64_t) 1) << (level - curlevel) * 2;
-                        out = _scisql_ids_add(out, id, id + n - 1);
+                        ids = _scisql_ids_add(ids, id, id + n - 1);
                     }
-                    if (out == 0) {
-                        return out;
+                    if (ids == 0) {
+                        return ids;
                     }
                     break;
                 default:
@@ -774,23 +778,27 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(const scisql_v3 *center,
             }
         }
     }
-    return out;
+    return ids;
 }
 
 
-SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(const scisql_s2cpoly *poly,
+SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
+                                                const scisql_s2cpoly *poly,
                                                 int level)
 {
     _scisql_htmpath path;
-    scisql_ids *out;
     _scisql_htmroot root;
 
     if (poly == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return 0;
     }
-    out = _scisql_ids_init();
-    if (out == 0) {
-        return 0;
+    if (ids == 0) {
+        ids = _scisql_ids_init();
+        if (ids == 0) {
+            return 0;
+        }
+    } else {
+        ids->n = 0;
     }
 
     path.level = level;
@@ -823,9 +831,9 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(const scisql_s2cpoly *poly,
                         continue;
                     }
                     /* reached a leaf, append leaf HTM ID to results */
-                    out = _scisql_ids_add(out, curnode->id, curnode->id);
-                    if (out == 0) {
-                        return out;
+                    ids = _scisql_ids_add(ids, curnode->id, curnode->id);
+                    if (ids == 0) {
+                        return ids;
                     }
                     break;
                 case SCISQL_INSIDE:
@@ -833,10 +841,10 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(const scisql_s2cpoly *poly,
                     {
                         int64_t id = curnode->id << (level - curlevel) * 2;
                         int64_t n = ((int64_t) 1) << (level - curlevel) * 2;
-                        out = _scisql_ids_add(out, id, id + n - 1);
+                        ids = _scisql_ids_add(ids, id, id + n - 1);
                     }
-                    if (out == 0) {
-                        return out;
+                    if (ids == 0) {
+                        return ids;
                     }
                     break;
                 default:
@@ -864,7 +872,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(const scisql_s2cpoly *poly,
             }
         }
     }
-    return out;
+    return ids;
 }
 
 
