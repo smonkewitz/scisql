@@ -122,7 +122,7 @@ typedef struct {
   scisql_v3 mid_edge[3];    /* subdivision plane normals */
   const scisql_v3 *vert[3]; /* triangle vertex pointers */
   const scisql_v3 *edge[3]; /* triangle edge normal pointers */
-  scisql_v3 *end;           /* temporary used for indexing */
+  scisql_v3p *end;          /* temporary used for indexing */
   int64_t id;               /* HTM ID of the node */
   int child;                /* index of next child (0-3) */
 } _scisql_htmnode;
@@ -305,17 +305,17 @@ SCISQL_INLINE void _scisql_htmnode_make3(_scisql_htmnode *node) {
 
     Assumes that plane != 0, begin != 0, end != 0, and begin <= end.
  */
-static scisql_v3 * _scisql_htm_partition(const scisql_v3 *plane,
-                                         scisql_v3 *beg,
-                                         scisql_v3 *end)
+static scisql_v3p * _scisql_htm_partition(const scisql_v3 *plane,
+                                          scisql_v3p *beg,
+                                          scisql_v3p *end)
 {
-    scisql_v3 tmp;
+    scisql_v3p tmp;
     for (; beg < end; ++beg) {
-        if (scisql_v3_dot(plane, beg) < 0.0) {
+        if (scisql_v3_dot(plane, &beg->v) < 0.0) {
             /* beg is outside plane, find end which is inside,
                swap contents of beg and end. */
             for (--end; end > beg; --end) {
-                if (scisql_v3_dot(plane, end) >= 0.0) {
+                if (scisql_v3_dot(plane, &end->v) >= 0.0) {
                     break;
                 }
             }
@@ -339,14 +339,14 @@ static scisql_v3 * _scisql_htm_partition(const scisql_v3 *plane,
     boundary representation of a given HTM triangle is computed at most once.
  */
 static void _scisql_htmpath_sort(_scisql_htmpath *path,
-                                 scisql_v3 *begin,
-                                 scisql_v3 *end,
+                                 scisql_v3p *begin,
+                                 scisql_v3p *end,
                                  int64_t *ids)
 {
     _scisql_htmnode * const root = path->node;
     _scisql_htmnode * const leaf = root + path->level;
     _scisql_htmnode *curnode = path->node;
-    scisql_v3 *beg = begin;
+    scisql_v3p *beg = begin;
 
     curnode->end = end;
 
@@ -552,12 +552,12 @@ SCISQL_INLINE _scisql_htmroot _scisql_v3_htmroot(const scisql_v3 *v) {
 
 /*  Partitions an array of points according to their root triangle numbers.
  */
-static size_t _scisql_htm_rootpart(scisql_v3 *points,
+static size_t _scisql_htm_rootpart(scisql_v3p *points,
                                    unsigned char *ids,
                                    size_t n,
                                    _scisql_htmroot root)
 {
-    scisql_v3 tmp;
+    scisql_v3p tmp;
     size_t beg, end;
     unsigned char c;
     for (beg = 0, end = n; beg < end; ++beg) {
@@ -581,7 +581,7 @@ static size_t _scisql_htm_rootpart(scisql_v3 *points,
 /*  Sorts the given array of positions by root triangle number.
  */
 static void _scisql_htm_rootsort(size_t roots[SCISQL_HTM_NROOTS + 1],
-                                 scisql_v3 *points,
+                                 scisql_v3p *points,
                                  unsigned char *ids,
                                  size_t n)
 {
@@ -589,7 +589,7 @@ static void _scisql_htm_rootsort(size_t roots[SCISQL_HTM_NROOTS + 1],
 
     /* compute root ids for all points */
     for (i = 0; i < n; ++i) {
-        ids[i] = (unsigned char) _scisql_v3_htmroot(&points[i]);
+        ids[i] = (unsigned char) _scisql_v3_htmroot(&points[i].v);
     }
     n0 = _scisql_htm_rootpart(points, ids, n, SCISQL_HTM_N0);
     s2 = _scisql_htm_rootpart(points, ids, n0, SCISQL_HTM_S2);
@@ -645,7 +645,7 @@ SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *point, int level) {
 }
 
 
-SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3 *points,
+SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3p *points,
                                    int64_t *ids,
                                    size_t n,
                                    int level)

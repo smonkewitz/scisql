@@ -62,6 +62,10 @@ def configure(ctx):
                              int main() { return 0; }''',
                  define_name='HAVE_ATTRIBUTE_UNUSED',
                  msg='Checking for __attribute__ ((unused))')
+    ctx.check_cc(fragment='''typedef struct { double a; double b; } test __attribute__ ((aligned(16)));
+                             int main() { return 0; }''',
+                 define_name='HAVE_ATTRIBUTE_ALIGNED',
+                 msg='Checking for __attribute__ ((aligned()))')
 
     # Check for libm
     ctx.check_cc(lib='m', uselib_store='M')

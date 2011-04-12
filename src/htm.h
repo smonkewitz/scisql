@@ -50,25 +50,32 @@ extern "C" {
 /*  A sorted list of 64 bit integer ranges.
  */
 typedef struct {
-  size_t n;         /* number of ranges in list */
-  size_t cap;       /* capacity of the range list */
-  int64_t ranges[]; /* ranges [min_i, max_i], with min_i <= max_i
-                       and min_j > max_i for all j > i. */
+    size_t n;         /* number of ranges in list */
+    size_t cap;       /* capacity of the range list */
+    int64_t ranges[]; /* ranges [min_i, max_i], with min_i <= max_i
+                         and min_j > max_i for all j > i. */
 } scisql_ids;
+
+/*  A 3-vector and a pointer to an associated payload.
+ */
+typedef struct {
+    scisql_v3 v;
+    void * payload;
+} scisql_v3p SCISQL_ALIGNED(16);
 
 /*  Computes an HTM ID for a position.
 
     Returns -1 if v is 0 or level is not in [0, SCISQL_HTM_MAX_LEVEL].
     Valid IDs are always positive.
  */
-SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *unit_v, int level);
+SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *point, int level);
 
-/*  Computes HTM IDs for a list of positions. Positions are sorted
-    by HTM ID during the id generation process.
+/*  Computes HTM IDs for a list of positions with payloads. Positions
+    and payloads are sorted by HTM ID during the id generation process.
 
     Returns 0 on success and 1 on error.
  */
-SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3 *unit_vecs,
+SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3p *points,
                                    int64_t *ids,
                                    size_t n,
                                    int level);
