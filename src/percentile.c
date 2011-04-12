@@ -80,7 +80,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "select.h"
 

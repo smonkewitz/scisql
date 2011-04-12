@@ -62,7 +62,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "htm.h"
 

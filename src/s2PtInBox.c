@@ -77,7 +77,7 @@
  */
 #include <string.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "geometry.h"
 
