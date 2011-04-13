@@ -459,7 +459,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
             if (p->fd == -1) {
                 char fname[32];
                 double *buf;
-                int fd;
+                int fd, prot, flgs;
 
                 strcpy(fname, "/tmp/scisql_select_XXXXXX");
                 /* create temp file */
@@ -484,12 +484,24 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                     return 1;
                 }
                 /* memory map it */
-                buf = (double *) mmap(0, SCISQL_MMAP_FSIZE,
-                                      PROT_READ | PROT_WRITE,
-                                      MAP_SHARED, fd, 0);
+                prot = PROT_READ | PROT_WRITE;
+                flgs = MAP_SHARED;
+#if MAP_HUGETLB
+                flgs |= MAP_HUGETLB;
+#endif
+                buf = (double *) mmap(0, SCISQL_MMAP_FSIZE, prot, flgs, fd, 0);
                 if (buf == MAP_FAILED) {
-                    close(fd);
-                    return 1;
+#if MAP_HUGETLB
+                    /* try again without huge pages */
+                    flgs = MAP_SHARED;
+                    buf = (double *) mmap(0, SCISQL_MMAP_FSIZE, prot, flgs, fd, 0);
+                    if (buf == MAP_FAILED) {
+#endif
+                        close(fd);
+                        return 1;
+#if MAP_HUGETLB
+                    }
+#endif
                 }
                 p->mmap_buf = buf;
                 p->fd = fd;
