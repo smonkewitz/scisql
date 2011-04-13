@@ -31,7 +31,7 @@
 
     A MySQL UDF returning 1 if the point (lon, lat) lies inside the
     the given longitude/latitude angle box, and 0 otherwise.
-    
+
     Example:
     --------
 
@@ -131,7 +131,7 @@ SCISQL_API long long s2PtInBox(UDF_INIT *initid SCISQL_UNUSED,
         *is_null = 1;
         return 0;
     }
-    
+
     if (bmax.lon < bmin.lon && (bmax.lon < 0.0 || bmin.lon > 360.0)) {
         *is_null = 1;
         return 0;

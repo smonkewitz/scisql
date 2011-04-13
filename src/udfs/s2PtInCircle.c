@@ -30,7 +30,7 @@
 
     A MySQL UDF returning 1 if the point (lon, lat) lies inside the
     the given spherical circle, and 0 otherwise.
-    
+
     Example:
     --------
 

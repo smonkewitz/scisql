@@ -32,7 +32,7 @@
 
     A MySQL UDF returning 1 if the point (lon, lat) lies inside the
     the given spherical ellipse, and 0 otherwise.
-    
+
     Example:
     --------
 
@@ -65,7 +65,7 @@
       this is an error and NULL is returned.
 
     - If semiMajorAxisAngle is greater than 36,000 arcsec (10 deg), this
-      is an error and NULL is returned.  
+      is an error and NULL is returned.
 
     - As previously mentioned, input values are coerced to be of type
       DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the

@@ -82,7 +82,7 @@
  */
 #if __STDC_VERSION__ >= 199901L
 #   define SCISQL_ISNAN(x) isnan(x)
-#   define SCISQL_ISSPECIAL(x) (!isfinite(x)) 
+#   define SCISQL_ISSPECIAL(x) (!isfinite(x))
 #else
 #   define SCISQL_ISNAN(x) ((x) != (x))
 #   define SCISQL_ISSPECIAL(x) ((x) != (x) || ((x) != 0.0 && (x) == 2*(x)))

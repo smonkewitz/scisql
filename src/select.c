@@ -43,10 +43,10 @@ extern "C" {
 
 /*  Lookup tables for the 4 and 5 element median finding algorithms.
     Computed with the following python 2.6+ script (with n = 4, 5):
-   
+
     @code
     import itertools
-   
+
     def computeLut(n):
         nbits = (n * (n - 1)) / 2
         lut = [-1] * 2**nbits
@@ -170,7 +170,7 @@ static __inline size_t _median5(const double *array) {
     return (size_t) _lut5[i];
 }
 
-/*  Returns the index of the median of medians for an array. 
+/*  Returns the index of the median of medians for an array.
 
     The following pre-conditions are assumed:
         -   array != 0

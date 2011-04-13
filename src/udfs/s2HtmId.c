@@ -28,7 +28,7 @@
 
     A MySQL UDF returning the HTM ID of the point (lon, lat) at the
     given subdivision level. The values returned are of type BIGINT.
-    
+
     Example:
     --------
 

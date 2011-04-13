@@ -151,8 +151,8 @@ def check_mysql(self, **kw):
 # Task generator for running .mysql script files
 
 @TaskGen.extension('.mysql')
-def process_mysql(self, node): 
-    self.create_task('MySqlScript', node, []) 
+def process_mysql(self, node):
+    self.create_task('MySqlScript', node, [])
 
 #@Task.always_run
 class MySqlScript(Task.Task):

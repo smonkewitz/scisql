@@ -65,7 +65,7 @@ extern "C" {
      -  sub triangle T1 = (v1,sv0,sv2) has index I*4 + 1
      -  sub triangle T2 = (v2,sv1,sv0) has index I*4 + 2
      -  sub triangle T3 = (sv0,sv1,sv2) has index I*4 + 3
- 
+
     All HTM triangles are obtained via subdivision of 8 initial
     triangles, defined from the following set of 6 vertices :
      -  V0 = ( 0,  0,  1) north pole
@@ -74,7 +74,7 @@ extern "C" {
      -  V3 = (-1,  0,  0)
      -  V4 = ( 0, -1,  0)
      -  V5 = ( 0,  0, -1) south pole
- 
+
     The root triangles (corresponding to subdivision level 0) are :
      -  S0 = (V1, V5, V2), HTM index = 8
      -  S1 = (V2, V5, V3), HTM index = 9
@@ -84,7 +84,7 @@ extern "C" {
      -  N1 = (V4, V0, V3), HTM index = 13
      -  N2 = (V3, V0, V2), HTM index = 14
      -  N3 = (V2, V0, V1), HTM index = 15
- 
+
     'S' denotes a triangle in the southern hemisphere,
     'N' denotes a triangle in the northern hemisphere.
  */
@@ -379,7 +379,7 @@ static void _scisql_htmpath_sort(_scisql_htmpath *path,
             }
             if (child <= 2) {
                 _scisql_htmnode_prep2(curnode);
-                end = _scisql_htm_partition(&curnode->mid_edge[0], beg, end);  
+                end = _scisql_htm_partition(&curnode->mid_edge[0], beg, end);
                 if (beg < end) {
                     _scisql_htmnode_make2(curnode);
                     ++curnode;
@@ -476,7 +476,7 @@ static _scisql_htmcov _scisql_s2circle_htmcov(const _scisql_htmnode *node,
 
     if (i0 == 1 && i1 == 1 && i2 == 1) {
         /* all triangle vertices inside circle - if circle opening angle is greater
-           than 90 degrees (dist2 = sqrt(2)), the part of the sphere outside the 
+           than 90 degrees (dist2 = sqrt(2)), the part of the sphere outside the
            circle can be completely inside the triangle. */
         if (dist2 >= SQRT_2) {
             scisql_v3_neg(&v, center);
@@ -574,8 +574,8 @@ static size_t _scisql_htm_rootpart(scisql_v3p *points,
         c = ids[beg];
         ids[beg] = ids[end];
         ids[end] = c;
-    } 
-    return beg; 
+    }
+    return beg;
 }
 
 /*  Sorts the given array of positions by root triangle number.
@@ -701,7 +701,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
         /* the entire sky */
         int64_t min_id = (8 + SCISQL_HTM_S0) << level * 2;
         int64_t max_id = ((8 + SCISQL_HTM_NROOTS) << level * 2) - 1;
-        return _scisql_ids_add(ids, min_id, max_id); 
+        return _scisql_ids_add(ids, min_id, max_id);
     }
 
     path.level = level;

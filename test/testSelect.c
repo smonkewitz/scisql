@@ -46,7 +46,7 @@
 
 static size_t uniform(size_t n, unsigned short seed[3]) {
    return (size_t) (n * erand48(seed));
-} 
+}
 
 
 static void shuffle(double *array, size_t n, unsigned short seed[3]) {
@@ -90,7 +90,7 @@ static void permgen_init(permgen *gen, size_t n) {
     gen->nperms = factorial(n);
     for (i = 0; i < n; ++i) {
         gen->array[i] = i;
-    } 
+    }
 }
 
 
@@ -113,7 +113,7 @@ static void permgen_next(permgen *gen) {
 
 static void test(double (*select)(double *, size_t, size_t)) {
    static const size_t MAX_N = 1024*1024;
- 
+
    double *array;
    double expected, actual;
    size_t n;
@@ -171,7 +171,7 @@ static void test(double (*select)(double *, size_t, size_t)) {
        actual = (*select)(array, n, n >> 1);
        SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
                "%llu descending values", (unsigned long long) n);
-   } 
+   }
 
    /* Test randomly shuffled sequences of values */
    for (n = 1; n <= MAX_N; n *= 2) {
@@ -186,7 +186,7 @@ static void test(double (*select)(double *, size_t, size_t)) {
                "%llu shuffled distinct values", (unsigned long long) n);
    }
 
-   /* Test sequences containing duplicate values */ 
+   /* Test sequences containing duplicate values */
    for (n = 1; n <= MAX_N; n = 5*n/4 + 1) {
        size_t i, j;
        for (i = 0, j = 0; i < n; ++i) {

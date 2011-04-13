@@ -59,7 +59,7 @@ class AngSepTestCase(MySqlUdfTestCase):
             self._angSep(None, *a)
         for d in (-91.0, 91.0):
             self._angSep(None, 0.0, d, 0.0, 0.0)
-            self._angSep(None, 0.0, 0.0, 0.0, d) 
+            self._angSep(None, 0.0, 0.0, 0.0, d)
         for d in (0.0, 90.0, -90.0):
             self._angSep(0.0, 0.0, d, 0.0, d)
         for i in xrange(100):

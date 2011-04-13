@@ -260,7 +260,7 @@ typedef struct {
     scisql_v3 edges[SCISQL_MAX_VERTS];
 } scisql_s2cpoly;
 
-/*  Initializes a scisql_s2cpoly from a list of between 3 and 
+/*  Initializes a scisql_s2cpoly from a list of between 3 and
     SCISQL_MAX_VERTS vertices. Vertices can be in clockwise or
     counter-clockwise order, but are assumed to be hemispherical, to
     define edges that do not intersect except at vertices, and to define

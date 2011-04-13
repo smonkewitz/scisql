@@ -141,7 +141,7 @@ SCISQL_API char * s2CPolyToBin(UDF_INIT *initid SCISQL_UNUSED,
         *is_null = 1;
         return result;
     }
-    
+
     *length = (unsigned long) scisql_s2cpoly_tobin((unsigned char *) result,
                                                    255u, &poly);
     if (*length == 0) {

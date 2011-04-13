@@ -84,7 +84,7 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
                                              "radius DOUBLE PRECISION")) as t:
             # Test with constant radius
             t.insert((1, 0.0, 0.0, 0.0, 0.0, 1.0))
-            t.insert((0, 1.0, 1.0, 0.0, 0.0, 1.0)) 
+            t.insert((0, 1.0, 1.0, 0.0, 0.0, 1.0))
             stmt = """SELECT COUNT(*) FROM S2PtInCircle
                       WHERE s2PtInCircle(ra, decl, cenRa, cenDecl, 1.0) != inside"""
             rows = self.query(stmt)

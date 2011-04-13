@@ -42,7 +42,7 @@
     be specified either as a VARBINARY byte string (as produced by
     s2CPolyToBin()), or as a sequence of at least 3 and at most 16
     vertex pairs.
-    
+
     Example:
     --------
 
