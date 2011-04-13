@@ -82,19 +82,21 @@ def configure(ctx):
 
 
 def build(ctx):
-    install_path = ctx.env.MYSQL_PLUGIN_DIR
+    # UDF shared library
     ctx.shlib(
-        source=ctx.path.ant_glob('src/*.c'),
+        source=ctx.path.ant_glob('src/*.c') +
+               ctx.path.ant_glob('src/udfs/*.c'),
         includes='src',
         target='scisql',
         name='scisql',
         use='MYSQL M',
-        install_path=install_path
+        install_path=ctx.env.MYSQL_PLUGIN_DIR
     )
+    # C test cases
     ctx.program(
         source='test/testSelect.c src/select.c',
-        target='test/testSelect',
         includes='src',
+        target='test/testSelect',
         install_path=False,
         use='M'
     )
