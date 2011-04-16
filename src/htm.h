@@ -47,6 +47,20 @@ extern "C" {
 /* Maximum HTM tree subdivision level */
 #define SCISQL_HTM_MAX_LEVEL 24
 
+/*  Root triangle numbers. The HTM ID of a root triangle is its number plus 8.
+ */
+typedef enum {
+    SCISQL_HTM_S0 = 0,
+    SCISQL_HTM_S1 = 1,
+    SCISQL_HTM_S2 = 2,
+    SCISQL_HTM_S3 = 3,
+    SCISQL_HTM_N0 = 4,
+    SCISQL_HTM_N1 = 5,
+    SCISQL_HTM_N2 = 6,
+    SCISQL_HTM_N3 = 7,
+    SCISQL_HTM_NROOTS = 8
+} scisql_htmroot;
+
 /*  A sorted list of 64 bit integer ranges.
  */
 typedef struct {
@@ -75,10 +89,10 @@ SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *point, int level);
 
     Returns 0 on success and 1 on error.
  */
-SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3p *points,
-                                   int64_t *ids,
-                                   size_t n,
-                                   int level);
+SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
+                                    int64_t *ids,
+                                    size_t n,
+                                    int level);
 
 /*  Computes a list of HTM ID ranges corresponding to the HTM triangles
     overlapping the given circle.
@@ -89,15 +103,15 @@ SCISQL_LOCAL int scisql_v3_htmsort(scisql_v3p *points,
                 all its entries are removed, but its memory is re-used. This
                 can be used to avoid malloc/realloc costs when this function
                 is being called inside of a loop.
-        center  Center of circle.
+        center  Center of circle, must be a unit vector.
         radius  Circle radius, degrees.
         level   Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
 
     Return:
         A list of HTM ID ranges for the HTM triangles overlapping the given
-        circle. A null pointer is returned if center == 0, radius is negative
-        or level is not in the range [0, SCISQL_HTM_MAX_LEVEL], or if an
-        internal memory (re)allocation fails.
+        circle. A null pointer is returned if center == 0 or level is not in
+        the range [0, SCISQL_HTM_MAX_LEVEL], or if an internal memory
+        (re)allocation fails.
 
         Note that the input range list may be reallocated (to grow its
         capacity), and so the input range list pointer may no longer point to

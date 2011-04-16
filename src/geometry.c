@@ -117,6 +117,39 @@ SCISQL_LOCAL double scisql_v3_angsep(const scisql_v3 *v1, const scisql_v3 *v2) {
 }
 
 
+SCISQL_LOCAL double scisql_v3_edgedist2(const scisql_v3 *v,
+                                        const scisql_v3 *v1,
+                                        const scisql_v3 *v2,
+                                        const scisql_v3 *e)
+{
+    scisql_v3 c;
+    scisql_v3_cross(&c, v, e);
+    if (scisql_v3_dot(&c, v1) > 0.0 && scisql_v3_dot(&c, v2) < 0.0) {
+        double d = scisql_v3_dot(v, e);
+        double x = d * d / scisql_v3_norm2(e);
+        double y;
+        /* x is the square of the sin of the minimum angle between v and the
+           edge. To map to a square secant distance, compute 2.0*(1 - sqrt(1 - x)) */
+        if (x > 1.0) {
+            return 2.0;
+        } else if (x < 1.0e-7) {
+            /* for small x, use taylor series to compute a result accurate to
+               about 1 ulp */
+            y = x * x;
+            return x + 0.25*y + 0.125*x*y;
+        }
+        y = 1.0 - sqrt(1.0 - x);
+        /* 1 newton-raphson iteration to improve accuracy. */
+        return 0.5*((x - y*y)/(1 - y));
+    } else {
+        double d1, d2;
+        d1 = scisql_v3_dist2(v, v1);
+        d2 = scisql_v3_dist2(v, v2);
+        return d1 < d2 ? d1 : d2;
+    }
+}
+
+
 /* ---- Convex Spherical Polygons ---- */
 
 typedef union {
@@ -138,11 +171,11 @@ SCISQL_LOCAL int scisql_s2cpoly_init(scisql_s2cpoly *out,
     for (i = 0; i < n - 1; ++i) {
         /* the cross product of two consecutive vertices gives a vector
            parallel to the edge plane normal. */
-        scisql_v3_cross(&out->edges[i], &verts[i], &verts[i + 1]);
+        scisql_v3_rcross(&out->edges[i], &verts[i], &verts[i + 1]);
         scisql_v3_add(&out->vsum, &out->vsum, &verts[i]);
     }
     /* compute last edge plane */
-    scisql_v3_cross(&out->edges[n - 1], &verts[n - 1], &verts[0]);
+    scisql_v3_rcross(&out->edges[n - 1], &verts[n - 1], &verts[0]);
     /* if vertices are clockwise, then the dot-product of vsum with
        any edge plane is negative. */
     if (scisql_v3_dot(&out->vsum, &out->edges[0]) < 0.0) {

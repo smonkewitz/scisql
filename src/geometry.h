@@ -187,6 +187,24 @@ SCISQL_INLINE void scisql_v3_normalize(scisql_v3 *out, const scisql_v3 *v) {
     out->z = v->z / norm;
 }
 
+/*  Stores twice the vector cross product of v1 and v2 in out.  Arguments must
+    not be null pointers, but may alias.
+ */
+SCISQL_INLINE void scisql_v3_rcross(scisql_v3 *out,
+                                    const scisql_v3 *v1,
+                                    const scisql_v3 *v2)
+{
+    double x1 = v2->x + v1->x;
+    double x2 = v2->x - v1->x;
+    double y1 = v2->y + v2->y;
+    double y2 = v2->y - v1->y;
+    double z1 = v2->z + v2->z;
+    double z2 = v2->z - v1->z;
+    out->x = y1 * z2 - z1 * y2;
+    out->y = z1 * x2 - x1 * z2;
+    out->z = x1 * y2 - y1 * x2;
+}
+
 /*  Stores the vector cross product of v1 and v2 in out.  Arguments must not be
     null pointers, but may alias.
  */
@@ -246,6 +264,16 @@ SCISQL_LOCAL double scisql_v3_angsepu(const scisql_v3 *unit_v1,
     but may alias.
  */
 SCISQL_LOCAL double scisql_v3_angsep(const scisql_v3 *v1, const scisql_v3 *v2);
+
+/*  Returns the minimum square distance between v, and points on the edge
+    from v1 to v2 (where e is a vector parallel to the cross product of
+    v1 and v2). The vectors v, v1, and v2 are assumed to be normalized,
+    e need not have unit norm.
+ */
+SCISQL_LOCAL double scisql_v3_edgedist2(const scisql_v3 *v,
+                                        const scisql_v3 *v1,
+                                        const scisql_v3 *v2,
+                                        const scisql_v3 *e);
 
 
 /* ---- Convex Spherical Polygons ---- */
