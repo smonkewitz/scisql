@@ -346,7 +346,7 @@ static void testRandomPoints() {
 static void testCircles() {
     scisql_ids *ids = 0;
     const scisql_v3 *v = &test_points[0].v;
-    double radius = 8.0;
+    double radius = 10.0;
     int i, j, level;
 
     /* Failure tests */
@@ -364,7 +364,7 @@ static void testCircles() {
             SCISQL_ASSERT(ids != 0, "scisql_s2circle_htmids() failed");
             SCISQL_ASSERT(ids->n == (size_t) nr,
                           "scisql_s2circle_htmids() did not return the "
-                          "expected number of ranges L%d, p %d", level, i);
+                          "expected number of ranges");
             for (j = 0; j < 2 * nr; ++j) {
                 SCISQL_ASSERT(results[level][i].ranges[j] == ids->ranges[j],
                               "scisql_s2circle_htmids() did not return the "

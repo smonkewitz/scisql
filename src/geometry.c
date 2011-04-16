@@ -140,7 +140,7 @@ SCISQL_LOCAL double scisql_v3_edgedist2(const scisql_v3 *v,
         }
         y = 1.0 - sqrt(1.0 - x);
         /* 1 newton-raphson iteration to improve accuracy. */
-        return 0.5*((x - y*y)/(1 - y));
+        return (x - y*y)/(1 - y);
     } else {
         double d1, d2;
         d1 = scisql_v3_dist2(v, v1);

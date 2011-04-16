@@ -196,9 +196,9 @@ SCISQL_INLINE void scisql_v3_rcross(scisql_v3 *out,
 {
     double x1 = v2->x + v1->x;
     double x2 = v2->x - v1->x;
-    double y1 = v2->y + v2->y;
+    double y1 = v2->y + v1->y;
     double y2 = v2->y - v1->y;
-    double z1 = v2->z + v2->z;
+    double z1 = v2->z + v1->z;
     double z2 = v2->z - v1->z;
     out->x = y1 * z2 - z1 * y2;
     out->y = z1 * x2 - x1 * z2;
