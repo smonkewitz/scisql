@@ -466,22 +466,154 @@ static _scisql_htmcov _scisql_s2circle_htmcov(const _scisql_htmnode *node,
                                  node->edge[1]) <= dist2;
     int i2 = scisql_v3_edgedist2(center, node->vert[2], node->vert[0],
                                  node->edge[2]) <= dist2;
-    if (i0 == i1 && i1 == i2) {
-        if (i0 == 1) {
-            /* min distance to every edge is <= circle radius */
-            return SCISQL_INSIDE;
-        } else {
-            /* min distance to every edge is > circle radius - circle
-               is either inside triangle or disjoint from it */
-            if (scisql_v3_dot(center, node->edge[0]) >= 0.0 &&
-                scisql_v3_dot(center, node->edge[1]) >= 0.0 &&
-                scisql_v3_dot(center, node->edge[2]) >= 0.0) {
-                return SCISQL_CONTAINS;
+    if (i0 != i1 || i1 != i2) {
+        return SCISQL_INTERSECT;
+    }
+    if (i0 == 1) {
+        /* min distance to every edge is <= circle radius */
+        return SCISQL_INSIDE;
+    }
+    /* min distance to every edge is > circle radius - circle
+       is either inside triangle or disjoint from it */
+    if (scisql_v3_dot(center, node->edge[0]) >= 0.0 &&
+        scisql_v3_dot(center, node->edge[1]) >= 0.0 &&
+        scisql_v3_dot(center, node->edge[2]) >= 0.0) {
+        return SCISQL_CONTAINS;
+    }
+    return SCISQL_DISJOINT;
+}
+
+static const double SCISQL_INF = 1.0 / 0.0;
+static const double SCISQL_NEG_INF = -1.0 / 0.0;
+
+/*  Tests whether poly intersects the edge (v1, v2) with plane normal n.
+
+    The idea is that a solution v = (x,y,z) must satisfy:
+
+        v . n = 0, v != 0
+        v . (n ^ v1) >= 0
+        v . (v2 ^ n) >= 0
+        v . e_i >= 0
+
+    where e_i are the edge plane normals for the polygon, and (n ^ v1), (v2 ^ n) are
+    plane normals that bound the lune defined by n, v1, and v2. Write this as:
+
+        v . n = 0
+        v . c_i >= 0
+
+    Now assume nz > 0 (at least one of nx, ny, nz must be non-zero, and negative values
+    are dealt with in similar fashion). Use the equality to obtain
+
+        z = - (x * nx + y * ny) / nz
+
+    then substitute into the inequalities to obtain:
+
+        x * (c_ix * nz - c_iz * nx) + y * (c_iy * nz - c_iz * ny) >= 0
+
+    which we write
+
+        x * a_i + y * b_i >= 0
+
+    If a solution v exists, then Kv is also a solution (for positive scalar K),
+    so we can fix y = 1 and look for solutions to
+
+        x * a_i + b_i >= 0
+
+    If there are none, fix y = -1 and look for solutions to:
+
+        x * a_i - b_i >= 0
+
+    If again there are none, then y = 0, and the problem reduces to checking whether
+
+        x * a_i >= 0
+
+    has any solutions (this is the case when the non-zero a_i have the same sign).
+ */
+static int _scisql_isect_test(const scisql_v3 *v1,
+                              const scisql_v3 *v2,
+                              const scisql_v3 *n,
+                              const scisql_s2cpoly *poly)
+{
+    double ab[2*(SCISQL_MAX_VERTS + 2)];
+    scisql_v3 c0;
+    scisql_v3 c1;
+    double min_1, max_1, min_m1, max_m1;
+    size_t i, neg, pos;
+
+    scisql_v3_cross(&c0, n, v1);
+    scisql_v3_cross(&c1, v2, n);
+    if (n->z != 0.0) {
+        double s = (n->z > 0.0) ? 1.0 : -1.0;
+        ab[0] = s * (c0.x * n->z - c0.z * n->x);
+        ab[1] = s * (c0.y * n->z - c0.z * n->y);
+        ab[2] = s * (c1.x * n->z - c1.z * n->x);
+        ab[3] = s * (c1.y * n->z - c1.z * n->y);
+        for (i = 0; i < poly->n; ++i) {
+            ab[2*i + 4] = s * (poly->edges[i].x * n->z - poly->edges[i].z * n->x);
+            ab[2*i + 5] = s * (poly->edges[i].y * n->z - poly->edges[i].z * n->y);
+        }
+    } else if (n->y != 0.0) {
+        double s = (n->y > 0.0) ? 1.0 : -1.0;
+        ab[0] = s * (c0.x * n->y - c0.y * n->x);
+        ab[1] = s * (c0.z * n->y - c0.y * n->z);
+        ab[2] = s * (c1.x * n->y - c1.y * n->x);
+        ab[3] = s * (c1.z * n->y - c1.y * n->z);
+        for (i = 0; i < poly->n; ++i) {
+            ab[2*i + 4] = s * (poly->edges[i].x * n->y - poly->edges[i].y * n->x);
+            ab[2*i + 5] = s * (poly->edges[i].z * n->y - poly->edges[i].y * n->z);
+        }
+    } else if (n->x != 0.0) {
+        double s = (n->x > 0.0) ? 1.0 : -1.0;
+        ab[0] = s * (c0.y * n->x - c0.x * n->y);
+        ab[1] = s * (c0.z * n->x - c0.x * n->z);
+        ab[2] = s * (c1.y * n->x - c1.x * n->y);
+        ab[3] = s * (c1.z * n->x - c1.x * n->z);
+        for (i = 0; i < poly->n; ++i) {
+            ab[2*i + 4] = s * (poly->edges[i].y * n->x - poly->edges[i].x * n->y);
+            ab[2*i + 5] = s * (poly->edges[i].z * n->x - poly->edges[i].x * n->z);
+        }
+    } else {
+        return 0;
+    }
+    /* search for solutions to a*x +/- b >= 0, with constraint coeffs stored in
+       ab */
+    min_1 = min_m1 = SCISQL_NEG_INF;
+    max_1 = max_m1 = SCISQL_INF;
+    for (i = 0, neg = 0, pos = 0; i < poly->n + 2; ++i) {
+        double a = ab[2*i];
+        double b = ab[2*i + 1];
+        if (a == 0.0) {
+            if (b < 0.0) {
+                min_1 = SCISQL_INF;
+                max_1 = SCISQL_NEG_INF;
+            } else if (b > 0.0) {
+                min_m1 = SCISQL_INF;
+                max_m1 = SCISQL_NEG_INF;
             }
-            return SCISQL_DISJOINT;
+        } else if (a < 0.0) {
+            ++neg;
+            double d = -b / a;
+            if (d < max_1) {
+                max_1 = d;
+            }
+            if (-d < max_m1) {
+                max_m1 = -d;
+            }
+        } else {
+            ++pos;
+            double d = -b / a;
+            if (d > min_1) {
+                min_1 = d;
+            }
+            if (-d > min_m1) {
+                min_m1 = -d;
+            }
         }
     }
-    return SCISQL_INTERSECT;
+    if (min_1 <= max_1 || min_m1 <= max_m1) {
+        return 1;
+    }
+    return (neg == 0 || pos == 0);
 }
 
 /*  Returns the coverage code describing the spatial relationship between the
@@ -494,20 +626,28 @@ static _scisql_htmcov _scisql_s2cpoly_htmcov(const _scisql_htmnode *node,
     int i1 = scisql_s2cpoly_cv3(poly, node->vert[1]);
     int i2 = scisql_s2cpoly_cv3(poly, node->vert[2]);
 
-    if (i0 == i1 && i1 == i2) {
-        /* If all triangle vertices are inside poly, then triangle is inside
-           by convexity. If all vertices are outside, then poly is either
-           disjoint from the triangle, or completely inside it. */
-        if (i0 == 0) {
-            return SCISQL_INSIDE;
-        } else if (scisql_v3_dot(&poly->vsum, node->edge[0]) >= 0.0 &&
-                  scisql_v3_dot(&poly->vsum, node->edge[1]) >= 0.0 &&
-                  scisql_v3_dot(&poly->vsum, node->edge[2]) >= 0.0) {
-            return SCISQL_CONTAINS;
-        }
-        return SCISQL_DISJOINT;
+    if (i0 != i1 || i1 != i2) {
+        return SCISQL_INTERSECT;
     }
-    return SCISQL_INTERSECT;
+    /* If all triangle vertices are inside poly, then triangle is inside
+       by convexity. */
+    if (i0 == 1) {
+        return SCISQL_INSIDE;
+    }
+    if (_scisql_isect_test(node->vert[0], node->vert[1], node->edge[0], poly) != 0 ||
+        _scisql_isect_test(node->vert[1], node->vert[2], node->edge[1], poly) != 0 ||
+        _scisql_isect_test(node->vert[2], node->vert[0], node->edge[2], poly) != 0) {
+        return SCISQL_INTERSECT;
+    }
+    /* All triangle vertices are outside poly and there are no edge/edge
+       intersections. Polygon is either inside triangle or disjoint from
+       it */
+    if (scisql_v3_dot(&poly->vsum, node->edge[0]) >= 0.0 &&
+        scisql_v3_dot(&poly->vsum, node->edge[1]) >= 0.0 &&
+        scisql_v3_dot(&poly->vsum, node->edge[2]) >= 0.0) {
+        return SCISQL_CONTAINS;
+    }
+    return SCISQL_DISJOINT;
 }
 
 /*  Returns the HTM root triangle for a point.
