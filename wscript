@@ -93,13 +93,13 @@ def build(ctx):
         install_path=ctx.env.MYSQL_PLUGIN_DIR
     )
     # Off-line spatial indexing tool
-    #ctx.program(
-    #    source='src/util/index.c src/geometry.c src/htm.c',
-    #    includes='src',
-    #    target='scisql_index',
-    #    install_path=False,
-    #    use='M'
-    #)
+    ctx.program(
+        source='src/util/index.c src/geometry.c src/htm.c',
+        includes='src',
+        target='scisql_index',
+        install_path=os.path.join(ctx.env.PREFIX, 'bin'),
+        use='M'
+    )
     # C test cases
     ctx.program(
         source='test/testSelect.c src/select.c',
