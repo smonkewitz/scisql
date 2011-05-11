@@ -344,17 +344,17 @@ static void testCircles() {
     int i, j, level;
 
     /* Failure tests */
-    SCISQL_ASSERT(scisql_s2circle_htmids(0, 0, 0.0, 0) == 0,
+    SCISQL_ASSERT(scisql_s2circle_htmids(0, 0, 0.0, 0, SIZE_MAX) == 0,
                   "scisql_s2circle_htmids() should have failed");
-    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, -1) == 0,
+    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, -1, SIZE_MAX) == 0,
                   "scisql_s2circle_htmids() should have failed");
-    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, SCISQL_HTM_MAX_LEVEL + 1) == 0,
+    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, SCISQL_HTM_MAX_LEVEL + 1, SIZE_MAX) == 0,
                   "scisql_s2circle_htmids() should have failed");
 
     for (level = 0; level < 2; ++level) {
         for (i = 0; i < NTEST_POINTS; ++i) {
             int nr = results[level][i].nranges;
-            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level);
+            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level, SIZE_MAX);
             SCISQL_ASSERT(ids != 0, "scisql_s2circle_htmids() failed");
             SCISQL_ASSERT(ids->n == (size_t) nr,
                           "scisql_s2circle_htmids() did not return the "
@@ -372,7 +372,7 @@ static void testCircles() {
         int n = (level < 8) ? NTEST_POINTS : CENTERS + 8;
         for (i = CENTERS; i < n; ++i) {
             int64_t id = scisql_v3_htmid(&test_points[i].v, level);
-            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level);
+            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level, SIZE_MAX);
             SCISQL_ASSERT(ids != 0, "scisql_s2circle_htmids() failed");
             SCISQL_ASSERT(ids->n == 1,
                           "scisql_s2circle_htmids() did not return the "
@@ -445,11 +445,11 @@ static void testPolygons() {
     memset(&poly, 0, sizeof(poly));
 
     /* Failure tests */
-    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, 0, 0) == 0,
+    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, 0, 0, SIZE_MAX) == 0,
                   "scisql_s2cpoly_htmids() should have failed");
-    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, &poly, -1) == 0,
+    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, &poly, -1, SIZE_MAX) == 0,
                   "scisql_s2cpoly_htmids() should have failed");
-    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, &poly, SCISQL_HTM_MAX_LEVEL + 1) == 0,
+    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, &poly, SCISQL_HTM_MAX_LEVEL + 1, SIZE_MAX) == 0,
                   "scisql_s2cpoly_htmids() should have failed");
 
     for (level = 0; level < 2; ++level) {
@@ -457,7 +457,7 @@ static void testPolygons() {
             int nr = results[level][i].nranges;
             int ret = ngon(&poly, 4, &test_points[i].v, radius);
             SCISQL_ASSERT(ret == 0, "ngon() failed");
-            ids = scisql_s2cpoly_htmids(ids, &poly, level);
+            ids = scisql_s2cpoly_htmids(ids, &poly, level, SIZE_MAX);
             SCISQL_ASSERT(ids != 0, "scisql_s2cpoly_htmids() failed");
             SCISQL_ASSERT(ids->n == (size_t) nr,
                           "scisql_s2cpoly_htmids() did not return the "
@@ -477,7 +477,7 @@ static void testPolygons() {
             int64_t id = scisql_v3_htmid(&test_points[i].v, level);
             int ret = ngon(&poly, 4, &test_points[i].v, radius);
             SCISQL_ASSERT(ret == 0, "ngon() failed");
-            ids = scisql_s2cpoly_htmids(ids, &poly, level);
+            ids = scisql_s2cpoly_htmids(ids, &poly, level, SIZE_MAX);
             SCISQL_ASSERT(ids != 0, "scisql_s2cpoly_htmids() failed");
             SCISQL_ASSERT(ids->n == 1,
                           "scisql_s2cpoly_htmids() did not return the "
@@ -494,7 +494,7 @@ static void testPolygons() {
     scisql_sc_init(&p, 358.0, 3.0);
     scisql_sctov3(&sliver[2], &p);
     scisql_s2cpoly_init(&poly, sliver, 3);
-    ids = scisql_s2cpoly_htmids(ids, &poly, 0);
+    ids = scisql_s2cpoly_htmids(ids, &poly, 0, SIZE_MAX);
     SCISQL_ASSERT(ids->n == 3,
                   "scisql_s2cpoly_htmids() did not return the "
                   "expected number of ranges");
@@ -503,7 +503,7 @@ static void testPolygons() {
                   ids->ranges[4] == N3 && ids->ranges[5] == N3,
                   "scisql_s2cpoly_htmids() did not return the "
                   "expected ranges");
-    ids = scisql_s2cpoly_htmids(ids, &poly, 1);
+    ids = scisql_s2cpoly_htmids(ids, &poly, 1, SIZE_MAX);
     SCISQL_ASSERT(ids->n == 3,
                   "scisql_s2cpoly_htmids() did not return the "
                   "expected number of ranges");

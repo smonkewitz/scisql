@@ -98,14 +98,24 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
     overlapping the given circle.
 
     Inputs:
-        ids     Existing id range list or 0. If this argument is null, a
-                fresh range list is allocated and returned. If it is non-null,
-                all its entries are removed, but its memory is re-used. This
-                can be used to avoid malloc/realloc costs when this function
-                is being called inside of a loop.
-        center  Center of circle, must be a unit vector.
-        radius  Circle radius, degrees.
-        level   Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
+        ids        Existing id range list or 0. If this argument is null,
+                   a fresh range list is allocated and returned. If it is
+                   non-null, all its entries are removed, but its memory is
+                   re-used. This can be used to avoid malloc/realloc costs
+                   when this function is being called inside of a loop.
+        center     Center of circle, must be a unit vector.
+        radius     Circle radius, degrees.
+        level      Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
+        maxranges  Maximum number of ranges to return. When too many ranges
+                   are generated, the effective subdivision level of HTM ids
+                   is reduced. Since two consecutive ranges that cannot be
+                   merged at level L may become mergable at level L-n, this
+                   "coarsening" cuts down on the number of ranges (but makes
+                   the range list a poorer approximation to the input
+                   geometry). Note that for arbitrary input geometry, up 
+                   4 ranges may be generated no matter what the subdivision
+                   level is. So for maxranges < 4, the requested bound may
+                   not be achieved.
 
     Return:
         A list of HTM ID ranges for the HTM triangles overlapping the given
@@ -122,25 +132,36 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
         associated with the range list (even it came from a non-null input
         pointer).
 
-        A pointer to a scisql_ids can be cleaned up simply by passing it to
-        free().
+        A pointer to a scisql_ids struct can be cleaned up simply by passing
+        it to free().
  */
 SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                                                  const scisql_v3 *center,
                                                  double radius,
-                                                 int level);
+                                                 int level,
+                                                 size_t maxranges);
 
 /*  Computes a list of HTM ID ranges corresponding to the HTM triangles
     overlapping the given spherical convex polygon.
 
     Inputs:
-        ids     Existing id range list or 0. If this argument is null, a
-                fresh range list is allocated and returned. If it is non-null,
-                all its entries are removed, but its memory is re-used. This
-                can be used to avoid malloc/realloc costs when this function
-                is being called inside of a loop.
-        poly    Spherical convex polygon.
-        level   Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
+        ids        Existing id range list or 0. If this argument is null,
+                   a fresh range list is allocated and returned. If it is
+                   non-null, all its entries are removed, but its memory is
+                   re-used. This can be used to avoid malloc/realloc costs
+                   when this function is being called inside of a loop.
+        poly       Spherical convex polygon.
+        level      Subdivision level, [0, SCISQL_HTM_MAX_LEVEL].
+        maxranges  Maximum number of ranges to return. When too many ranges
+                   are generated, the effective subdivision level of HTM ids
+                   is reduced. Since two consecutive ranges that cannot be
+                   merged at level L may become mergable at level L-n, this
+                   "coarsening" cuts down on the number of ranges (but makes
+                   the range list a poorer approximation to the input
+                   geometry). Note that for arbitrary input geometry, up 
+                   4 ranges may be generated no matter what the subdivision
+                   level is. So for maxranges < 4, the requested bound may
+                   not be achieved.
 
     Return:
         A list of HTM ID ranges for the HTM triangles overlapping the given
@@ -162,7 +183,8 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
  */
 SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids *ids,
                                                 const scisql_s2cpoly *poly,
-                                                int level);
+                                                int level,
+                                                size_t maxranges);
 
 #ifdef __cplusplus
 }

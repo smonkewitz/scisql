@@ -45,11 +45,12 @@ extern "C" {
 /*  Options and processing context.
  */
 typedef struct {
-    long nskip;     /* Number of initial lines to skip */
-    int ranges;     /* Output ID ranges instead of IDs */
-    int verbose;    /* Verbose output? */
-    int ncols;      /* number of columns expected per-row */
-    int level;      /* subdivision level */
+    long nskip;       /* Number of initial lines to skip */
+    int ranges;       /* Output ID ranges instead of IDs */
+    int verbose;      /* Verbose output? */
+    int ncols;        /* number of columns expected per-row */
+    int level;        /* subdivision level */
+    size_t maxranges; /* maximum number of ranges to output per region */
 } _scisql_context;
 
 
@@ -95,6 +96,12 @@ static void usage(const char *name) {
         "\t-l <level> The subdivision level to use when indexing;\n"
         "\t           the default is 10.\n"
         "\t-r         Output ID ranges rather than IDs.\n"
+        "\t-m <N>     Bound on the maximum number of HTM ID\n"
+        "\t           ranges generated for a region. Note that with\n"
+        "\t           arbitrary input geometry, up to 4 ranges may\n"
+        "\t           be generated no matter what the subdivision\n"
+        "\t           level is. So for N < 4, the requested bound\n"
+        "\t           may not be achieved.\n"
         "\t-s <N>     Skip the first N lines in each input\n"
         "\t           file.\n"
         "\t-v         Chatty progress messages.\n"
@@ -103,8 +110,8 @@ static void usage(const char *name) {
 }
 
 
-/*  Returns a pointer to the character following the first occurence of sep in the
-    string beg, or end if no occurrence is found.
+/*  Returns a pointer to the character following the first occurence of sep
+    in the string beg, or end if no occurrence is found.
  */
 SCISQL_INLINE const char * advance(const char *beg, const char *end, char sep) {
     for (; beg < end && *beg != sep; ++beg) { }
@@ -160,7 +167,11 @@ static int output_ids(_scisql_context *ctx,
     return 0;
 }
 
-static double get_double(const char **msg, const char *beg, const char *end, int last) {
+static double get_double(const char **msg,
+                         const char *beg,
+                         const char *end,
+                         int last)
+{
     char *endptr;
     double d;
     const char *e = end;
@@ -252,7 +263,8 @@ static int index_s2circle(_scisql_context *ctx,
             goto fail_msg;
         }
         scisql_sctov3(&center, &p);
-        ids = scisql_s2circle_htmids(ids, &center, radius, ctx->level);
+        ids = scisql_s2circle_htmids(ids, &center, radius,
+                                     ctx->level, ctx->maxranges);
         if (ids == 0) {
             msg = "failed to index circle";
             goto fail_msg;
@@ -329,7 +341,7 @@ static int index_s2cpoly(_scisql_context *ctx,
             msg = "invalid polygon";
             goto fail_msg;
         }
-        ids = scisql_s2cpoly_htmids(ids, &poly, ctx->level);
+        ids = scisql_s2cpoly_htmids(ids, &poly, ctx->level, ctx->maxranges);
         if (ids == 0) {
             msg = "failed to index polygon";
             goto fail_msg;
@@ -394,7 +406,7 @@ static int index_dispatch(_scisql_context *ctx,
 }
 
 
-/*  Driver routine for indexing a TSV file of points/regions.
+/*  Driver routine for indexing a TSV file of regions.
  */
 static int index_file(_scisql_context *ctx, const char *file, FILE *out) {
     struct stat buf;
@@ -470,10 +482,11 @@ int main(int argc, char **argv) {
 
     memset(&ctx, 0, sizeof(_scisql_context));
     ctx.level = 10;
+    ctx.maxranges = SIZE_MAX;
 
     /* parse command line arguments */
     opterr = 0;
-    while ((c = getopt(argc, argv, "i:l:rs:v")) != -1) {
+    while ((c = getopt(argc, argv, "i:l:m:rs:v")) != -1) {
         switch(c) {
             case 'i':
                 if (optarg == 0 || strcmp(optarg, "htm") != 0) {
@@ -503,6 +516,19 @@ int main(int argc, char **argv) {
                 }
                 ctx.level = (int) l;
                 break;
+            case 'm':
+                if (optarg == 0) {
+                    fprintf(stderr, "ERROR: option -%c requires an argument\n",
+                            optopt);
+                    return 1;
+                }
+                ctx.maxranges = (size_t) strtoull(optarg, &end, 0);
+                if (end == 0 || end == optarg) {
+                    fprintf(stderr, "ERROR: option -%c requires a non-negative "
+                            "integer argument\n", optopt);
+                    return 1;
+                }
+                break;
             case 'r':
                 ctx.ranges = 1;
                 break;
@@ -523,7 +549,8 @@ int main(int argc, char **argv) {
                 ctx.verbose = 1;
                 break;
             case '?':
-                if (optopt == 'i' || optopt == 'l' || optopt == 's') {
+                if (optopt == 'i' || optopt == 'l' ||
+                    optopt == 'm' || optopt == 's') {
                     fprintf(stderr, "ERROR: option -%c requires an argument\n",
                             optopt);
                 } else if (isprint(optopt)) {
@@ -537,6 +564,9 @@ int main(int argc, char **argv) {
                 usage(argv[0]);
                 return 1;
         }
+    }
+    if (ctx.ranges == 0) {
+        ctx.maxranges = SIZE_MAX;
     }
     if (argc - optind < 2) {
         usage(argv[0]);
