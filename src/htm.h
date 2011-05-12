@@ -112,7 +112,7 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
                    merged at level L may become mergable at level L-n, this
                    "coarsening" cuts down on the number of ranges (but makes
                    the range list a poorer approximation to the input
-                   geometry). Note that for arbitrary input geometry, up 
+                   geometry). Note that for arbitrary input geometry, up to
                    4 ranges may be generated no matter what the subdivision
                    level is. So for maxranges < 4, the requested bound may
                    not be achieved.
@@ -158,7 +158,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                    merged at level L may become mergable at level L-n, this
                    "coarsening" cuts down on the number of ranges (but makes
                    the range list a poorer approximation to the input
-                   geometry). Note that for arbitrary input geometry, up 
+                   geometry). Note that for arbitrary input geometry, up to
                    4 ranges may be generated no matter what the subdivision
                    level is. So for maxranges < 4, the requested bound may
                    not be achieved.
@@ -178,8 +178,8 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
         associated with the range list (even it came from a non-null input
         pointer).
 
-        A pointer to a scisql_ids can be cleaned up simply by passing it to
-        free().
+        A pointer to a scisql_ids struct can be cleaned up simply by passing
+        it to free().
  */
 SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids *ids,
                                                 const scisql_s2cpoly *poly,
