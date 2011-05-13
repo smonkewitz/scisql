@@ -22,19 +22,20 @@
     ================================================================
 
 
-    scisqlVersion()
+    scisqlFail(VARCHAR message)
 
-    A MySQL UDF returning the version of the sciSQL UDF library in use. The
-    result is a string.
+    A MySQL UDF that raises an exception with an optional error message.
+    The only reason it exists is that MySQL 5.1 does not support SIGNAL
+    in stored procedures, and error messages coming from a UDF are a bit
+    more readable than the results of hacks like:
+
+    SELECT * FROM `Lorem ipsum dolor`;
 
     Example:
     --------
 
-    SELECT scisqlVersion();
-
+    SELECT scisqlFail('Lorem ipsum dolor');
  */
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "mysql.h"
@@ -46,47 +47,28 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool scisqlVersion_init(UDF_INIT *initid,
-                                      UDF_ARGS *args,
-                                      char *message)
+SCISQL_API my_bool scisqlFail_init(UDF_INIT *initid SCISQL_UNUSED,
+                                   UDF_ARGS *args,
+                                   char *message)
 {
-    if (args->arg_count != 0) {
-        snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "scisqlVersion() expects no arguments");
-        return 1;
+    const char *m = "A scisql related error occurred";
+    if (args->arg_count > 0 && args->arg_type[0] == STRING_RESULT &&
+        args->args[0] != 0 && args->lengths[0] != 0) {
+        m = args->args[0];
     }
-    if (SCISQL_VERSION_STRING_LENGTH > 255) {
-        initid->ptr = malloc(SCISQL_VERSION_STRING_LENGTH + 1);
-        if (initid->ptr == 0) {
-            snprintf(message, MYSQL_ERRMSG_SIZE,
-                     "scisqlVersion(): memory allocation failed");
-            return 1;
-        }
-    }
-    initid->maybe_null = 0;
-    initid->const_item = 1;
-    return 0;
+    strncpy(message, m, MYSQL_ERRMSG_SIZE - 1);
+    message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+    return 1;
 }
 
 
-SCISQL_API char * scisqlVersion(UDF_INIT *initid,
+SCISQL_API long long scisqlFail(UDF_INIT *initid SCISQL_UNUSED,
                                 UDF_ARGS *args SCISQL_UNUSED,
-                                char *result,
-                                unsigned long *length,
                                 char *is_null SCISQL_UNUSED,
                                 char *error SCISQL_UNUSED)
 {
-    char *r = (SCISQL_VERSION_STRING_LENGTH > 255) ? initid->ptr : result;
-    *length = SCISQL_VERSION_STRING_LENGTH;
-    strcpy(r, SCISQL_VERSION_STRING);
-    return r;
-}
-
-
-SCISQL_API void scisqlVersion_deinit(UDF_INIT *initid) {
-    if (SCISQL_VERSION_STRING_LENGTH > 255) {
-        free(initid->ptr);
-    }
+    // never reached
+    return 0;
 }
 
 

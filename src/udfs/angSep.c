@@ -63,7 +63,7 @@
       angle is not in the [-90, 90] degree range, NULL is returned.
  */
 #include <math.h>
-#include <string.h>
+#include <stdio.h>
 
 #include "mysql.h"
 
@@ -81,9 +81,8 @@ SCISQL_API my_bool angSep_init(UDF_INIT *initid,
     size_t i;
     my_bool maybe_null = 0, const_item = 1;
     if (args->arg_count != 4 && args->arg_count != 6) {
-        strncpy(message, "angSep() expects 4 or 6 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "angSep() expects 4 or 6 arguments");
         return 1;
     }
     for (i = 0; i < args->arg_count; ++i) {

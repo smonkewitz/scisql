@@ -75,7 +75,7 @@
       Loss of precision will not occur so long as the inputs are values
       of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
  */
-#include <string.h>
+#include <stdio.h>
 
 #include "mysql.h"
 
@@ -93,9 +93,7 @@ SCISQL_API my_bool s2PtInBox_init(UDF_INIT *initid,
     int i;
     my_bool const_item = 1;
     if (args->arg_count != 6) {
-        strncpy(message, "ptInS2Box() expects 6 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, "ptInS2Box() expects 6 arguments");
         return 1;
     }
     for (i = 0; i < 6; ++i) {

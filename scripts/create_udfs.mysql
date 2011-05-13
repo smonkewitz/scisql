@@ -10,6 +10,10 @@ DROP FUNCTION IF EXISTS s2PtInEllipse;
 DROP FUNCTION IF EXISTS s2PtInCPoly;
 DROP FUNCTION IF EXISTS s2CPolyToBin;
 DROP FUNCTION IF EXISTS s2HtmId;
+DROP FUNCTION IF EXISTS s2CircleHtmRanges;
+DROP FUNCTION IF EXISTS s2CPolyHtmRanges;
+DROP FUNCTION IF EXISTS extractInt64;
+DROP FUNCTION IF EXISTS scisqlFail;
 
 CREATE FUNCTION scisqlVersion RETURNS STRING SONAME 'libscisql.so';
 CREATE AGGREGATE FUNCTION median RETURNS REAL SONAME 'libscisql.so';
@@ -21,3 +25,96 @@ CREATE FUNCTION s2PtInEllipse RETURNS INTEGER SONAME 'libscisql.so';
 CREATE FUNCTION s2PtInCPoly RETURNS INTEGER SONAME 'libscisql.so';
 CREATE FUNCTION s2CPolyToBin RETURNS STRING SONAME 'libscisql.so';
 CREATE FUNCTION s2HtmId RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION s2CircleHtmRanges RETURNS STRING SONAME 'libscisql.so';
+CREATE FUNCTION s2CPolyHtmRanges RETURNS STRING SONAME 'libscisql.so';
+CREATE FUNCTION extractInt64 RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION scisqlFail RETURNS INTEGER SONAME 'libscisql.so';
+
+-- Create stored procedures that turn HTM ID range BLOBs into
+-- temporary tables
+
+DROP DATABASE IF EXISTS scisql;
+CREATE DATABASE scisql;
+
+USE scisql;
+
+DELIMITER //
+
+
+-- Creates a temporary table named scisql.Region that contains
+-- ranges of level 20 HTM IDs overlapping the given circle.
+CREATE PROCEDURE s2CircleRegion(IN centerLon DOUBLE PRECISION,
+                                IN centerLat DOUBLE PRECISION,
+                                IN radius DOUBLE PRECISION,
+                                IN maxranges INTEGER)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    DECLARE htmRanges MEDIUMBLOB;
+    DECLARE i INTEGER;
+    DECLARE n INTEGER;
+
+    SET htmRanges = s2CircleHtmRanges(centerLon, centerLat, radius, 20, maxranges);
+    IF htmRanges IS NULL THEN
+        SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping circle');
+        -- MySQL 5.5+ support the much saner:
+        -- SIGNAL SQLSTATE VALUE '45000'
+        --    SET MESSAGE_TEXT = 'Failed to compute ranges of HTM IDs overlapping circle';
+    END IF;
+    CREATE TEMPORARY TABLE IF NOT EXISTS Region (htmMin BIGINT NOT NULL, htmMax BIGINT NOT NULL);
+    TRUNCATE Region;
+    SET n = OCTET_LENGTH(htmRanges) / 8;
+    SET i = 0;
+    WHILE i < n DO
+        INSERT INTO Region VALUES (extractInt64(htmRanges, i), extractInt64(htmRanges, i + 1));
+        SET i = i + 2;
+    END WHILE;
+END //
+
+
+-- Creates a temporary table named scisql.Region that contains
+-- ranges of level 20 HTM IDs overlapping the given convex polygon.
+CREATE PROCEDURE s2CPolyRegion(IN poly VARBINARY(255),
+                               IN maxranges INTEGER)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    DECLARE htmRanges MEDIUMBLOB;
+    DECLARE i INTEGER;
+    DECLARE n INTEGER;
+
+    SET htmRanges = s2CPolyHtmRanges(poly, 20, maxranges);
+    IF htmRanges IS NULL THEN
+        SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping polygon');
+        -- MySQL 5.5+ support the much saner:
+        -- SIGNAL SQLSTATE VALUE '45000'
+        --    SET MESSAGE_TEXT = 'Failed to compute ranges of HTM IDs overlapping circle';
+    END IF;
+    CREATE TEMPORARY TABLE IF NOT EXISTS Region (htmMin BIGINT NOT NULL, htmMax BIGINT NOT NULL);
+    TRUNCATE Region;
+    SET n = OCTET_LENGTH(htmRanges) / 8;
+    SET i = 0;
+    WHILE i < n DO
+        INSERT INTO Region VALUES (extractInt64(htmRanges, i), extractInt64(htmRanges, i + 1));
+        SET i = i + 2;
+    END WHILE;
+END //
+
+
+-- Gives user connecting from host permission to use the scisql stored procedures
+-- and the results they generate
+CREATE PROCEDURE scisqlGrant(IN user VARCHAR(255),
+                             IN host VARCHAR(255))
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    SET @_s = CONCAT("GRANT SELECT,INSERT,DROP,CREATE TEMPORARY TABLES,EXECUTE ON scisql.* TO '",
+                     user, "'@'", host, "'");
+    PREPARE stmt FROM @_s;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+DELIMITER ;
+

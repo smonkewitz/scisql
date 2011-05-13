@@ -45,7 +45,7 @@
 
     The lon and lat arguments must be convertible to type DOUBLE PRECISION,
     and are assumed to be in units of degrees. The level argument must be
-    convertible to an integer. Note that:
+    an integer. Note that:
 
     - If any parameter is NULL, NULL is returned.
 
@@ -65,7 +65,7 @@
       of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
  */
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 #include "mysql.h"
 
@@ -83,36 +83,37 @@ SCISQL_API my_bool s2HtmId_init(UDF_INIT *initid,
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count < 2 || args->arg_count > 3) {
-        strncpy(message, "s2HtmId() expects 2 or 3 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "s2HtmId() expects 2 or 3 arguments");
         return 1;
     }
     for (i = 0; i < args->arg_count; ++i) {
-        args->arg_type[i] = (i < 2) ? REAL_RESULT : INT_RESULT;
+        if (i < 2) {
+            args->arg_type[i] = REAL_RESULT;
+        } else if (args->arg_type[i] != INT_RESULT) {
+            snprintf(message, MYSQL_ERRMSG_SIZE, "s2HtmId() subdivision "
+                     "level must be an integer");
+            return 1;
+        }
         if (args->args[i] == 0) {
             const_item = 0;
         }
     }
     initid->maybe_null = 1;
     initid->const_item = const_item;
-    initid->ptr = 0;
-    if (const_item == 1) {
-        initid->ptr = (char *) malloc(sizeof(long long));
-        *(long long *) initid->ptr = 0;
-    }
     return 0;
 }
 
 
-SCISQL_API long long s2HtmId(UDF_INIT *initid,
+SCISQL_API long long s2HtmId(UDF_INIT *initid SCISQL_UNUSED,
                              UDF_ARGS *args,
                              char *is_null,
                              char *error SCISQL_UNUSED)
 {
     scisql_sc p;
     scisql_v3 v;
-    long long level, id;
+    long long level = SCISQL_HTM_DEF_LEVEL;
+    long long id;
     size_t i;
     /* If any input is null, the result is NULL. */
     for (i = 0; i < args->arg_count; ++i) {
@@ -121,19 +122,11 @@ SCISQL_API long long s2HtmId(UDF_INIT *initid,
             return 0;
         }
     }
-    if (initid->ptr != 0) {
-        id = *(long long*) initid->ptr;
-        if (id != 0) {
-            return id;
-        }
-    }
     if (scisql_sc_init(&p, *(double *) args->args[0], *(double *) args->args[1]) != 0) {
         *is_null = 1;
         return 0;
     }
-    if (args->arg_count == 2) {
-        level = 20;
-    } else {
+    if (args->arg_count > 2) {
         level = *(long long *) args->args[2];
     }
     if (level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
@@ -146,15 +139,7 @@ SCISQL_API long long s2HtmId(UDF_INIT *initid,
         *is_null = 1;
         return 0;
     }
-    if (initid->ptr != 0) {
-        *(long long*) initid->ptr = id;
-    }
     return id;
-}
-
-
-SCISQL_API void s2HtmId_deinit(UDF_INIT *initid) {
-    free(initid->ptr);
 }
 
 

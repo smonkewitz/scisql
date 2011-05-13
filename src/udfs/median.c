@@ -63,7 +63,7 @@
     - The median() function can handle a maximum of 2**28 (268,435,456)
       values per GROUP.
  */
-#include <string.h>
+#include <stdio.h>
 
 #include "mysql.h"
 
@@ -80,15 +80,13 @@ SCISQL_API my_bool median_init(UDF_INIT *initid,
 {
     scisql_percentile_state *state;
     if (args->arg_count != 1) {
-        strncpy(message, "median() expects 1 argument", MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, "median() expects 1 argument");
         return 1;
     }
     state = scisql_percentile_state_new();
     if (state == 0) {
-        strncpy(message, "median() failed to allocate memory for "
-                "internal state", MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, "median() failed to allocate "
+                 "memory for internal state");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;

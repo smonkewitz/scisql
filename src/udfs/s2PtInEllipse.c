@@ -74,7 +74,7 @@
       of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
  */
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 #include "mysql.h"
 
@@ -105,9 +105,8 @@ SCISQL_API my_bool s2PtInEllipse_init(UDF_INIT *initid,
     int i;
     my_bool const_item = 1, const_ellipse = 1;
     if (args->arg_count != 7) {
-        strncpy(message, "s2PtInEllipse() expects exactly 7 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "s2PtInEllipse() expects exactly 7 arguments");
         return 1;
     }
     for (i = 0; i < 7; ++i) {
