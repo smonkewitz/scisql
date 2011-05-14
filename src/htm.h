@@ -47,12 +47,6 @@ extern "C" {
 /* Maximum HTM tree subdivision level */
 #define SCISQL_HTM_MAX_LEVEL 24
 
-/* Default subdivision level */
-#define SCISQL_HTM_DEF_LEVEL 20
-
-/* Default maximum number of ranges to return */
-#define SCISQL_HTM_DEF_RANGES 64
-
 /* Maximum size of a BLOB representation of an HTM ID range list */
 #define SCISQL_HTM_MAX_BLOB_SIZE (16*1024*1024)
 

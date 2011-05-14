@@ -46,7 +46,7 @@ DELIMITER //
 CREATE PROCEDURE s2CircleRegion(IN centerLon DOUBLE PRECISION,
                                 IN centerLat DOUBLE PRECISION,
                                 IN radius DOUBLE PRECISION,
-                                IN maxranges INTEGER)
+                                IN level INTEGER)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -54,7 +54,7 @@ BEGIN
     DECLARE i INTEGER;
     DECLARE n INTEGER;
 
-    SET htmRanges = s2CircleHtmRanges(centerLon, centerLat, radius, 20, maxranges);
+    SET htmRanges = s2CircleHtmRanges(centerLon, centerLat, radius, level, 256);
     IF htmRanges IS NULL THEN
         SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping circle');
         -- MySQL 5.5+ support the much saner:
@@ -75,7 +75,7 @@ END //
 -- Creates a temporary table named scisql.Region that contains
 -- ranges of level 20 HTM IDs overlapping the given convex polygon.
 CREATE PROCEDURE s2CPolyRegion(IN poly VARBINARY(255),
-                               IN maxranges INTEGER)
+                               IN level INTEGER)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -83,7 +83,7 @@ BEGIN
     DECLARE i INTEGER;
     DECLARE n INTEGER;
 
-    SET htmRanges = s2CPolyHtmRanges(poly, 20, maxranges);
+    SET htmRanges = s2CPolyHtmRanges(poly, level, 256);
     IF htmRanges IS NULL THEN
         SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping polygon');
         -- MySQL 5.5+ support the much saner:
@@ -102,7 +102,7 @@ END //
 
 
 -- Gives user connecting from host permission to use the scisql stored procedures
--- and the results they generate
+-- and the temporary tables they generate
 CREATE PROCEDURE scisqlGrant(IN user VARCHAR(255),
                              IN host VARCHAR(255))
     MODIFIES SQL DATA

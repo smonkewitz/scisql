@@ -771,35 +771,54 @@ static void _scisql_simplify_ids(scisql_ids *ids, int n) {
 /* ---- API ---- */
 
 SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *point, int level) {
-    _scisql_htmpath path;
-    _scisql_htmnode *curnode;
-    _scisql_htmnode *leaf;
+    scisql_v3 v0, v1, v2;
+    scisql_v3 sv0, sv1, sv2;
+    scisql_v3 e;
+    int64_t id;
+    int curlevel;
+    scisql_htmroot r;
 
     if (point == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return -1;
     }
-    _scisql_htmpath_root(&path, _scisql_v3_htmroot(point));
-    curnode = path.node;
-    leaf = path.node + level;
-    for (; curnode < leaf; ++curnode) {
-        _scisql_htmnode_prep0(curnode);
-        if (scisql_v3_dot(point, &curnode->mid_edge[1]) >= 0.0) {
-            _scisql_htmnode_make0(curnode);
+    r = _scisql_v3_htmroot(point);
+    v0 = *_scisql_htm_root_vert[r*3];
+    v1 = *_scisql_htm_root_vert[r*3 + 1];
+    v2 = *_scisql_htm_root_vert[r*3 + 2];
+    id = r + 8;
+    for (curlevel = 0; curlevel < level; ++curlevel) {
+        _scisql_htm_vertex(&sv1, &v2, &v0);
+        _scisql_htm_vertex(&sv2, &v0, &v1);
+        scisql_v3_rcross(&e, &sv2, &sv1);
+        if (scisql_v3_dot(&e, point) >= 0) {
+            v1 = sv2;
+            v2 = sv1;
+            id = id << 2;
             continue;
         }
-        _scisql_htmnode_prep1(curnode);
-        if (scisql_v3_dot(point, &curnode->mid_edge[2]) >= 0.0) {
-            _scisql_htmnode_make1(curnode);
+        _scisql_htm_vertex(&sv0, &v1, &v2);
+        scisql_v3_rcross(&e, &sv0, &sv2);
+        if (scisql_v3_dot(&e, point) >= 0) {
+            v0 = v1;
+            v1 = sv0;
+            v2 = sv2;
+            id = (id << 2) + 1;
             continue;
         }
-        _scisql_htmnode_prep2(curnode);
-        if (scisql_v3_dot(point, &curnode->mid_edge[0]) >= 0.0) {
-            _scisql_htmnode_make2(curnode);
-            continue;
+        scisql_v3_rcross(&e, &sv1, &sv0);
+        if (scisql_v3_dot(&e, point) >= 0) {
+            v0 = v2;
+            v1 = sv1;
+            v2 = sv0;
+            id = (id << 2) + 2;
+        } else {
+            v0 = sv0;
+            v1 = sv1;
+            v2 = sv2;
+            id = (id << 2) + 3;
         }
-        _scisql_htmnode_make3(curnode);
     }
-    return curnode->id;
+    return id;
 }
 
 

@@ -41,9 +41,6 @@
       such that the binary return string has size at most 16MB. Negative
       values are interpreted to mean "return as many ranges as possible,
       subject to the 16MB output size limit".
-
-    - Both level and maxranges may be omitted; if they are, level defaults
-      to 20 and maxranges to 64.
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -63,9 +60,9 @@ SCISQL_API my_bool s2CPolyHtmRanges_init(UDF_INIT *initid,
 {
     size_t i;
     my_bool const_item = 1;
-    if (args->arg_count < 1 || args->arg_count > 3) {
+    if (args->arg_count != 3) {
         snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyHtmRanges() expects "
-                 "between 1 and 3 arguments");
+                 "exactly 3 arguments");
         return 1;
     }
     if (args->arg_type[0] != STRING_RESULT) {
@@ -73,12 +70,12 @@ SCISQL_API my_bool s2CPolyHtmRanges_init(UDF_INIT *initid,
                  "argument must be a binary string");
         return 1;
     }
-    for (i = 0; i < args->arg_count; ++i) {
-        if (i > 0 && args->arg_type[i] != INT_RESULT) {
-            snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyHtmRanges(): "
-                     "second and third arguments must be integers");
-            return 1;
-        }
+    if (args->arg_type[1] != INT_RESULT || args->arg_type[2] != INT_RESULT) {
+        snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyHtmRanges(): "
+                 "second and third arguments must be integers");
+        return 1;
+    }
+    for (i = 0; i < 3; ++i) {
         if (args->args[i] == 0) {
             const_item = 0;
         }
@@ -101,11 +98,11 @@ SCISQL_API char * s2CPolyHtmRanges(UDF_INIT *initid,
     scisql_s2cpoly poly;
     scisql_ids *ids;
     size_t i;
-    long long level = SCISQL_HTM_DEF_LEVEL;
-    long long maxranges = SCISQL_HTM_DEF_RANGES;
+    long long level;
+    long long maxranges;
 
     /* If any input is NULL, the result is NULL. */
-    for (i = 0; i < args->arg_count; ++i) {
+    for (i = 0; i < 3; ++i) {
         if (args->args[i] == 0) {
             *is_null = 1;
             return result;
@@ -118,16 +115,12 @@ SCISQL_API char * s2CPolyHtmRanges(UDF_INIT *initid,
         *is_null = 1;
         return result;
     }
-    if (args->arg_count > 1) {
-        level = *((long long *) args->args[1]);
-    }
+    level = *((long long *) args->args[1]);
     if (level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         *is_null = 1;
         return result;
     }
-    if (args->arg_count > 2) {
-        maxranges = *((long long *) args->args[2]);
-    }
+    maxranges = *((long long *) args->args[2]);
     if (maxranges < 0 || maxranges > (long long) SCISQL_HTM_MAX_RANGES) {
         maxranges = (long long) SCISQL_HTM_MAX_RANGES;
     }

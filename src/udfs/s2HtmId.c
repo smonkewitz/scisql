@@ -21,18 +21,12 @@
     Work on this project has been sponsored by LSST and SLAC/DOE.
     ================================================================
 
-
-    s2HtmId(DOUBLE PRECISION lon,
-            DOUBLE PRECISION lat)
-
     s2HtmId(DOUBLE PRECISION lon,
             DOUBLE PRECISION lat,
             INTEGER level)
 
     A MySQL UDF returning the HTM ID of the point (lon, lat) at the
-    given subdivision level. If no subdivision level is specified, a
-    default of 20 is used (~0.3 arcsecond bins). The values returned
-    are of type BIGINT.
+    given subdivision level. The values returned are of type BIGINT.
 
     Example:
     --------
@@ -82,12 +76,12 @@ SCISQL_API my_bool s2HtmId_init(UDF_INIT *initid,
 {
     size_t i;
     my_bool const_item = 1;
-    if (args->arg_count < 2 || args->arg_count > 3) {
+    if (args->arg_count != 3) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "s2HtmId() expects 2 or 3 arguments");
+                 "s2HtmId() expects exactly 3 arguments");
         return 1;
     }
-    for (i = 0; i < args->arg_count; ++i) {
+    for (i = 0; i < 3; ++i) {
         if (i < 2) {
             args->arg_type[i] = REAL_RESULT;
         } else if (args->arg_type[i] != INT_RESULT) {
@@ -112,11 +106,11 @@ SCISQL_API long long s2HtmId(UDF_INIT *initid SCISQL_UNUSED,
 {
     scisql_sc p;
     scisql_v3 v;
-    long long level = SCISQL_HTM_DEF_LEVEL;
+    long long level;
     long long id;
     size_t i;
     /* If any input is null, the result is NULL. */
-    for (i = 0; i < args->arg_count; ++i) {
+    for (i = 0; i < 3; ++i) {
         if (args->args[i] == 0) {
             *is_null = 1;
             return 0;
@@ -126,9 +120,7 @@ SCISQL_API long long s2HtmId(UDF_INIT *initid SCISQL_UNUSED,
         *is_null = 1;
         return 0;
     }
-    if (args->arg_count > 2) {
-        level = *(long long *) args->args[2];
-    }
+    level = *(long long *) args->args[2];
     if (level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         *is_null = 1;
         return 0;
