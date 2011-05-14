@@ -928,9 +928,11 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                     }
                     while (ids->n > maxranges && efflevel != 0) {
                         /* too many ranges: reduce effective subdivision level */
-                        --curlevel;
-                        --curnode;
                         --efflevel;
+                        if (curlevel > efflevel) {
+                           curnode = curnode - (curlevel - efflevel);
+                           curlevel = efflevel; 
+                        }
                         _scisql_simplify_ids(ids, level - efflevel);
                     }
                     break;
@@ -1030,9 +1032,11 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
                     }
                     while (ids->n > maxranges && efflevel != 0) {
                         /* too many ranges: reduce effetive subdivision level */
-                        --curlevel;
-                        --curnode;
                         --efflevel;
+                        if (curlevel > efflevel) {
+                           curnode = curnode - (curlevel - efflevel);
+                           curlevel = efflevel;
+                        }
                         _scisql_simplify_ids(ids, level - efflevel);
                     }
                     break;

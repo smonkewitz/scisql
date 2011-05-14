@@ -23,8 +23,8 @@
 
 
     s2CPolyHtmRanges(BINARY  poly,
-                     INTEGER maxranges,
-                     INTEGER level)
+                     INTEGER level,
+                     INTEGER maxranges)
 
     A MySQL UDF returning a byte-string representation of HTM ID ranges
     overlapping a spherical convex polygon. The polygon must be specified

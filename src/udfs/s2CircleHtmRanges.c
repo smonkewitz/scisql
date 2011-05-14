@@ -25,8 +25,8 @@
     s2CircleHtmRanges(DOUBLE PRECISION centerLon,
                       DOUBLE PRECISION centerLat,
                       DOUBLE PRECISION radius,
-                      INTEGER maxranges,
-                      INTEGER level)
+                      INTEGER level,
+                      INTEGER maxranges)
 
     A MySQL UDF returning a byte-string representation of HTM ID ranges
     overlapping a spherical circle.
