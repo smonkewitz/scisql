@@ -34,9 +34,10 @@
 
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "common.h"
 
@@ -50,17 +51,15 @@ SCISQL_API my_bool scisqlVersion_init(UDF_INIT *initid,
                                       char *message)
 {
     if (args->arg_count != 0) {
-        strncpy(message, "scisqlVersion() expects no arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "scisqlVersion() expects no arguments");
         return 1;
     }
     if (SCISQL_VERSION_STRING_LENGTH > 255) {
         initid->ptr = malloc(SCISQL_VERSION_STRING_LENGTH + 1);
         if (initid->ptr == 0) {
-            strncpy(message, "scisqlVersion(): memory allocation failed",
-                    MYSQL_ERRMSG_SIZE - 1);
-            message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+            snprintf(message, MYSQL_ERRMSG_SIZE,
+                     "scisqlVersion(): memory allocation failed");
             return 1;
         }
     }

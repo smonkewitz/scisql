@@ -32,7 +32,7 @@
 
     A MySQL UDF returning 1 if the point (lon, lat) lies inside the
     the given spherical ellipse, and 0 otherwise.
-    
+
     Example:
     --------
 
@@ -65,7 +65,7 @@
       this is an error and NULL is returned.
 
     - If semiMajorAxisAngle is greater than 36,000 arcsec (10 deg), this
-      is an error and NULL is returned.  
+      is an error and NULL is returned.
 
     - As previously mentioned, input values are coerced to be of type
       DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
@@ -74,9 +74,9 @@
       of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
  */
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "geometry.h"
 
@@ -105,9 +105,8 @@ SCISQL_API my_bool s2PtInEllipse_init(UDF_INIT *initid,
     int i;
     my_bool const_item = 1, const_ellipse = 1;
     if (args->arg_count != 7) {
-        strncpy(message, "s2PtInEllipse() expects exactly 7 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "s2PtInEllipse() expects exactly 7 arguments");
         return 1;
     }
     for (i = 0; i < 7; ++i) {

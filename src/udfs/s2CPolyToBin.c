@@ -32,15 +32,15 @@
 
 
     A MySQL UDF returning a byte-string representation of the given spherical
-    convex polygon, and 0 otherwise. The polygon must be specified as a
-    sequence of at least 3 and at most 20 vertex pairs. An N vertex input
-    will result in a binary string of length exactly 24*N.
+    convex polygon. The polygon must be specified as a sequence of at least
+    3 and at most 20 vertex pairs. An N vertex input will result in a binary
+    string of length exactly 24*(N + 1).
 
     Example:
     --------
 
     ALTER TABLE Science_Ccd_Exposure
-        ADD COLUMN ccdBoundary BINARY(96);
+        ADD COLUMN ccdBoundary BINARY(120);
 
     UPDATE Science_Ccd_Exposure
         SET ccdBoundary = s2CPolyToBin(llcRa, llcDecl,
@@ -75,7 +75,7 @@
  */
 #include <stdio.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "geometry.h"
 
@@ -141,7 +141,7 @@ SCISQL_API char * s2CPolyToBin(UDF_INIT *initid SCISQL_UNUSED,
         *is_null = 1;
         return result;
     }
-    
+
     *length = (unsigned long) scisql_s2cpoly_tobin((unsigned char *) result,
                                                    255u, &poly);
     if (*length == 0) {

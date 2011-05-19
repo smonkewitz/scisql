@@ -30,7 +30,7 @@
 
     A MySQL UDF returning 1 if the point (lon, lat) lies inside the
     the given spherical circle, and 0 otherwise.
-    
+
     Example:
     --------
 
@@ -62,9 +62,9 @@
       of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
  */
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "geometry.h"
 
@@ -86,9 +86,8 @@ SCISQL_API my_bool s2PtInCircle_init(UDF_INIT *initid,
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 5) {
-        strncpy(message, "s2PtInCircle() expects exactly 5 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "s2PtInCircle() expects exactly 5 arguments");
         return 1;
     }
     for (i = 0; i < 5; ++i) {

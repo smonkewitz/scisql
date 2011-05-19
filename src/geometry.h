@@ -130,6 +130,15 @@ SCISQL_INLINE void scisql_v3_sub(scisql_v3 *out,
     out->z = v1->z - v2->z;
 }
 
+/*  Stores the vector v * -1 in out.  Arguments must not be null pointers,
+    but may alias.
+ */
+SCISQL_INLINE void scisql_v3_neg(scisql_v3 *out, const scisql_v3 *v) {
+    out->x = - v->x;
+    out->y = - v->y;
+    out->z = - v->z;
+}
+
 /*  Stores the vector-scalar product v * s in out.  Arguments must not be
     null pointers, but may alias.
  */
@@ -176,6 +185,24 @@ SCISQL_INLINE void scisql_v3_normalize(scisql_v3 *out, const scisql_v3 *v) {
     out->x = v->x / norm;
     out->y = v->y / norm;
     out->z = v->z / norm;
+}
+
+/*  Stores twice the vector cross product of v1 and v2 in out.  Arguments must
+    not be null pointers, but may alias.
+ */
+SCISQL_INLINE void scisql_v3_rcross(scisql_v3 *out,
+                                    const scisql_v3 *v1,
+                                    const scisql_v3 *v2)
+{
+    double x1 = v2->x + v1->x;
+    double x2 = v2->x - v1->x;
+    double y1 = v2->y + v1->y;
+    double y2 = v2->y - v1->y;
+    double z1 = v2->z + v1->z;
+    double z2 = v2->z - v1->z;
+    out->x = y1 * z2 - z1 * y2;
+    out->y = z1 * x2 - x1 * z2;
+    out->z = x1 * y2 - y1 * x2;
 }
 
 /*  Stores the vector cross product of v1 and v2 in out.  Arguments must not be
@@ -238,6 +265,16 @@ SCISQL_LOCAL double scisql_v3_angsepu(const scisql_v3 *unit_v1,
  */
 SCISQL_LOCAL double scisql_v3_angsep(const scisql_v3 *v1, const scisql_v3 *v2);
 
+/*  Returns the minimum square distance between v, and points on the edge
+    from v1 to v2 (where e is a vector parallel to the cross product of
+    v1 and v2). The vectors v, v1, and v2 are assumed to be normalized,
+    e need not have unit norm.
+ */
+SCISQL_LOCAL double scisql_v3_edgedist2(const scisql_v3 *v,
+                                        const scisql_v3 *v1,
+                                        const scisql_v3 *v2,
+                                        const scisql_v3 *e);
+
 
 /* ---- Convex Spherical Polygons ---- */
 
@@ -247,10 +284,11 @@ SCISQL_LOCAL double scisql_v3_angsep(const scisql_v3 *v1, const scisql_v3 *v2);
   */
 typedef struct {
     size_t n; /* number of edges (and vertices). */
+    scisql_v3 vsum; /* sum of all vertices in polygon. */
     scisql_v3 edges[SCISQL_MAX_VERTS];
 } scisql_s2cpoly;
 
-/*  Initializes a scisql_s2cpoly from a list of between 3 and 
+/*  Initializes a scisql_s2cpoly from a list of between 3 and
     SCISQL_MAX_VERTS vertices. Vertices can be in clockwise or
     counter-clockwise order, but are assumed to be hemispherical, to
     define edges that do not intersect except at vertices, and to define
@@ -277,7 +315,7 @@ SCISQL_LOCAL int scisql_s2cpoly_cv3(const scisql_s2cpoly *cp,
                                     const scisql_v3 *v);
 
 /*  Returns a byte string representation of a scisql_s2cpoly. For a polygon
-    with N vertices (and edges), 3*sizeof(double)*N bytes of storage are
+    with N vertices (and edges), 3*sizeof(double)*(N + 1) bytes of storage are
     required.
 
     Returns the number of bytes written. This will be zero if out

@@ -42,7 +42,7 @@
     be specified either as a VARBINARY byte string (as produced by
     s2CPolyToBin()), or as a sequence of at least 3 and at most 16
     vertex pairs.
-    
+
     Example:
     --------
 
@@ -79,7 +79,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "geometry.h"
 
@@ -114,9 +114,9 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
             return 1;
         }
     } else if (args->arg_type[2] != STRING_RESULT) {
-        strncpy(message, "s2PtInCPoly() expects a spherical coordinate pair "
-                "and a polygon byte string", MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, "s2PtInCPoly() expects a "
+                 "spherical coordinate pair and a polygon byte string");
+        return 1;
     }
     for (i = 0; i < 2; ++i) {
         args->arg_type[i] = REAL_RESULT;

@@ -71,7 +71,7 @@ class PercentileTestCase(MySqlUdfTestCase):
                 values = [(grp, grp*25, v) for v in xrange(101)]
                 random.shuffle(values)
                 t.insertMany(values)
-            stmt = "SELECT percentile(x, percent) FROM Percentile GROUP BY grp" 
+            stmt = "SELECT percentile(x, percent) FROM Percentile GROUP BY grp"
             rows = self.query(stmt)
             self.assertEqual(len(rows), 3, stmt + " did not return 3 rows")
             self.assertAlmostEqual(rows[0][0], 0.0, 15)

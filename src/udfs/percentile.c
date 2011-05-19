@@ -78,9 +78,9 @@
       values per GROUP.
  */
 #include <math.h>
-#include <string.h>
+#include <stdio.h>
 
-#include "mysql/mysql.h"
+#include "mysql.h"
 
 #include "select.h"
 
@@ -95,16 +95,14 @@ SCISQL_API my_bool percentile_init(UDF_INIT* initid,
 {
     scisql_percentile_state *state;
     if (args->arg_count != 2) {
-        strncpy(message, "percentile() expects 2 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 "percentile() expects 2 arguments");
         return 1;
     }
     state = scisql_percentile_state_new();
     if (state == 0) {
-        strncpy(message, "percentile() failed to allocate memory for "
-                "internal state", MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, "percentile() failed to "
+                 "allocate memory for internal state");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;

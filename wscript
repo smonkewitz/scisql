@@ -62,6 +62,10 @@ def configure(ctx):
                              int main() { return 0; }''',
                  define_name='HAVE_ATTRIBUTE_UNUSED',
                  msg='Checking for __attribute__ ((unused))')
+    ctx.check_cc(fragment='''typedef struct { double a; double b; } test __attribute__ ((aligned(16)));
+                             int main() { return 0; }''',
+                 define_name='HAVE_ATTRIBUTE_ALIGNED',
+                 msg='Checking for __attribute__ ((aligned()))')
 
     # Check for libm
     ctx.check_cc(lib='m', uselib_store='M')
@@ -78,19 +82,36 @@ def configure(ctx):
 
 
 def build(ctx):
-    install_path = ctx.env.MYSQL_PLUGIN_DIR
+    # UDF shared library
     ctx.shlib(
-        source=ctx.path.ant_glob('src/*.c'),
+        source=ctx.path.ant_glob('src/*.c') +
+               ctx.path.ant_glob('src/udfs/*.c'),
         includes='src',
         target='scisql',
         name='scisql',
         use='MYSQL M',
-        install_path=install_path
+        install_path=ctx.env.MYSQL_PLUGIN_DIR
     )
+    # Off-line spatial indexing tool
+    ctx.program(
+        source='src/util/index.c src/geometry.c src/htm.c',
+        includes='src',
+        target='scisql_index',
+        install_path=os.path.join(ctx.env.PREFIX, 'bin'),
+        use='M'
+    )
+    # C test cases
     ctx.program(
         source='test/testSelect.c src/select.c',
-        target='test/testSelect',
         includes='src',
+        target='test/testSelect',
+        install_path=False,
+        use='M'
+    )
+    ctx.program(
+        source='test/testHtm.c src/geometry.c src/htm.c',
+        includes='src',
+        target='test/testHtm',
         install_path=False,
         use='M'
     )
@@ -170,6 +191,7 @@ class Tests(object):
 
 def test(ctx):
     tests = Tests()
+    tests.utest(source=ctx.path.get_bld().make_node('test/testHtm'))
     tests.utest(source=ctx.path.get_bld().make_node('test/testSelect'))
     tests.utest(source=ctx.path.ant_glob('test/test*.py'))
     tests.run(ctx)

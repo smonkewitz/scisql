@@ -70,11 +70,19 @@
 #   define SCISQL_INLINE static SCISQL_UNUSED
 #endif
 
+/*  Alignment support
+ */
+#if HAVE_ATTRIBUTE_ALIGNED
+#   define SCISQL_ALIGNED(x) __attribute__ ((aligned(x)))
+#else
+#   define SCISQL_ALIGNED(x)
+#endif
+
 /*  Testing for IEEE specials
  */
 #if __STDC_VERSION__ >= 199901L
 #   define SCISQL_ISNAN(x) isnan(x)
-#   define SCISQL_ISSPECIAL(x) (!isfinite(x)) 
+#   define SCISQL_ISSPECIAL(x) (!isfinite(x))
 #else
 #   define SCISQL_ISNAN(x) ((x) != (x))
 #   define SCISQL_ISSPECIAL(x) ((x) != (x) || ((x) != 0.0 && (x) == 2*(x)))

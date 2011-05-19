@@ -45,8 +45,8 @@
 
 
 static size_t uniform(size_t n, unsigned short seed[3]) {
-   return (size_t) (n * erand48(seed));
-} 
+    return (size_t) (n * erand48(seed));
+}
 
 
 static void shuffle(double *array, size_t n, unsigned short seed[3]) {
@@ -72,7 +72,7 @@ typedef struct {
 static size_t factorial(size_t n) {
     size_t f = n;
     for (--n; n > 1; --n) {
-       f *= n;
+        f *= n;
     }
     return f;
 }
@@ -90,7 +90,7 @@ static void permgen_init(permgen *gen, size_t n) {
     gen->nperms = factorial(n);
     for (i = 0; i < n; ++i) {
         gen->array[i] = i;
-    } 
+    }
 }
 
 
@@ -112,95 +112,95 @@ static void permgen_next(permgen *gen) {
 
 
 static void test(double (*select)(double *, size_t, size_t)) {
-   static const size_t MAX_N = 1024*1024;
- 
-   double *array;
-   double expected, actual;
-   size_t n;
-   unsigned short seed[3] = { 10, 20, 30 };
+    static const size_t MAX_N = 1024*1024;
 
-   array = (double *) malloc(MAX_N*sizeof(double));
-   SCISQL_ASSERT_NOT_EQUAL(array, 0, "memory allocation failed");
+    double *array;
+    double expected, actual;
+    size_t n;
+    unsigned short seed[3] = { 10, 20, 30 };
 
-   /* Test all possible permutations of n distinct values, for n = 1..9 */
-   for (n = 1; n <= 10; ++n) {
-       permgen gen;
-       size_t i;
+    array = (double *) malloc(MAX_N*sizeof(double));
+    SCISQL_ASSERT_NOT_EQUAL(array, 0, "memory allocation failed");
 
-       permgen_init(&gen, n);
-       expected = n >> 1;
-       for (i = 0; i < gen.nperms; ++i, permgen_next(&gen)) {
-           actual = (*select)(gen.array, gen.n, n >> 1);
-           SCISQL_ASSERT_EQUAL(expected, actual, "median failed on permutaion "
-               "%llu of %llu permutations of 0 .. %d", (unsigned long long) i,
-               (unsigned long long) gen.nperms, (int) n - 1);
-       }
-   }
+    /* Test all possible permutations of n distinct values, for n = 1..9 */
+    for (n = 1; n <= 10; ++n) {
+        permgen gen;
+        size_t i;
 
-   /* Test sequences of identical values */
-   for (n = 1; n < 100; ++n) {
-       size_t i;
-       for (i = 0; i < n; ++i) {
-           array[i] = 1.0;
-       }
-       expected = 1.0;
-       actual = (*select)(array, n, n >> 2);
-       SCISQL_ASSERT_EQUAL(expected, actual, "quartile failed on array of "
-               "%llu identical values", (unsigned long long) n);
-   }
-
-   /* Test sequence of ascending values */
-   for (n = 1; n <= MAX_N; n *= 2) {
-       size_t i;
-       for (i = 0; i < n; ++i) {
-           array[i] = i;
-       }
-       expected = n >> 1;
-       actual = (*select)(array, n, n >> 1);
-       SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
-               "%llu ascending values", (unsigned long long) n);
-   }
-
-   /* Test sequence of descending values */
-   for (n = 1; n <= MAX_N; n *= 2) {
-       size_t i;
-       for (i = 0; i < n; ++i) {
-           array[i] = n - 1 - i;
-       }
-       expected = n >> 1;
-       actual = (*select)(array, n, n >> 1);
-       SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
-               "%llu descending values", (unsigned long long) n);
-   } 
-
-   /* Test randomly shuffled sequences of values */
-   for (n = 1; n <= MAX_N; n *= 2) {
-       size_t i;
-       for (i = 0; i < n; ++i) {
-           array[i] = n - 1 - i;
-       }
-       shuffle(array, n, seed);
-       expected = n >> 1;
-       actual = (*select)(array, n, n >> 1);
-       SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
-               "%llu shuffled distinct values", (unsigned long long) n);
-   }
-
-   /* Test sequences containing duplicate values */ 
-   for (n = 1; n <= MAX_N; n = 5*n/4 + 1) {
-       size_t i, j;
-       for (i = 0, j = 0; i < n; ++i) {
-           array[i] = j;
-           if (erand48(seed) > 0.7) {
-               ++j;
-           }
-       }
-       expected = array[n >> 1];
-       shuffle(array, n, seed);
-       actual = (*select)(array, n, n >> 1);
-       SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
-               "%llu shuffled values with duplicates", (unsigned long long) n);
+        permgen_init(&gen, n);
+        expected = n >> 1;
+        for (i = 0; i < gen.nperms; ++i, permgen_next(&gen)) {
+            actual = (*select)(gen.array, gen.n, n >> 1);
+            SCISQL_ASSERT_EQUAL(expected, actual, "median failed on permutaion "
+                "%llu of %llu permutations of 0 .. %d", (unsigned long long) i,
+                (unsigned long long) gen.nperms, (int) n - 1);
+        }
     }
+
+    /* Test sequences of identical values */
+    for (n = 1; n < 100; ++n) {
+        size_t i;
+        for (i = 0; i < n; ++i) {
+            array[i] = 1.0;
+        }
+        expected = 1.0;
+        actual = (*select)(array, n, n >> 2);
+        SCISQL_ASSERT_EQUAL(expected, actual, "quartile failed on array of "
+            "%llu identical values", (unsigned long long) n);
+    }
+
+    /* Test sequence of ascending values */
+    for (n = 1; n <= MAX_N; n *= 2) {
+        size_t i;
+        for (i = 0; i < n; ++i) {
+            array[i] = i;
+        }
+        expected = n >> 1;
+        actual = (*select)(array, n, n >> 1);
+        SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
+            "%llu ascending values", (unsigned long long) n);
+    }
+
+    /* Test sequence of descending values */
+    for (n = 1; n <= MAX_N; n *= 2) {
+        size_t i;
+        for (i = 0; i < n; ++i) {
+            array[i] = n - 1 - i;
+        }
+        expected = n >> 1;
+        actual = (*select)(array, n, n >> 1);
+        SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
+            "%llu descending values", (unsigned long long) n);
+    }
+
+    /* Test randomly shuffled sequences of values */
+    for (n = 1; n <= MAX_N; n *= 2) {
+        size_t i;
+        for (i = 0; i < n; ++i) {
+            array[i] = n - 1 - i;
+        }
+        shuffle(array, n, seed);
+        expected = n >> 1;
+        actual = (*select)(array, n, n >> 1);
+        SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
+            "%llu shuffled distinct values", (unsigned long long) n);
+    }
+
+    /* Test sequences containing duplicate values */
+    for (n = 1; n <= MAX_N; n = 5*n/4 + 1) {
+        size_t i, j;
+        for (i = 0, j = 0; i < n; ++i) {
+            array[i] = j;
+            if (erand48(seed) > 0.7) {
+                ++j;
+            }
+        }
+        expected = array[n >> 1];
+        shuffle(array, n, seed);
+        actual = (*select)(array, n, n >> 1);
+        SCISQL_ASSERT_EQUAL(expected, actual, "median failed on array of "
+            "%llu shuffled values with duplicates", (unsigned long long) n);
+     }
 }
 
 

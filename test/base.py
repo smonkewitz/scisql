@@ -117,7 +117,7 @@ class TempTable(object):
         self._name = name
         self._cols = list(cols)
         self._cursor.execute("CREATE TEMPORARY TABLE %s (%s)" % (name, ','.join(self._cols)))
-        
+
     def __enter__(self):
         return self
 
@@ -129,13 +129,13 @@ class TempTable(object):
         self._cursor.execute("DROP TABLE IF EXISTS " +  self._name)
 
     def insert(self, row):
-        self._cursor.execute("INSERT INTO %s VALUES (%s)" % 
+        self._cursor.execute("INSERT INTO %s VALUES (%s)" %
             (self._name, ",".join(["%s"] * len(self._cols))), row)
 
     def insertMany(self, rows):
-        self._cursor.executemany("INSERT INTO %s VALUES (%s)" % 
+        self._cursor.executemany("INSERT INTO %s VALUES (%s)" %
             (self._name, ",".join(["%s"] * len(self._cols))), rows)
-        
+
 
 def angSep(ra1, dec1, ra2, dec2):
     sdt = math.sin(math.radians(ra1 - ra2) * 0.5)
