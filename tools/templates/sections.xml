@@ -1,0 +1,117 @@
+<sections>
+
+<section name="overview" title="Overview">
+	<div class="section-docs">
+	<p>
+        SciSQL provides science-specific tools and extensions for SQL. Currently, the project
+        contains user defined functions (UDFs) and stored procedures for MySQL in the areas
+        of spherical geometry, statistics, and photometry. The project was motivated by the
+        needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
+        and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
+        <a href="http://www.energy.gov/">DOE</a>. SciSQL is distributed under the terms of the
+        <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License v3</a>.
+	</p>
+	<ul>
+	        <li><a href="https://launchpad.net/scisql">Official site</a></li>
+	        <li><a href="https://bugs.launchpad.net/scisql/+filebug">Report a bug</a></li>
+	        <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
+	</ul>
+	</div>
+</section>
+
+
+<section name="install" title="Building &amp; Installation">
+	<div class="section-docs">
+
+	<h3>Prerequisites</h3>
+	<dl>
+		<dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
+		<dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
+		<dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
+		<dd>
+			This is a Python DB API 2.0 implementation for MySQL,
+			and is required when running the unit tests.
+		</dd>
+		<dt><a href="http://www.makotemplates.org/download.html">Mako</a></dt>
+		<dd>
+			The Mako templating system is only required for developers,
+			and is used to build release documentation.
+		</dd>
+	</dl>
+	<p>
+	In order to install the UDFs, you will need write permission to the MySQL server
+	plug-in directory, as well as a MySQL account with admin priviledges.
+	</p>
+
+	<h3>Configuration</h3>
+	<p>
+    	Run <tt>./configure</tt> from the top-level sciSQL directory. Passing <tt>--help</tt>
+	will yield a list of configuration options. Here are the ones most likely to require
+	tweaking:
+	</p>
+	<dl>
+		<dt><tt>--prefix</tt></dt>
+		<dd>Set this to the top-level MySQL server install directory.</dd>
+		<dt><tt>--mysql-user</tt></dt>
+		<dd>Set this to the name of a MySQL admin user</dd>
+		<dt><tt>--mysql-socket</tt></dt>
+		<dd>Set this to the name of the MySQL server UNIX socket file</dd>
+	</dl>
+	<p>
+	You will be prompted for the MySQL admin user password during configuration.
+	Connection details, including this password, are stored in
+	<tt>build/c4che/.my.cnf</tt> in the MySQL options file format. This allows various
+	build steps to connect to MySQL without constantly prompting for a password.
+	</p>
+	<p>
+	Though the <tt>.my.cnf</tt> file permissions are set such that only the creator is
+	allowed read/write access, for security reasons it is still recommended to
+	run <tt>`make distclean`</tt> once sciSQL has been installed - this will remove the
+	entire build directory and its contents.
+	</p>
+
+	<h3>Build/Install</h3>
+	<p>
+	SciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
+	<tt>make install</tt>, and <tt>make uninstall</tt> commands.
+	</p>
+	<p>
+TODO TODO TODO
+	</p>
+	</div>
+</section>
+
+
+<section name="s2" title="Spherical Geometry">
+	<div class="section-docs">
+	<p>
+	TODO
+	</p>
+	</div>
+</section>
+
+
+<section name="photometry" title="Photometry">
+	<div class="section-docs"><p>
+	At the moment, these UDFs are limited to converting from raw fluxes to
+	calibrated AB fluxes and magnitudes.
+	</p></div>
+</section>
+
+
+<section name="statistics" title="Statistics">
+	<div class="section-docs"><p>
+	These UDFs provide the ability to compute medians and percentiles. Averages and 
+	standard deviations can already be computed with the AVG and STDDEV SQL constructs.
+	</p></div>
+</section>
+
+
+<section name="misc" title="Miscellaneous">
+	<div class="section-docs"><p>
+	These UDFs and stored procedures are either administrative, internal, or
+	informational - they are not directly useful for scientific computation / queries.
+	</p></div>
+</section>
+
+</sections>

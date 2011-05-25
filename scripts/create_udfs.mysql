@@ -62,9 +62,58 @@ USE scisql;
 
 DELIMITER //
 
-
--- Creates a temporary table named scisql.Region that contains
--- ranges of level 20 HTM IDs overlapping the given circle.
+-- <proc name="s2CircleRegion" section="s2">
+--     <desc>
+--         Creates a temporary table `scisql.Region` containing HTM ID ranges
+--         for the HTM triangles overlapping the given circle. A maximum of 
+--         256 ranges will be returned. If the number of ID ranges at the
+--         desired subdivision level exceeds this number, then the effective
+--         subdivision level is decreased. This strategy can reduce the number
+--         of ranges required to represent any input geometry to just 4, but
+--         makes the resulting range list a poorer (coarser, higher area)
+--         approximation to the input goemetry.
+--     </desc>
+--     <args>
+--         <arg name="centerLon" type="DOUBLE PRECISION" units="deg">
+--             Circle center longitude angle.
+--         </arg>
+--         <arg name="centerLat" type="DOUBLE PRECISION" units="deg">
+--             Circle center latitude angle.
+--         </arg>
+--         <arg name="radius" type="DOUBLE PRECISION" units="deg">
+--             Circle radius.
+--         </arg>
+--         <arg name="level" type="INTEGER">
+--             HTM subdivision level, must be in range [0, 24].
+--         </arg>
+--     </args>
+--     <notes>
+--         <note>
+--             The `scisql.Region` table is allowed to exist prior to calling
+--             s2CircleRegion() - if it does, its contents are completely
+--             replaced.
+--         </note>
+--         <note>
+--             Before using this stored procedure, an adminstrator must GRANT
+--             the required permissions (e.g. using scisqlGrant()).
+--         </note>
+--         <note>
+--             If any input is NULL, NaN or +/-Inf, the procedure will fail.
+--         </note>
+--         <note>
+--             If centerLat does not lie in the [-90, 90] degree range, the
+--             procedure will fail.
+--         </note>
+--         <note>
+--             If level does not lie in the range [0, 24], the procedure will
+--             fail.
+--         </note>
+--     </notes>
+--     <example>
+--         CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+--         SELECT * FROM scisql.Region;
+--     </example>
+-- </proc>
 CREATE PROCEDURE s2CircleRegion(IN centerLon DOUBLE PRECISION,
                                 IN centerLat DOUBLE PRECISION,
                                 IN radius DOUBLE PRECISION,
@@ -94,8 +143,53 @@ BEGIN
 END //
 
 
--- Creates a temporary table named scisql.Region that contains
--- ranges of level 20 HTM IDs overlapping the given convex polygon.
+-- <proc name="s2CPolyRegion" section="s2">
+--     <desc>
+--         Creates a temporary table `scisql.Region` containing HTM ID ranges
+--         for the HTM triangles overlapping the given spherical convex polygon.
+--         A maximum of 256 ranges will be returned. If the number of ID ranges 
+--         at the
+--         desired subdivision level exceeds this number, then the effective
+--         subdivision level is decreased. This strategy can reduce the number
+--         of ranges required to represent any input geometry to just 4, but
+--         makes the resulting range list a poorer (coarser, higher area)
+--         approximation to the input goemetry.
+--     </desc>
+--     <args>
+--         <arg name="poly" type="VARBINARY(255)">
+--             Binary-string representation of a polygon.
+--         </arg>
+--         <arg name="level" type="INTEGER">
+--             HTM subdivision level, must be in range [0, 24].
+--         </arg>
+--     </args>
+--     <notes>
+--         <note>
+--             The `scisql.Region` table is allowed to exist prior to calling
+--             s2CPolyRegion() - if it does, its contents are completely
+--             replaced.
+--         </note>
+--         <note>
+--             Before using this stored procedure, an adminstrator must GRANT
+--             the required permissions (e.g. using scisqlGrant()).
+--         </note>
+--         <note>
+--             If any input is NULL, the procedure will fail.
+--         </note>
+--         <note>
+--             If poly is not a valid binary-string representation of a polygon
+--             (e.g. as produced by s2CPolyToBin()), the procedure will fail.
+--         </note>
+--         <note>
+--             If level does not lie in the range [0, 24], the procedure will
+--             fail.
+--         </note>
+--     </notes>
+--     <example>
+--         CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+--         SELECT * FROM scisql.Region;
+--     </example>
+-- </proc>
 CREATE PROCEDURE s2CPolyRegion(IN poly VARBINARY(255),
                                IN level INTEGER)
     MODIFIES SQL DATA
@@ -123,8 +217,30 @@ BEGIN
 END //
 
 
--- Gives user connecting from host permission to use the scisql stored procedures
--- and the temporary tables they generate
+-- <proc name="scisqlGrant" section="misc">
+--     <desc>
+--         Gives a user connecting from the specified host permission to call
+--         scisql stored procedures and the use the temporary tables they
+--         generate. 
+--     </desc>
+--     <args>
+--         <arg name="user" type="VARCHAR(255)">
+--             User name - may not contain wildcards.
+--         </arg>
+--         <arg name="host" type="VARCHAR(255)">
+--             Host name - wildcards ('%') are allowed.
+--         </arg>
+--     </args>
+--     <notes>
+--         <note>
+--             You must have MySQL admin priviledges (including GRANT OPTION)
+--             to call this stored procedure.
+--         </note>
+--     </notes>
+--     <example test="false">
+--         CALL scisql.scisqlGrant('bob', 'localhost');
+--     </example>
+-- </proc>
 CREATE PROCEDURE scisqlGrant(IN user VARCHAR(255),
                              IN host VARCHAR(255))
     MODIFIES SQL DATA

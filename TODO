@@ -1,7 +1,11 @@
+- Finish up section documentation, create install_demo target that allows a
+  user to explore scisql functionality.
 
-- Documentation - HTML via doxygen? Whatever system we use, descriptions of
-  individual UDFs must be easy to extract for use in the LSST schema browser.
+- Output docs in format grokable by the LSST schema browser
+
+- Extract examples from documentation and run them a la doctest
+
+- some UDFs and stored procedures still need unit tests
 
 - Consider creating temp file for median() and select() in the MySQL TMP_DIR
   instead of /tmp
-

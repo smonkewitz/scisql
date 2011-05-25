@@ -20,6 +20,40 @@
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
  */
+
+/**
+<udf name="dnToAbMag" return_type="DOUBLE PRECISION" section="photometry">
+    <desc>
+        Converts a raw flux in DN to an AB magnitude.
+    </desc>
+    <args>
+        <arg name="dn" type="DOUBLE PRECISION" units="DN">
+            Raw flux to convert to an AB magnitude.
+        </arg>
+        <arg name="fluxMag0" type="DOUBLE PRECISION" units="DN">
+            Raw flux of a zero-magnitude object.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            All arguments must be convertible to type DOUBLE PRECISION.
+        </note>
+        <note>
+            If any argument is NULL, NaN, or +/-Inf, NULL is returned.
+        </note>
+        <note>
+            If fluxMag0 is zero, NULL is returned.
+        </note>
+    </notes>
+    <example>
+        SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
+            FROM Source AS src, Science_Ccd_Exposure ccd
+            WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
+            LIMIT 10;
+    </example>
+</udf>
+*/
+
 #include <stdio.h>
 
 #include "mysql.h"

@@ -20,6 +20,42 @@
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
  */
+
+/**
+<udf name="dnToFlux" return_type="DOUBLE PRECISION" section="photometry">
+    <desc>
+        Converts a raw flux in DN to a calibrated (AB) flux. The return
+        value will be in units of erg/cm<sup>2</sup>/sec/Hz.
+    </desc>
+    <args>
+        <arg name="dn" type="DOUBLE PRECISION" units="DN">
+            Raw flux to convert to an AB magnitude.
+        </arg>
+        <arg name="fluxMag0" type="DOUBLE PRECISION" units="DN">
+            Raw flux of a zero-magnitude object.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            All arguments must be convertible to type DOUBLE PRECISION.
+        </note>
+        <note>
+            If any argument is NULL, NaN, or +/-Inf, NULL is returned.
+        </note>
+        <note>
+            If fluxMag0 is zero, NULL is returned.
+        </note>
+    </notes>
+    <example>
+        -- An example using the LSST schema:
+        SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
+            FROM Source AS src, Science_Ccd_Exposure ccd
+            WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
+            LIMIT 10;
+    </example>
+</udf>
+*/
+
 #include <stdio.h>
 
 #include "mysql.h"

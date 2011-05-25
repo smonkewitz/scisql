@@ -87,8 +87,8 @@ class MySqlUdfTestCase(unittest.TestCase):
         try:
             self._cursor = self._conn.cursor()
             try:
-                self._cursor.execute("CREATE DATABASE IF NOT EXISTS test_scisql")
-                self._cursor.execute("USE test_scisql")
+                self._cursor.execute("CREATE DATABASE IF NOT EXISTS scisql_test")
+                self._cursor.execute("USE scisql_test")
             except:
                 self._cursor.close()
                 raise

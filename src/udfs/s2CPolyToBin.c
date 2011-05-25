@@ -19,60 +19,77 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="s2CPolyToBin" return_type="BINARY" section="s2">
+    <desc>
+        Returns a binary-string representation of a spherical convex
+        polygon. The polygon must be specified as a sequence of at least
+        3 and at most 20 vertices. An N vertex input will result in a
+        binary string of length exactly 24*(N + 1).
+    </desc>
+    <args varargs="true">
+        <arg name="v1Lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of first polygon vertex.
+        </arg>
+        <arg name="v1Lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of first polygon vertex.
+        </arg>
+        <arg name="v2Lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of second polygon vertex.
+        </arg>   
+        <arg name="v2Lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of second polygon vertex.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any parameter is NULL, NaN or +/-Inf, this is an error
+            and NULL is returned.
+        </note>
+        <note>
+            If any latitude angle lies outside of [-90, 90] degrees,
+            this is an error and NULL is returned.
+        </note>
+        <note>
+            Polygon vertices can be specified in either clockwise or
+            counter-clockwise order. However, the vertices are assumed to be
+            hemispherical, to define edges that do not intersect except at
+            vertices, and to define edges that form a convex polygon.
+        </note>
+        <note>
+            Input coordinate must be convertible to type DOUBLE PRECISION.
+            If their actual type is BIGINT or DECIMAL, then the conversion
+            can result in loss of precision and hence an inaccurate result.
+            Loss of precision will not occur so long as the inputs are values of
+            type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
+        </note>
+    </notes>
+    <example>
+        CREATE TEMPORARY TABLE Poly (
+            ra1  DOUBLE PRECISION NOT NULL,
+            dec1 DOUBLE PRECISION NOT NULL,
+            ra2  DOUBLE PRECISION NOT NULL,
+            dec2 DOUBLE PRECISION NOT NULL,
+            ra3  DOUBLE PRECISION NOT NULL,
+            dec3 DOUBLE PRECISION NOT NULL,
+            poly BINARY(96) DEFAULT NULL
+        );
 
-    s2CPolyToBin(DOUBLE PRECISION v1Lon,
-                 DOUBLE PRECISION v1Lat,
-                 DOUBLE PRECISION v2Lon,
-                 DOUBLE PRECISION v2Lat,
-                 ...
-                 DOUBLE PRECISION vNLon,
-                 DOUBLE PRECISION vNLat)
+        INSERT INTO Poly VALUES (-10,  0,
+                                  10,  0,
+                                   0, 10,
+                                 NULL);
 
+        UPDATE Poly
+            SET poly = s2CPolyToBin(ra1, dec1,
+                                    ra2, dec2,
+                                    ra3, dec3);
+    </example>
+</udf>
+*/
 
-    A MySQL UDF returning a byte-string representation of the given spherical
-    convex polygon. The polygon must be specified as a sequence of at least
-    3 and at most 20 vertex pairs. An N vertex input will result in a binary
-    string of length exactly 24*(N + 1).
-
-    Example:
-    --------
-
-    ALTER TABLE Science_Ccd_Exposure
-        ADD COLUMN ccdBoundary BINARY(120);
-
-    UPDATE Science_Ccd_Exposure
-        SET ccdBoundary = s2CPolyToBin(llcRa, llcDecl,
-                                       ulcRa, ulcDecl,
-                                       urcRa, urcDecl,
-                                       lrcRa, lrcDecl);
-
-    Inputs:
-    -------
-
-    All arguments must be convertible to type DOUBLE PRECISION and are
-    assumed to be in units of degrees. Note that:
-
-    - If any parameter is NULL, 0 is returned.
-
-    - If any coordinate is NaN or +/-Inf, this is an error and
-      NULL is returned (IEEE specials are not currently supported by MySQL).
-
-    - If any latitude angle lies outside of [-90, 90] degrees,
-      this is an error and NULL is returned.
-
-    - Polygon vertices can be specified in either clockwise or
-      counter-clockwise order. However, the vertices are assumed to be
-      hemispherical, to define edges that do not intersect except at
-      vertices, and to define edges that form a convex polygon.
-
-    - As previously mentioned, input coordinates are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as the inputs are values
-      of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
- */
 #include <stdio.h>
 
 #include "mysql.h"

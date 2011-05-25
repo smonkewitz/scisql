@@ -19,29 +19,51 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="s2CPolyHtmRanges" return_type="MEDIUMBLOB" section="s2" internal="true">
+    <desc>
+        Returns a binary-string representation of HTM ID ranges
+        overlapping a spherical convex polygon. The polygon must
+        be specified in binary-string form (as produced by s2CPolyToBin()).
+    </desc>
+    <args>
+        <arg name="poly" type="BINARY">
+            Binary string representation of a polygon.
+        </arg>
+        <arg name="level" type="INTEGER">
+            HTM subdivision level, must be in range [0, 24].
+        </arg>
+        <arg name="maxranges" type="INTEGER">
+            Maximum number of ranges to report.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any parameter is NULL, this is an error
+            and NULL is returned.
+        </note>
+        <note>
+            If poly does not correspond to a valid binary serialization
+            of a spherical convex polygon, this is an error and NULL
+            is returned.
+        </note>
+        <note>
+            If level does not lie in the range [0, 24], this is an
+            error and NULL is returned.
+        </note>
+        <note>
+            maxranges can be set to any value. In practice, its value
+            is clamped such that the binary return string has size at
+            most 16MB (fits in a MEDIUMBLOB). Negative values are
+            interpreted to mean: "return as many ranges as possible
+            subject to the 16MB output size limit".
+        </note>
+    </notes>
+</udf>
+*/
 
-    s2CPolyHtmRanges(BINARY  poly,
-                     INTEGER level,
-                     INTEGER maxranges)
-
-    A MySQL UDF returning a byte-string representation of HTM ID ranges
-    overlapping a spherical convex polygon. The polygon must be specified
-    in byte-string form (as produced by s2CPolyToBin()).
-
-    Inputs:
-    -------
-
-    - If any parameter is NULL, NULL is returned.
-
-    - level must be in the range [0, 24]
-
-    - maxranges can be set to any value. In practice, its value is clamped
-      such that the binary return string has size at most 16MB. Negative
-      values are interpreted to mean "return as many ranges as possible,
-      subject to the 16MB output size limit".
- */
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -19,21 +19,33 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="extractInt64" return_type="BIGINT" section="misc" internal="true">
+    <desc>
+        Extracts a 64-bit integer stored in host byte order
+        from a binary string.
+    </desc>
+    <args>
+        <arg name="data" type="STRING">
+            Byte string to extract a 64-bit integer from.
+        </arg>
+        <arg name="idx" type="INTEGER">
+            The index of the 64-bit integer to extract.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any argument is NULL, NULL is returned.
+        </note>
+        <note>
+            If idx is negative or out of range, NULL is returned.
+        </note>
+    </notes>
+</udf>
+*/
 
-    extractInt64(BINARY data, INTEGER i)
-
-    Extracts the i-th int64_t in host byte order from the given binary
-    string (a BINARY, VARBINARY, or BLOB).
-
-    Inputs:
-    -------
-
-    - If any parameter is NULL, 0 is returned.
-
-    - If the index i is out of range, NULL is returned.
- */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>

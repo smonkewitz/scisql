@@ -20,49 +20,58 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="median" return_type="DOUBLE PRECISION" section="statistics" aggregate="true">
+    <desc>
+        Returns the median of a GROUP of values.
+    </desc>
+    <args>
+        <arg name="value" type="DOUBLE PRECISION">
+            Value, column name or expression yielding input values.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            NULL and NaN values are ignored. MySQL does not currently support
+            storage of NaNs.  However, their presence is checked for to ensure
+            reasonable behaviour if a future MySQL release does end up
+            supporting them.
+        </note>
+        <note>
+            If all input values for a GROUP are NULL/NaN, then NULL is returned.
+        </note>
+        <note>
+            If there are no inputs, NULL is returned.
+        </note>
+        <note>
+            If there are an even number of elements in the input GROUP,
+            the return value is the mean of the two middle elements in a
+            sorted copy of the GROUP.
+        </note>
+        <note>
+            As previously mentioned, input values are coerced to be of type
+            DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL,
+            then the coercion can result in loss of precision and hence an
+            inaccurate result. Loss of precision will not occur so long as
+            median() is called on values of type DOUBLE PRECISION, FLOAT,
+            INTEGER, SMALLINT, or TINYINT.
+        </note>
+        <note>
+            This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+            input values per GROUP.
+        </note>
+    </notes>
+    <example>
+        SELECT objectId, median(psfFlux)
+            FROM Source
+            WHERE objectId IS NOT NULL
+            GROUP BY objectId;
+    </example>
+</udf>
+*/
 
-    median(DOUBLE PRECISION value)
-
-    median() is a MySQL aggregate UDF returning the median of a sequence of
-    DOUBLE PRECISION values.
-
-    Example:
-    --------
-
-    SELECT objectId, median(psfFlux)
-        FROM Source
-        WHERE objectId IS NOT NULL
-        GROUP BY objectId;
-
-    Inputs:
-    -------
-
-    A set of values convertible to type DOUBLE PRECISION. Note that:
-
-    - NULL and NaN values are ignored. MySQL does not currently support
-      storage of NaNs.  However, their presence is checked for to ensure
-      reasonable behaviour if a future MySQL release does end up supporting
-      them.
-
-    - If all inputs are NULL/NaN, then NULL is returned.
-
-    - If there are no inputs, NULL is returned.
-
-    - If there are an even number of elements in the input sequence, the
-      return value is the mean of the two middle elements in a sorted copy
-      of the sequence.
-
-    - As previously mentioned, input values are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as median() is called on
-      values of type DOUBLE PRECISION, FLOAT, INTEGER, SMALLINT, or TINYINT.
-
-    - The median() function can handle a maximum of 2**28 (268,435,456)
-      values per GROUP.
- */
 #include <stdio.h>
 
 #include "mysql.h"

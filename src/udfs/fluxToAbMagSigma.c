@@ -19,7 +19,41 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
- */
+*/
+
+/**
+<udf name="fluxToAbMagSigma" return_type="DOUBLE PRECISION" section="photometry">
+    <desc>
+        Converts a cailbrated (AB) flux error to an AB magnitude error.
+    </desc>
+    <args>
+        <arg name="flux" type="DOUBLE PRECISION" units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
+            Calibrated (AB) flux.
+        </arg>
+        <arg name="fluxSigma" type="DOUBLE PRECISION" units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
+            Calibrated (AB) flux error.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            All arguments must be convertible to type DOUBLE PRECISION.
+        </note>
+        <note>
+            If any argument is NULL, NaN, or +/-Inf, NULL is returned.
+        </note>
+        <note>
+            If the flux argument is zero, NULL is returned.
+        </note>
+    </notes>
+    <example>
+        SELECT fluxToAbMagSigma(uFlux_PS, uFlux_PS_Sigma)
+            FROM Object
+            WHERE uFlux_PS IS NOT NULL and uFlux_PS_Sigma IS NOT NULL
+            LIMIT 10;
+    </example>
+</udf>
+*/
+
 #include <stdio.h>
 
 #include "mysql.h"

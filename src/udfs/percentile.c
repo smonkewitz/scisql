@@ -19,64 +19,80 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="percentile" return_type="DOUBLE PRECISION" section="statistics" aggregate="true">
+    <desc>
+        Returns the desired percentile of a GROUP of values.
 
-    percentile(DOUBLE PRECISION value, DOUBLE PRECISION percent)
+        Given a GROUP of N DOUBLE PRECISION values, percentile returns the
+        value V such that at most floor(N * percent/100.0) of the values are
+        less than V and at most N - floor(N * percent/100.0) are greater.
 
-    percentile() is a MySQL aggregate UDF. Given a set of N DOUBLE PRECISION
-    values, it returns the value V such that at most floor(N * percent/100.0)
-    of the values are less than V and at most N - floor(N * percent/100.0) are
-    greater.
+        The percent argument must not vary across the elements of a GROUP for
+        which a percentile is being computed, or the return value is undefined.
+    </desc>
+    <args>
+        <arg name="value" type="DOUBLE PRECISION">
+            Value, column name, or expression yielding input values.
+        </arg>
+        <arg name="percent" type="DOUBLE PRECISION">
+            Desired percentile, must lie in the range [0, 100].
+        </arg>
+    </args>
+    <notes>
+        <note>
+            NULL and NaN values are ignored. MySQL does not currently support
+            storage of NaNs.  However, their presence is checked for to ensure
+            reasonable behaviour if a future MySQL release does end up
+            supporting them.
+        </note>
+        <note>
+            If all inputs are NULL/NaN, then NULL is returned.
+        </note>
+        <note>
+            If there are no input values, NULL is returned.
+        </note>
+        <note>
+            If the input GROUP contains exactly one value, that value is
+            returned.
+        </note>
+        <note>
+            If the percent argument is NULL or does not lie in the range
+            [0, 100], NULL is returned.
+        </note>
+        <note>
+            If (N - 1) * percent/100.0 = K is an integer, the value returned
+            is the K-th smallest element in a sorted copy of the input GROUP A.
+            Otherwise, the return value is A[k] + f*(A[k + 1] - A[k]), where
+            k = floor(K) and f = K - k.
+        </note>
+        <note>
+            As previously mentioned, input values are coerced to be of type
+            DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL,
+            then the coercion can result in loss of precision and hence an
+            inaccurate result. Loss of precision will not occur so long as
+            median() is called on values of type DOUBLE PRECISION, FLOAT,
+            INTEGER, SMALLINT, or TINYINT.
+        </note>
+        <note>
+            This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+            input values per GROUP.
+        </note>
+    </notes>
+    <example>
+        SELECT objectId,
+               percentile(psfFlux, 25) AS firstQuartile,
+               percentile(psfFlux, 75) AS thirdQuartile
+            FROM Source
+            WHERE objectId IS NOT NULL
+            GROUP BY objectId
+            LIMIT 10;
+    </example>
+</udf>
+*/
 
-    The percent argument must not vary across the elements of a GROUP for
-    which a percentile is computed, or the return value is undefined.
-
-    Example:
-    --------
-
-    SELECT objectId,
-           percentile(psfFlux, 25) AS firstQuartile,
-           percentile(psfFlux, 75) AS thirdQuartile
-        FROM Source
-        WHERE objectId IS NOT NULL
-        GROUP BY objectId;
-
-    Inputs:
-    -------
-
-    A sequence of values convertible to type DOUBLE PRECISION, and a
-    percentage (constant across the sequence), also convertible to type
-    DOUBLE PRECISION. Note that:
-
-    - NULL and NaN sequence values are ignored. MySQL does not currently
-      support storage of NaNs.  However, their presence is checked for to
-      ensure reasonable behaviour if a future MySQL release does end up
-      supporting them.
-
-    - If all sequence values are NULL or NaN, then NULL is returned.
-
-    - If the percent argument is NULL or does not lie in the range [0, 100],
-      NULL is returned.
-
-    - If a sequence contains no values, NULL is returned.
-
-    - If a sequence contains exactly one value, that is the value returned.
-
-    - If (N - 1) * percent/100.0 = K is an integer, the value returned is the
-      K-th smallest element in a sorted copy of the input sequence A.
-      Otherwise, the return value is A[k] + f*(A[k + 1] - A[k]), where
-      k = floor(K) and f = K - k.
-
-    - As previously mentioned, input values are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as percentile() is called on
-      values of type DOUBLE PRECISION, FLOAT, INTEGER, SMALLINT, or TINYINT.
-
-    - The percentile() function can handle a maximum of 2**28 (268,435,456)
-      values per GROUP.
- */
 #include <math.h>
 #include <stdio.h>
 
