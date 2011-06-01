@@ -130,7 +130,8 @@ def create_post(ctx):
     bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
     bld.init_dirs()
     bld.env = ctx.env
-    bld(source='scripts/create_udfs.mysql')
+    bld(source='scripts/install.mysql')
+    bld(source='scripts/demo.mysql')
     bld.compile()
 
 
@@ -139,7 +140,7 @@ class DropContext(Build.BuildContext):
     fun = 'drop'
 
 def drop(ctx):
-    ctx(source='scripts/drop_udfs.mysql')
+    ctx(source='scripts/uninstall.mysql')
 
 
 class TestContext(Build.BuildContext):

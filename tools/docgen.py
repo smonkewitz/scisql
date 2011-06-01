@@ -24,10 +24,14 @@
 #
 
 from __future__ import with_statement
+import itertools
 import glob
+import optparse
 import os
 import re
+import subprocess
 import sys
+import tempfile
 import traceback
 try:
     import xml.etree.cElementTree as etree
@@ -35,6 +39,7 @@ except:
     import xml.etree.ElementTree as etree
 from mako.template import Template
 from mako.lookup import TemplateLookup
+
 
 # -- Helper functions ----
 
@@ -115,8 +120,9 @@ class Note(object):
 class Example(object):
     """A source code example, e.g. of UDF usage. The following attributes are available:
 
-    lang:   The language of the example source code, typically 'sql'.
-    source: The example source code, stored as a unicode string containing an
+    lang:   The language of the example source code, typically 'sql' or 'bash'.
+    test:   True if the source should be run during example verification.
+    source: The example source code, stored as a string containing an
             XHTML fragment.
     """
     def __init__(self, elt):
@@ -138,13 +144,6 @@ class Example(object):
                 raise RuntimeError('inconsistent leading whitespace in <example> source code')
             lines[i] = line[len(trim):]
         self.source = '\n'.join(lines)
-
-    def hyperlink(self, udf_and_proc_names):
-        """Hyperlink stored procedure / UDF calls in example source code
-        to the corresponding documentation.
-        """
-        for name in udf_and_proc_names:
-            self.source = re.sub(name, self.source, r'<a href="#\0">\0</a>')
 
 
 class Argument(object):
@@ -223,12 +222,6 @@ class Udf(object):
         else:
             self.notes = map(Note, _find_many(notes, 'note', attrib=['class']))
 
-    def func_type(self):
-        if self.aggregate:
-            return "aggregate UDF"
-        else:
-            return "UDF"
-
 
 class Proc(object):
     """Documentation for a stored procedure. The following attributes are available:
@@ -264,18 +257,16 @@ class Proc(object):
         else:
             self.notes = map(Note, _find_many(notes, 'note', attrib=['class']))
 
-    def func_type(self):
-        return "procedure"
-
 
 class Section(object):
     """A documentation section; contains information about a group/category of UDFs,
-    possibly including worked examples involving multiple UDFs. The following attributes
-    are available:
+    possibly including worked examples. The following attributes are available:
 
-    name:
-    title:
-    content:
+    name:     Section name, must not contain spaces
+    title:    Section title
+    content:  XHTML section content in string form.
+    examples: A list of Example objects in the section content, in order of
+              occurence.
     """
     def __init__(self, elt):
         attr = elt.get('name')
@@ -288,6 +279,16 @@ class Section(object):
         self.title = attr.strip()
         self.udfs = []
         self.procs = []
+        # Extract example source code
+        exlist = _find_many(elt, 'example', required=False, attrib=['lang', 'test'])
+        self.examples = map(Example, exlist)
+        # Turn <example> tags into <pre> tags with the appropriate prettify attributes
+        for ex in exlist:
+            ex.tag = 'pre'
+            lang = ex.get('lang', 'sql')
+            for k in ex.keys():
+                del ex.attrib[k]
+            ex.set('class', 'prettyprint lang-%s linenums' % lang)
         self.content = _extract_content(elt)
 
 
@@ -366,13 +367,7 @@ def extract_sections(filename):
         raise RuntimeError('Root element of a section documentation file must be <section>!')
     return map(Section, _find_many(elt, 'section', attrib=['name', 'title']))
 
-
-# -- HTML documentation generation ----
-
-def main():
-    root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    lookup = TemplateLookup(directories=[os.path.join(root, 'tools', 'templates')])
-    template = lookup.get_template('index.mako')
+def extract_docs(root):
     nodes = []
     for file in glob.glob(os.path.join(root, 'src', 'udfs', '*.c')):
         nodes.extend(extract_docs_from_c(file))
@@ -383,14 +378,94 @@ def main():
     for x in nodes:
         if isinstance(x, Udf):
             secdict[x.section].udfs.append(x)
-    for x in nodes:
-        if isinstance(x, Proc):
+        elif isinstance(x, Proc):
             secdict[x.section].procs.append(x)
     for sec in sections:
         sec.udfs.sort(key=lambda x: x.name)
         sec.procs.sort(key = lambda x: x.name)
-    with open(os.path.join(root, 'doc', 'index.html'), 'wb') as f:
-        f.write(template.render(sections=sections))
+    return sections
+
+
+# -- Testing examples in documentation ----
+
+def _test(obj):
+    for ex in obj.examples:
+        if not ex.test or ex.lang not in ('sql', 'bash'):
+            continue
+        with tempfile.TemporaryFile() as source:
+            if ex.lang == 'sql':
+                source.write('USE scisql_demo;\n\n')
+                args = [ os.environ['MYSQL'], '--defaults-file=%s' % os.environ['MYSQL_CNF'] ]
+            else:
+                args = [ '/bin/bash' ]
+            source.write(ex.source)
+            source.flush()
+            source.seek(0)
+            try:
+                with open(os.devnull, 'wb') as devnull:
+                    subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
+            except:
+                print >>sys.stderr, "Failed to run documentation example:\n\n%s\n\n" % ex.source
+
+def run_doc_examples(sections):
+    """Runs all examples marked as testable in the SciSQL documentation.
+    """
+    for sec in sections:
+        _test(sec)
+        for elt in itertools.chain(sec.udfs, sec.procs):
+            _test(elt)
+
+
+# -- Documentation generation ----
+
+def gen_docs(root, sections, html=True):
+    """Generates documentation for SciSQL, either in HTML or as a set of
+    MySQL tables (for the LSST schema browser).
+    """
+    lookup = TemplateLookup(directories=[os.path.join(root, 'tools', 'templates')])
+    if html:
+        template = lookup.get_template('index.mako')
+        with open(os.path.join(root, 'doc', 'index.html'), 'wb') as f:
+            f.write(template.render(sections=sections))
+    else:
+        template = lookup.get_template('lsst_schema_browser.mako')
+        sys.stdout.write(template.render(sections=sections))
+
+
+# -- Usage and command line processing
+
+usage = """
+%prog --help
+
+    Display usage information.
+
+%prog
+%prog test
+
+    Make sure code samples in the documentation actually run.
+
+%prog gen_html
+
+    Generate HTML documentation for SciSQL in doc/index.html.
+
+%prog gen_lsst
+
+    Generate documentation in LSST schema browser format and
+    write it to standard out.
+"""
+
+def main():
+    parser = optparse.OptionParser(usage=usage)
+    opts, args = parser.parse_args()
+    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test', 'gen_html', 'gen_lsst')):
+        parser.error("Too many arguments or illegal command")
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+    sections = extract_docs(root)
+    if len(args) == 0 or args[0] == 'test':
+        run_doc_examples(sections)
+    else:
+        gen_docs(root, sections, html=(args[0] == 'gen_html'))
 
 if __name__ == '__main__':
     main()
+

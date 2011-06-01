@@ -46,9 +46,9 @@
         </note>
     </notes>
     <example>
-        SELECT fluxToAbMagSigma(uFlux_PS, uFlux_PS_Sigma)
+        SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
             FROM Object
-            WHERE uFlux_PS IS NOT NULL and uFlux_PS_Sigma IS NOT NULL
+            WHERE rFlux_PS IS NOT NULL and rFlux_PS_Sigma IS NOT NULL
             LIMIT 10;
     </example>
 </udf>

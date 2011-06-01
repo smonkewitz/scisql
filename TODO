@@ -1,9 +1,4 @@
-- Finish up section documentation, create install_demo target that allows a
-  user to explore scisql functionality.
-
-- Output docs in format grokable by the LSST schema browser
-
-- Extract examples from documentation and run them a la doctest
+- Finish up section documentation
 
 - some UDFs and stored procedures still need unit tests
 

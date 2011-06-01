@@ -36,7 +36,7 @@
     <args>
         <arg name="message" type="STRING">Error message.</arg>
     </args>
-    <example>
+    <example test="false">
         SELECT scisqlFail('Lorem ipsum dolor');
     </example>
 </udf>

@@ -2,7 +2,7 @@
 <%namespace file="udf.mako" import="udf_docs"/>
 <%namespace file="proc.mako" import="proc_docs"/>
 <%def name="section_link(section)">
-	<h3><a href="#${section.name}">${section.title}</a></h3>
+	<h3><a href="#${section.name}">${section.title | h}</a></h3>
 </%def>
 <%def name="section_nav(section)">
 	% if len(section.udfs) > 0:

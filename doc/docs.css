@@ -11,6 +11,12 @@ body {
 pre, .decl, .argname, .argtype, .return {
 	font-family: Courier, monospace;
 }
+dt {
+	font-weight: bold;
+}
+dd {
+	margin: 0.5em 0 1em 4em;
+}
 ul {
 	list-style: none;
 }
@@ -154,4 +160,8 @@ table.signature td.argunits {
 }
 table.signature td.argdesc {
 	color: #505090;
+}
+
+.warning {
+	color: red;
 }

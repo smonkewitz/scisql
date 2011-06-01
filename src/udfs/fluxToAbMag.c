@@ -40,9 +40,9 @@
         </note>
     </notes>
     <example>
-        SELECT fluxToAbMag(uFlux_PS)
+        SELECT fluxToAbMag(rFlux_PS)
             FROM Object
-            WHERE uFlux_PS IS NOT NULL
+            WHERE rFlux_PS IS NOT NULL
             LIMIT 10;
     </example>
 </udf>
