@@ -202,8 +202,8 @@
 	</p>
 	<example>
 SELECT objectId
-	FROM Object
-	WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</example>
+    FROM Object
+    WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</example>
 	<p>
 		This query returns all the objects within 0.01 degrees of
 		(RA, Dec) = (0, 0). It is inefficient for small search regions
@@ -219,7 +219,7 @@ SELECT objectId
 	<example>
 ALTER TABLE Object DISABLE KEYS;
 UPDATE Object
-	SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+    SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
 ALTER TABLE Object ENABLE KEYS;</example>
 	<p>
 		The HTM subdivision level must be between 0 and 24. At subdivision
@@ -235,9 +235,9 @@ ALTER TABLE Object ENABLE KEYS;</example>
 CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
 
 SELECT o.objectId
-	FROM Object AS o INNER JOIN scisql.Region AS r
-		ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-	WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</example>
+    FROM Object AS o INNER JOIN scisql.Region AS r
+         ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+    WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</example>
 	<p>
 		What's going on here? The first line in the example calls the
 		s2CircleRegion() stored procedure. This procedure creates a temporary
@@ -263,15 +263,15 @@ SELECT o.objectId
 	</p>
 	<example>
 SELECT ccdPoly FROM Science_Ccd_Exposure
-	WHERE scienceCcdExposureId = 43856062009
-	INTO @poly;
+    WHERE scienceCcdExposureId = 43856062009
+    INTO @poly;
 
 CALL scisql.s2CPolyRegion(@poly, 20);
 
 SELECT o.objectId
-	FROM Object AS o INNER JOIN scisql.Region AS r
-		ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-	WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</example>
+    FROM Object AS o INNER JOIN scisql.Region AS r
+         ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+    WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</example>
 	<p>
 		The first statement stores the polygonal boundary of a particular CCD
 		exposure into the user variable <tt>@poly</tt>, the second computes
@@ -285,7 +285,7 @@ SELECT o.objectId
 	</p>
 	<example>
 SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
-	WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</example>
+    WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</example>
 	<p>
 		This query returns all the CCD exposures containing the point
 		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
@@ -300,18 +300,18 @@ CREATE TABLE Science_Ccd_Exposure_HtmId10 (
 );</example>
 	<p>
 		<tt>Science_Ccd_Exposure_HtmId10</tt> will store the level 10 HTM ID
-		of each triangle overlapping each CCD exposure. To populate it, start
+		of every triangle overlapping a CCD exposure. To populate it, start
 		by dumping the primary key and polygon vertex colunms from 
 		<tt>Science_Ccd_Exposure</tt>:
 	</p>
 	<example>
 SELECT scienceCcdExposureId,
-	llcRa, llcDecl,
-	ulcRa, ulcDecl,
-	urcRa, urcDecl,
-	lrcRa, lrcDecl
-	FROM Science_Ccd_Exposure
-	INTO OUTFILE '/tmp/ccds.tsv';</example>
+       llcRa, llcDecl,
+       ulcRa, ulcDecl,
+       urcRa, urcDecl,
+       lrcRa, lrcDecl
+    FROM Science_Ccd_Exposure
+    INTO OUTFILE '/tmp/ccds.tsv';</example>
 	<p>
 		Then, run the SciSQL region indexing utility:
 	</p>
@@ -329,13 +329,13 @@ LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_Ht
 	</p>
 	<example>
 SELECT sce.scienceCcdExposureId
-	FROM Science_Ccd_Exposure AS sce, (
-		SELECT scienceCcdExposureId
-		FROM Science_Ccd_Exposure_HtmId10
-		WHERE htmId10 = s2HtmId(0, 0, 10)
-	) AS h
-	WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
-		s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</example>
+    FROM Science_Ccd_Exposure AS sce, (
+             SELECT scienceCcdExposureId
+             FROM Science_Ccd_Exposure_HtmId10
+             WHERE htmId10 = s2HtmId(0, 0, 10)
+         ) AS h
+    WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
+          s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</example>
 	</div>
 </section>
 
