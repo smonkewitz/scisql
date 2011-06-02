@@ -516,11 +516,80 @@ static void testPolygons() {
 }
 
 
+/*  Checks that ID range list a is a subset of b.
+ */
+static void checkSubset(scisql_ids const *a, scisql_ids const *b) {
+    size_t i, j;
+    for (i = 0, j = 0; i < a->n && j < b->n;) {
+        if (a->ranges[2*i] > b->ranges[2*j + 1]) {
+            ++j;
+            continue;
+        }
+        SCISQL_ASSERT(a->ranges[2*i] >= b->ranges[2*j],
+                      "fine range list is not a subset of coarse range list");
+        SCISQL_ASSERT(a->ranges[2*i + 1] <= b->ranges[2*j + 1],
+                      "fine range list is not a subset of coarse range list");
+        ++i;
+    }
+    SCISQL_ASSERT(i == a->n,
+                  "fine range list is not a subset of coarse range list");
+}
+
+
+/*  Tests adaptive coarsening of effective subdivision level with circles.
+ */
+static void testAdaptiveCircle() {
+    static const double radii[3] = { 0.001, 0.1, 10.0 };
+    scisql_v3 center = test_points[18].v;
+    scisql_ids *coarse = 0;
+    scisql_ids *fine = 0;
+    int i, level;
+    for (i = 0; i < 3; ++i) {
+        for (level = 0; level <= SCISQL_HTM_MAX_LEVEL; ++level) {
+            fine = scisql_s2circle_htmids(fine, &center, radii[i], level, SIZE_MAX);
+            SCISQL_ASSERT(fine != 0, "scisql_s2cpoly_htmids() failed");
+            coarse = scisql_s2circle_htmids(coarse, &center, radii[i], level, 16);
+            SCISQL_ASSERT(coarse != 0, "scisql_s2cpoly_htmids() failed");
+            checkSubset(fine, coarse); 
+       }
+    }
+    free(coarse);
+    free(fine);
+}
+
+
+/*  Tests adaptive coarsening of effective subdivision level with polygons.
+ */
+static void testAdaptivePoly() {
+    static const double radii[3] = { 0.001, 0.1, 1.0 };
+    scisql_s2cpoly poly;
+    scisql_v3 center = test_points[18].v;
+    scisql_ids *coarse = 0;
+    scisql_ids *fine = 0;
+    int i, level;
+    for (i = 0; i < 3; ++i) {
+        int ret = ngon(&poly, 4, &center, radii[i]);
+        SCISQL_ASSERT(ret == 0, "ngon() failed");
+        for (level = 0; level <= SCISQL_HTM_MAX_LEVEL; ++level) {
+            fine = scisql_s2cpoly_htmids(fine, &poly, level, SIZE_MAX);
+            SCISQL_ASSERT(fine != 0, "scisql_s2cpoly_htmids() failed");
+            coarse = scisql_s2cpoly_htmids(coarse, &poly, level, 16);
+            SCISQL_ASSERT(coarse != 0, "scisql_s2cpoly_htmids() failed");
+            checkSubset(fine, coarse);
+       }
+    }
+    free(coarse);
+    free(fine);
+}
+
+
 int main(int argc SCISQL_UNUSED, char **argv SCISQL_UNUSED) {
     testPoints();
     testRandomPoints();
     testCircles();
     testPolygons();
+    testAdaptiveCircle();
+    testAdaptivePoly();
     return 0;
 }
 
