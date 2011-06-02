@@ -103,6 +103,14 @@
 	run <tt>`make distclean`</tt> once sciSQL has been installed. This will remove the
 	entire build directory and its contents.
 	</p>
+	<p>
+	If you wish to build/install only the SciSQL client utilities and documentation,
+	run configure with the --client-only option. In this case, a MySQL server or
+	client install is not required, the only executable generated is scisql_index
+	(a utility which generates HTM indexes for tables of circles or polygons stored
+	in tab-separated-value format), and --prefix can be set to a directory of your
+	choice.
+	</p>
 
 	<h3>Build/Install</h3>
 	<p>

@@ -22,6 +22,7 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
+
 from __future__ import with_statement
 
 import getpass
@@ -80,8 +81,7 @@ def _parseMyCnf(my_cnf):
 class MySqlUdfTestCase(unittest.TestCase):
     """Base class for MySQL UDF test-cases.
     """
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         connkw = _parseMyCnf(os.environ['MYSQL_CNF'])
         self._conn = sql.connect(**connkw)
         try:
@@ -96,10 +96,11 @@ class MySqlUdfTestCase(unittest.TestCase):
             self._conn.close()
             raise
 
-    @classmethod
-    def tearDownClass(self):
+    def tearDown(self):
         self._cursor.close()
         self._conn.close()
+        del self._cursor
+        del self._conn
 
     def query(self, stmt):
         self._cursor.execute(stmt)

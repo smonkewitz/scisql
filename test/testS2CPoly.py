@@ -22,12 +22,9 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the s2PtInCPoly() and s2CPolyToBin() UDFs.
-#
 
 from __future__ import with_statement
+
 import random
 import sys
 import unittest
@@ -51,6 +48,7 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                       (ny, nx, nz),
                       (nx, y, nz),
                       (y, x, nz)]
+        super(S2CPolyTestCase, self).setUp()
 
     def _s2PtInCPoly(self, result, *args):
         stmt = "SELECT s2PtInCPoly(%s)" % ",".join(map(dbparam, args))

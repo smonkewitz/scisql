@@ -22,10 +22,7 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the s2PtInBox() UDF.
-#
+
 import sys
 import unittest
 
