@@ -1,9 +1,15 @@
 Science Tools for MySQL
 =======================
 
-    Science-specific tools and extensions for SQL. Currently the project
-contains user defined functions (UDFs) for MySQL including spatial geometry,
-photometry, and statistics functions.
+    SciSQL provides science-specific tools and extensions for SQL. Currently,
+the project contains user defined functions (UDFs) and stored procedures for
+MySQL in the areas of spherical geometry, statistics, and photometry. It is
+distributed under the terms of the GNU Lesser General Public License,
+version 3.
+
+    Note that the doc/index.html file in the SciSQL distribution contains
+all the instructions below, as well as documentation for all the SciSQL UDFs
+and stored procedures.
 
 
 Installation prerequisites:
@@ -22,15 +28,15 @@ In order to install the UDFs, you need write permission to the MySQL server
 plug-in directory as well as a MySQL account with admin priviledges.
 
 
-WARNING:
---------
+Databases reserved for SciSQL use:
+----------------------------------
 
 The following database names are reserved for use by SciSQL:
 
 - scisql                  Contains SciSQL stored procedures.
 - scisql_test             Used by SciSQL unit tests.
 - scisql_demo             Contains sample data that can be used to
-                          excercise the SciSQL UDFs.
+                          exercise the SciSQL UDFs.
 
 The scisql and scisql_demo databases are dropped and re-created during
 installation. If you are using these databases for other things,
@@ -54,9 +60,9 @@ Connection details, including this password, are stored in
 build/c4che/.my.cnf in the MySQL options file format. This allows various
 build steps to connect to MySQL without constantly prompting for a password.
 
-Though the .my.cnf file permissions are set such that only the creator is
-allowed read/write access, for security reasons it is still recommended to
-run `make distclean` once SciSQL has been installed - this will remove the
+Even though the .my.cnf file permissions are set such that only its creator
+is allowed read/write access, for security reasons it is still recommended to
+run `make distclean` once SciSQL has been installed. This will remove the
 entire build directory and its contents.
 
 

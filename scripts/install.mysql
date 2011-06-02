@@ -219,8 +219,8 @@ END //
 -- <proc name="scisqlGrant" section="misc">
 --     <desc>
 --         Gives a user connecting from the specified host permission to call
---         scisql stored procedures and the use the temporary tables they
---         generate. 
+--         SciSQL stored procedures and to create/use temporary tables in the
+--         scisql database.
 --     </desc>
 --     <args>
 --         <arg name="user" type="VARCHAR(255)">

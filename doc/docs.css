@@ -112,7 +112,16 @@ ul {
 	padding: 0.1em 0.1em 0.1em 0.5em;
 }
 .section-docs {
-	margin-left: 2em;
+	margin-left: 50px;
+}
+.section-docs h3 {
+	margin-left: -50px;
+        padding-left: 1em;
+	border-top: 1px solid #99B;
+	background: #EEF;
+}
+.section-docs h3.warning {
+	background: #FEE;
 }
 
 .internal {

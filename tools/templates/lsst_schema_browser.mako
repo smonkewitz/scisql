@@ -22,7 +22,7 @@ CREATE TABLE md_Udf (
 	name VARCHAR(255) NOT NULL UNIQUE,
 	category VARCHAR(255) NOT NULL,
 	htmlDocs TEXT,
-        INDEX md_Udf_category (category)
+        INDEX md_Udf_name (name)
 );
 
 CREATE TABLE md_Proc (
@@ -31,7 +31,7 @@ CREATE TABLE md_Proc (
 	dbName VARCHAR(255) NOT NULL,
         category VARCHAR(255) NOT NULL,
         htmlDocs TEXT,
-        INDEX md_Proc_category (category)
+        INDEX md_Proc_name (name)
 );
 
 

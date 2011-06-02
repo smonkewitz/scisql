@@ -17,7 +17,7 @@
 	        <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
 	</ul>
 	<p>
-	The SciSQL documentation makes use of:
+	SciSQL is also distributed with a pair of Javascript libraries. These are:
 	</p>
 	<ul>
 		<li>
@@ -27,8 +27,8 @@
 		</li>
 		<li>
 			<a href="http://code.google.com/p/google-code-prettify/">Google prettify</a>,
-			distriuted under the <a href="http://www.apache.org/licenses/LICENSE-2.0">
-			Apache License, Version 2.0</a>
+			distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">
+			Apache License version 2.0</a>
 		</li>
 	</ul>
 	</div>
@@ -58,7 +58,7 @@
 	plug-in directory, as well as a MySQL account with admin priviledges.
 	</p>
 
-	<h3 class="warning">WARNING</h3>
+	<h3 class="warning">Databases reserved for SciSQL use</h3>
 	<p>
 	The following database names are reserved for use by SciSQL:
 	</p>
@@ -68,7 +68,7 @@
 		<dt>scisql_test</dt>
 		<dd>Used by SciSQL unit tests.</dd>
 		<dt>scisql_demo</dt>
-		<dd>Contains sample data that can be used to excercise the SciSQL UDFs.</dd>
+		<dd>Contains sample data that can be used to exercise the SciSQL UDFs.</dd>
 	</dl>
 	<p>
 	The scisql and scisql_demo databases are dropped and re-created during
@@ -98,9 +98,9 @@
 	build steps to connect to MySQL without constantly prompting for a password.
 	</p>
 	<p>
-	Though the <tt>.my.cnf</tt> file permissions are set such that only the creator is
-	allowed read/write access, for security reasons it is still recommended to
-	run <tt>`make distclean`</tt> once sciSQL has been installed - this will remove the
+	Even though the <tt>.my.cnf</tt> file permissions are set such that only its creator
+	is allowed read/write access, for security reasons it is still recommended to
+	run <tt>`make distclean`</tt> once sciSQL has been installed. This will remove the
 	entire build directory and its contents.
 	</p>
 
@@ -110,8 +110,24 @@
 	<tt>make install</tt>, and <tt>make uninstall</tt> commands.
 	</p>
 	<p>
-TODO TODO TODO
+        The <tt>install</tt> command will CREATE the SciSQL UDFs, stored procedures, and
+        databases (including the scisql_demo database). It will also automatically
+        run the SciSQL unit tests. You can re-run the tests anytime with <tt>`make test`</tt>.
 	</p>
+        <p>
+        The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
+        </p>
+
+        <h3>Reporting bugs and getting help</h3>
+        <p>
+        If you encounter test-case failures, or think you've identified a
+        bug in the SciSQL code, please file a report here:
+        </p>
+        <p><a href="https://bugs.launchpad.net/scisql/+filebug">https://bugs.launchpad.net/scisql/+filebug</a></p>
+        <p>
+        For other help or inquiries, submit your questions here:
+        </p>
+        <p><a href="https://answers.launchpad.net/scisql/+addquestion">https://answers.launchpad.net/scisql/+addquestion</a></p>
 	</div>
 </section>
 
