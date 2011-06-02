@@ -533,6 +533,8 @@ static void checkSubset(scisql_ids const *a, scisql_ids const *b) {
     }
     SCISQL_ASSERT(i == a->n,
                   "fine range list is not a subset of coarse range list");
+    SCISQL_ASSERT(j == b->n - 1,
+                  "coarse range list includes unnecessary ranges");
 }
 
 
