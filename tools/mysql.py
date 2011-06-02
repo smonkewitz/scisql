@@ -73,6 +73,7 @@ def check_mysql(self, **kw):
         if not os.path.isfile(mysql) or not os.access(mysql, os.X_OK):
             self.fatal('${PREFIX}/bin/mysql does not identify an executable')
     self.env.MYSQL = mysql
+    self.env.MYSQL_DIR = self.env.PREFIX
     self.end_msg(mysql)
     self.env.MYSQL_USER = self.options.mysql_user
     self.env.MYSQL_SOCKET = self.options.mysql_socket

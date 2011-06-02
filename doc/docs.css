@@ -108,15 +108,15 @@ ul {
 .section h2 {
 	background: #EEF;
 	border-top: 1px solid #99B;
-	margin: 0 0 1em 0;
+	margin: 2em 0 1em 0;
 	padding: 0.1em 0.1em 0.1em 0.5em;
 }
 .section-docs {
 	margin-left: 50px;
 }
 .section-docs h3 {
-	margin-left: -50px;
-        padding-left: 1em;
+	margin: 2em 0 1em -50px;
+	padding-left: 1em;
 	border-top: 1px solid #99B;
 	background: #EEF;
 }

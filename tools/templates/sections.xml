@@ -135,8 +135,207 @@
 <section name="s2" title="Spherical Geometry">
 	<div class="section-docs">
 	<p>
-	TODO
+		The aim of the spherical geometry UDFs and stored procedures is to
+		allow quick answers to the following sorts of questions:
 	</p>
+	<ol>
+		<li>
+		<em>Which points in a table lie inside a region on the sphere?</em> For example,
+		an astronomer might wish to know which stars and galaxies lie inside the
+		region of the sky observed by a single camera CCD.
+		</li>
+		<li>
+		<em>Which spherical regions in a table contain a particular point?</em> For
+		example, an astronomer might with to know which telescope images overlap
+		the position of interesting object X.
+		</li>
+	</ol>
+
+	<h3>HTM indexing</h3>
+	<p>
+		To accelerate these types of queries, SciSQL maps points/regions
+		to the integer ID(s) of their containing/overlapping triangles in a
+		Hierarchical Triangular Mesh (HTM). This is a decomposition of the
+		unit sphere defined by A. Szalay, T. Budavari, G. Fekete at the
+		Johns Hopkins University, and Jim Gray, Microsoft Research. See
+		the following links for more information:
+	</p>
+	<ul>
+		<li><a href="http://voservices.net/spherical/">http://voservices.net/spherical/</a></li>
+		<li><a href="http://adsabs.harvard.edu/abs/2010PASP..122.1375B">http://adsabs.harvard.edu/abs/2010PASP..122.1375B</a></li>
+	</ul>
+	<p>
+		To accelerate spatial queries, standard B-tree indexes are created
+		on the point/region HTM IDs and spatial constraints are expressed
+		in terms of those IDs. This allows the database optimizer to restrict
+		the rows that must be considered by a spatial query.
+	</p>
+	<p>
+		Read on to learn how to create and take advantage of HTM indexes on
+		tables containing spatial data. The examples below can be run in the
+		scisql_demo database, which contains all of the referenced tables
+		and a tiny amount of sample data.
+	</p>
+
+	<h3>Supported region types</h3>
+	<p>
+		SciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
+		spherical circles (defined by a center and opening angle), spherical
+		ellipses (the orthographic projection of a standard 2-d ellipse onto
+		the sphere, where the 2-d ellipse is on a plane tangent to the unit
+		sphere at the ellipse center), and spherical convex polygons (where
+		polygon edges are great circles). Note also that spherical convex
+		polygons have a binary representation, produced by s2CPolyToBin(),
+		allowing them to be stored as values in a BINARY table column.
+	</p>
+
+	<h3>Points-in-region queries</h3>
+	<p>
+		SciSQL contains several UDFs for checking whether a point lies inside
+		a region. These are: s2PtInBox(), s2PtInCircle(), s2PtInCPoly() and
+		s2PtInEllipse(). They return 1 if the input point is inside the input
+		region and 0 otherwise.
+	</p>
+	<p>
+		Given these UDFs, a simple way to answer question 1 is illustrated by
+		the following example:
+	</p>
+	<example>
+SELECT objectId
+	FROM Object
+	WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</example>
+	<p>
+		This query returns all the objects within 0.01 degrees of
+		(RA, Dec) = (0, 0). It is inefficient for small search regions
+		because the s2PtInCircle() UDF must be called for every row in
+		the <tt>Object</tt> table.
+	</p>
+	<p>
+		Lets assume that <tt>Object</tt> contains an indexed BIGINT column
+		named <tt>htmId20</tt>. If it does not, the column and index can be
+		added with ALTER TABLE. <tt>htmId20</tt> can be populated with the
+		subdivision-level 20 HTM IDs of object positions as follows:
+	</p>
+	<example>
+ALTER TABLE Object DISABLE KEYS;
+UPDATE Object
+	SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+ALTER TABLE Object ENABLE KEYS;</example>
+	<p>
+		The HTM subdivision level must be between 0 and 24. At subdivision
+		level N, there are 8*4<sup>N</sup> triangles in the mesh, so the
+		higher subdivision levels correspond to finer tesselations of the
+		unit sphere.
+	</p>
+	<p>
+		Now that HTM IDs for object positions are available and indexed,
+		the query above can be made more efficient:
+	</p>
+	<example>
+CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
+
+SELECT o.objectId
+	FROM Object AS o INNER JOIN scisql.Region AS r
+		ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+	WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</example>
+	<p>
+		What's going on here? The first line in the example calls the
+		s2CircleRegion() stored procedure. This procedure creates a temporary
+		table called <tt>scisql.Region</tt> with two BIGINT NOT NULL columns
+		named htmMin and htmMax. It then stores the HTM IDs overlapping the
+		search region in <tt>scisql.Region</tt> (as ranges).
+	</p>
+	<p>
+		Next, the original query is augmented with a join against
+		<tt>scisql.Region</tt>. This limits the objects considered by
+		s2PtInCircle() to those within the HTM triangles overlapping the
+		search region; the index on htmId20 allows MySQL to retrieve these
+		objects very quickly when the search region is small. Note that if
+		the search region is large (meaning that a large fraction of the
+		table being searched is inside the search region), then the original 
+		query may actually be faster.
+	</p>
+	<p>
+		Here is another example, this time with a search region taken from
+		a table called <tt>Science_Ccd_Exposure</tt>. This table includes a 
+		a column named ccdPoly that contains polygonal approximations to the
+                regions of the sphere observed by CCD exposures.
+	</p>
+	<example>
+SELECT ccdPoly FROM Science_Ccd_Exposure
+	WHERE scienceCcdExposureId = 43856062009
+	INTO @poly;
+
+CALL scisql.s2CPolyRegion(@poly, 20);
+
+SELECT o.objectId
+	FROM Object AS o INNER JOIN scisql.Region AS r
+		ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+	WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</example>
+	<p>
+		The first statement stores the polygonal boundary of a particular CCD
+		exposure into the user variable <tt>@poly</tt>, the second computes
+		overlapping HTM IDs, and the third performs the points-in-region
+		query as before.
+	</p>
+
+	<h3>Regions-containing-point queries</h3>
+	<p>
+		An example for this type of query is:
+	</p>
+	<example>
+SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
+	WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</example>
+	<p>
+		This query returns all the CCD exposures containing the point
+		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
+		auxiliary table is introduced:
+	</p>
+	<example test="false">
+CREATE TABLE Science_Ccd_Exposure_HtmId10 (
+    scienceCcdExposureId BIGINT  NOT NULL,
+    htmId10              INTEGER NOT NULL,
+    PRIMARY KEY (htmId10, scienceCcdExposureId),
+    KEY (scienceCcdExposureId)
+);</example>
+	<p>
+		<tt>Science_Ccd_Exposure_HtmId10</tt> will store the level 10 HTM ID
+		of each triangle overlapping each CCD exposure. To populate it, start
+		by dumping the primary key and polygon vertex colunms from 
+		<tt>Science_Ccd_Exposure</tt>:
+	</p>
+	<example>
+SELECT scienceCcdExposureId,
+	llcRa, llcDecl,
+	ulcRa, ulcDecl,
+	urcRa, urcDecl,
+	lrcRa, lrcDecl
+	FROM Science_Ccd_Exposure
+	INTO OUTFILE '/tmp/ccds.tsv';</example>
+	<p>
+		Then, run the SciSQL region indexing utility:
+	</p>
+	<example lang="bash">
+${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/ccd_htmid10.tsv /tmp/ccds.tsv</example>
+	<p>
+		and load the results:
+	</p>
+	<example>
+TRUNCATE TABLE Science_Ccd_Exposure_HtmId10;
+LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</example>
+	<p>
+		The example regions-containing-point query can now be expressed
+		more efficiently as:
+	</p>
+	<example>
+SELECT sce.scienceCcdExposureId
+	FROM Science_Ccd_Exposure AS sce, (
+		SELECT scienceCcdExposureId
+		FROM Science_Ccd_Exposure_HtmId10
+		WHERE htmId10 = s2HtmId(0, 0, 10)
+	) AS h
+	WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
+		s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</example>
 	</div>
 </section>
 
