@@ -98,6 +98,18 @@ static const scisql_v3p test_points[NTEST_POINTS] = {
     { {        C1,       -C0,       -C0 }, 0 }, /* center of S32 */
 };
 
+/* Returns 1 if v (assumed to come from test_points) is a midpoint of
+   two axis vectors (+/- x,y,z). These midpoints can legitimately end
+   up in any of 3 children of the root triangles due to numerical
+   inaccuracies. The actual child may be different depending on
+   the compiler and optimization level being used. */
+static int is_midpoint(const scisql_v3 *v) {
+   int i0 = v->x == 0.0;
+   int i1 = v->y == 0.0;
+   int i2 = v->z == 0.0;
+   return i0 + i1 + i2 == 1; 
+}
+
 enum {
     S0 = (SCISQL_HTM_S0 + 8), S00 = (SCISQL_HTM_S0 + 8)*4, S01, S02, S03,
     S1 = (SCISQL_HTM_S1 + 8), S10 = (SCISQL_HTM_S1 + 8)*4, S11, S12, S13,
@@ -260,8 +272,11 @@ static void testPoints() {
         SCISQL_ASSERT(ret == 0, "scisql_v3p_htmsort() failed");
         for (i = 0; i < NTEST_POINTS; ++i) {
             int64_t id = scisql_v3_htmid(&pts[i].v, level);
-            SCISQL_ASSERT(id == ids[i], "scisql_v3p_htmsort() does not "
-                          "agree with scisql_v3_htmid()");
+            if (id != ids[i]) {
+                SCISQL_ASSERT(level > 0 && is_midpoint(&pts[i].v),
+                              "scisql_v3p_htmsort() does not agree "
+                              "with scisql_v3_htmid()");
+            }
         }
         for (i = 0; i < NTEST_POINTS; ++i) {
             int64_t eid = results[level][i].id;
@@ -277,8 +292,11 @@ static void testPoints() {
                 SCISQL_ASSERT(ret == 0, "scisql_v3p_htmsort() failed");
                 for (k = 0; k < i; ++k) {
                     int64_t id = scisql_v3_htmid(&pts[k].v, level);
-                    SCISQL_ASSERT(id == ids[k], "scisql_v3p_htmsort() does not "
-                                  "agree with scisql_v3_htmid()");
+                    if (id != ids[k]) {
+                        SCISQL_ASSERT(level > 0 && is_midpoint(&pts[k].v),
+                                      "scisql_v3p_htmsort() does not agree "
+                                      "with scisql_v3_htmid()");
+                    }
                 }
             }
         }
