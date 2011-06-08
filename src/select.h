@@ -80,7 +80,7 @@ SCISQL_LOCAL double scisql_min(const double *array, size_t n);
 
 /* ---- Median/percentile ---- */
 
-#define SCISQL_MMAP_FSIZE   (((size_t) 1) << 31)
+#define SCISQL_MMAP_FSIZE   (((size_t) 1) << 30)
 #define SCISQL_MALLOC_SLOTS 8192
 #define SCISQL_MAX_NELEMS   (SCISQL_MMAP_FSIZE / sizeof(double))
 
