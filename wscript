@@ -200,6 +200,7 @@ class Tests(object):
         else:
             Logs.pprint('YELLOW', '\n%d tests passed, %d failed, and %d failed to run\n' %
                         (nok, nfail, nexcept))
+            ctx.fatal('One or more sciSQL unit tests failed')
 
 def test(ctx):
     tests = Tests()
