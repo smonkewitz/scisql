@@ -59,7 +59,7 @@
             INTEGER, SMALLINT, or TINYINT.
         </note>
         <note>
-            This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+            This UDF can handle a maximum of 2<sup>27</sup> (134,217,728)
             input values per GROUP.
         </note>
     </notes>

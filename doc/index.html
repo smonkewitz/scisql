@@ -1550,7 +1550,7 @@ SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
             inaccurate result. Loss of precision will not occur so long as
             median() is called on values of type DOUBLE PRECISION, FLOAT,
             INTEGER, SMALLINT, or TINYINT.</li>
-			<li class="">This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+			<li class="">This UDF can handle a maximum of 2<sup>27</sup> (134,217,728)
             input values per GROUP.</li>
 		</ul>
 		<h5>Examples</h5>
@@ -1612,7 +1612,7 @@ SELECT objectId, median(psfFlux)
             inaccurate result. Loss of precision will not occur so long as
             median() is called on values of type DOUBLE PRECISION, FLOAT,
             INTEGER, SMALLINT, or TINYINT.</li>
-			<li class="">This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+			<li class="">This UDF can handle a maximum of 2<sup>27</sup> (134,217,728)
             input values per GROUP.</li>
 		</ul>
 		<h5>Examples</h5>

@@ -92,7 +92,7 @@ SCISQL_LOCAL double scisql_min(const double *array, size_t n);
     values.  If more are added, a memory mapped file in /tmp is used
     instead.
 
-    At the moment, a maximum of 2^28, or ~270 million values can be
+    At the moment, a maximum of 2^27, or ~134 million values can be
     handled (SCISQL_MAX_NELEMS).
 */
 typedef struct {
