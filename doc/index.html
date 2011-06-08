@@ -1,0 +1,1810 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>SCISQL Documentation</title>
+	<link href="docs.css" type="text/css" rel="stylesheet" />
+	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="prettify/prettify.js"></script>
+	<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
+</head>
+
+<body>
+<div id="header">sciSQL: Science Tools for MySQL</div>
+<div id="index">Index</div>
+<div id="title"></div>
+
+<div id="nav">
+<ul>
+	<li>
+		
+	<h3><a href="#overview">Overview</a></h3>
+
+		
+
+	</li>
+	<li>
+		
+	<h3><a href="#install">Building &amp; Installation</a></h3>
+
+		
+
+	</li>
+	<li>
+		
+	<h3><a href="#s2">Spherical Geometry</a></h3>
+
+		
+		<h4>Functions</h4>
+		<ul class="section_nav">
+			<li><a href="#s2-angSep" title="Returns the angular separation in degrees between two positions on the unit sphere.">angSep</a></li>
+			<li><a href="#s2-s2CPolyHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a spherical convex polygon.">s2CPolyHtmRanges</a></li>
+			<li><a href="#s2-s2CPolyToBin" title="Returns a binary-string representation of a spherical convex polygon.">s2CPolyToBin</a></li>
+			<li><a href="#s2-s2CircleHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a circle on the unit sphere.">s2CircleHtmRanges</a></li>
+			<li><a href="#s2-s2HtmId" title="Returns the HTM ID of a point at the given subdivision level.">s2HtmId</a></li>
+			<li><a href="#s2-s2PtInBox" title="Returns 1 if the point (lon, lat) lies inside the given longitude/latitude angle box, and 0 otherwise.">s2PtInBox</a></li>
+			<li><a href="#s2-s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">s2PtInCPoly</a></li>
+			<li><a href="#s2-s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">s2PtInCircle</a></li>
+			<li><a href="#s2-s2PtInEllipse" title="Returns 1 if the point (lon, lat) lies inside the given spherical ellipse and 0 otherwise.">s2PtInEllipse</a></li>
+		</ul>
+		<h4>Procedures</h4>
+		<ul class="section_nav">
+			<li><a href="#s2-s2CPolyRegion" title="Creates a temporary table `scisql.">s2CPolyRegion</a></li>
+			<li><a href="#s2-s2CircleRegion" title="Creates a temporary table `scisql.">s2CircleRegion</a></li>
+		</ul>
+
+	</li>
+	<li>
+		
+	<h3><a href="#photometry">Photometry</a></h3>
+
+		
+		<ul class="section_nav">
+			<li><a href="#photometry-dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">dnToAbMag</a></li>
+			<li><a href="#photometry-dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">dnToAbMagSigma</a></li>
+			<li><a href="#photometry-dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">dnToFlux</a></li>
+			<li><a href="#photometry-dnToFluxSigma" title="Converts a raw flux error to a calibrated (AB) flux error.">dnToFluxSigma</a></li>
+			<li><a href="#photometry-fluxToAbMag" title="Converts a cailbrated (AB) flux to an AB magnitude.">fluxToAbMag</a></li>
+			<li><a href="#photometry-fluxToAbMagSigma" title="Converts a cailbrated (AB) flux error to an AB magnitude error.">fluxToAbMagSigma</a></li>
+		</ul>
+
+	</li>
+	<li>
+		
+	<h3><a href="#statistics">Statistics</a></h3>
+
+		
+		<ul class="section_nav">
+			<li><a href="#statistics-median" title="Returns the median of a GROUP of values.">median</a></li>
+			<li><a href="#statistics-percentile" title="Returns the desired percentile of a GROUP of values.">percentile</a></li>
+		</ul>
+
+	</li>
+	<li>
+		
+	<h3><a href="#misc">Miscellaneous</a></h3>
+
+		
+		<h4>Functions</h4>
+		<ul class="section_nav">
+			<li><a href="#misc-extractInt64" title="Extracts a 64-bit integer stored in host byte order from a binary string.">extractInt64</a></li>
+			<li><a href="#misc-scisqlFail" title="Fails with an optional error message.">scisqlFail</a></li>
+			<li><a href="#misc-scisqlVersion" title="Returns the version of the sciSQL library in use.">scisqlVersion</a></li>
+		</ul>
+		<h4>Procedures</h4>
+		<ul class="section_nav">
+			<li><a href="#misc-scisqlGrant" title="Gives a user connecting from the specified host permission to call SciSQL stored procedures and to create/use temporary tables in the scisql database.">scisqlGrant</a></li>
+		</ul>
+
+	</li>
+</ul>
+</div> <!-- end of #nav -->
+
+
+<div id="content">
+        <!-- section anchors -->
+        <a name="overview"></a>
+        <a name="install"></a>
+        <a name="s2"></a>
+        <a name="photometry"></a>
+        <a name="statistics"></a>
+        <a name="misc"></a>
+
+<div id="section-overview" class="section">
+	
+	<div class="section-docs">
+	<p>
+        SciSQL provides science-specific tools and extensions for SQL. Currently, the project
+        contains user defined functions (UDFs) and stored procedures for MySQL in the areas
+        of spherical geometry, statistics, and photometry. The project was motivated by the
+        needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
+        and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
+        <a href="http://www.energy.gov/">DOE</a>. SciSQL is distributed under the terms of the
+        <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License v3</a>.
+	</p>
+	<ul>
+	        <li><a href="https://launchpad.net/scisql">Official site</a></li>
+	        <li><a href="https://bugs.launchpad.net/scisql/+filebug">Report a bug</a></li>
+	        <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
+	</ul>
+	<p>
+	SciSQL is also distributed with a pair of Javascript libraries. These are:
+	</p>
+	<ul>
+		<li>
+			<a href="http://jquery.com/">jQuery</a>, copyright John Resig and
+			dual-licensed under the <a href="http://jquery.org/license/">MIT
+			and GPL version 2 licenses</a>
+		</li>
+		<li>
+			<a href="http://code.google.com/p/google-code-prettify/">Google prettify</a>,
+			distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">
+			Apache License version 2.0</a>
+		</li>
+	</ul>
+	</div>
+
+
+</div> <!-- end of #section-overview -->
+
+<div id="section-install" class="section">
+	
+	<div class="section-docs">
+
+	<h3>Prerequisites</h3>
+	<dl>
+		<dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
+		<dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
+		<dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
+		<dd>
+			This is a Python DB API 2.0 implementation for MySQL,
+			and is required when running the unit tests.
+		</dd>
+		<dt><a href="http://www.makotemplates.org/download.html">Mako</a></dt>
+		<dd>
+			The Mako templating system is only required for developers,
+			and is used to build release documentation.
+		</dd>
+	</dl>
+	<p>
+	In order to install the UDFs, you will need write permission to the MySQL server
+	plug-in directory, as well as a MySQL account with admin priviledges.
+	</p>
+
+	<h3 class="warning">Databases reserved for SciSQL use</h3>
+	<p>
+	The following database names are reserved for use by SciSQL:
+	</p>
+	<dl>
+		<dt>scisql</dt>
+		<dd>Contains SciSQL stored procedures.</dd>
+		<dt>scisql_test</dt>
+		<dd>Used by SciSQL unit tests.</dd>
+		<dt>scisql_demo</dt>
+		<dd>Contains sample data that can be used to exercise the SciSQL UDFs.</dd>
+	</dl>
+	<p>
+	The scisql and scisql_demo databases are dropped and re-created during
+	installation. If you are using these databases for other things,
+	you must migrate their contents to a different database prior to installing
+	SciSQL. If you do not, <strong>YOU WILL LOSE DATA</strong>.
+	</p>
+
+	<h3>Configuration</h3>
+	<p>
+    	Run <tt>./configure</tt> from the top-level SciSQL directory. Passing <tt>--help</tt>
+	will yield a list of configuration options. Here are the ones most likely to require
+	tweaking:
+	</p>
+	<dl>
+		<dt><tt>--prefix</tt></dt>
+		<dd>Set this to the top-level MySQL server install directory.</dd>
+		<dt><tt>--mysql-user</tt></dt>
+		<dd>Set this to the name of a MySQL admin user</dd>
+		<dt><tt>--mysql-socket</tt></dt>
+		<dd>Set this to the name of the MySQL server UNIX socket file</dd>
+	</dl>
+	<p>
+	You will be prompted for the MySQL admin user password during configuration.
+	Connection details, including this password, are stored in
+	<tt>build/c4che/.my.cnf</tt> in the MySQL options file format. This allows various
+	build steps to connect to MySQL without constantly prompting for a password.
+	</p>
+	<p>
+	Even though the <tt>.my.cnf</tt> file permissions are set such that only its creator
+	is allowed read/write access, for security reasons it is still recommended to
+	run <tt>`make distclean`</tt> once sciSQL has been installed. This will remove the
+	entire build directory and its contents.
+	</p>
+	<p>
+	If you wish to build/install only the SciSQL client utilities and documentation,
+	run configure with the --client-only option. In this case, a MySQL server or
+	client install is not required, the only executable generated is scisql_index
+	(a utility which generates HTM indexes for tables of circles or polygons stored
+	in tab-separated-value format), and --prefix can be set to a directory of your
+	choice.
+	</p>
+
+	<h3>Build/Install</h3>
+	<p>
+	SciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
+	<tt>make install</tt>, and <tt>make uninstall</tt> commands.
+	</p>
+	<p>
+        The <tt>install</tt> command will CREATE the SciSQL UDFs, stored procedures, and
+        databases (including the scisql_demo database). It will also automatically
+        run the SciSQL unit tests. You can re-run the tests anytime with <tt>`make test`</tt>.
+	</p>
+        <p>
+        The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
+        </p>
+
+        <h3>Reporting bugs and getting help</h3>
+        <p>
+        If you encounter test-case failures, or think you've identified a
+        bug in the SciSQL code, please file a report here:
+        </p>
+        <p><a href="https://bugs.launchpad.net/scisql/+filebug">https://bugs.launchpad.net/scisql/+filebug</a></p>
+        <p>
+        For other help or inquiries, submit your questions here:
+        </p>
+        <p><a href="https://answers.launchpad.net/scisql/+addquestion">https://answers.launchpad.net/scisql/+addquestion</a></p>
+	</div>
+
+
+</div> <!-- end of #section-install -->
+
+<div id="section-s2" class="section">
+	
+	<div class="section-docs">
+	<p>
+		The aim of the spherical geometry UDFs and stored procedures is to
+		allow quick answers to the following sorts of questions:
+	</p>
+	<ol>
+		<li>
+		<em>Which points in a table lie inside a region on the sphere?</em> For example,
+		an astronomer might wish to know which stars and galaxies lie inside the
+		region of the sky observed by a single camera CCD.
+		</li>
+		<li>
+		<em>Which spherical regions in a table contain a particular point?</em> For
+		example, an astronomer might with to know which telescope images overlap
+		the position of interesting object X.
+		</li>
+	</ol>
+
+	<h3>HTM indexing</h3>
+	<p>
+		To accelerate these types of queries, SciSQL maps points/regions
+		to the integer ID(s) of their containing/overlapping triangles in a
+		Hierarchical Triangular Mesh (HTM). This is a decomposition of the
+		unit sphere defined by A. Szalay, T. Budavari, G. Fekete at the
+		Johns Hopkins University, and Jim Gray, Microsoft Research. See
+		the following links for more information:
+	</p>
+	<ul>
+		<li><a href="http://voservices.net/spherical/">http://voservices.net/spherical/</a></li>
+		<li><a href="http://adsabs.harvard.edu/abs/2010PASP..122.1375B">http://adsabs.harvard.edu/abs/2010PASP..122.1375B</a></li>
+	</ul>
+	<p>
+		To accelerate spatial queries, standard B-tree indexes are created
+		on the point/region HTM IDs and spatial constraints are expressed
+		in terms of those IDs. This allows the database optimizer to restrict
+		the rows that must be considered by a spatial query.
+	</p>
+	<p>
+		Read on to learn how to create and take advantage of HTM indexes on
+		tables containing spatial data. The examples below can be run in the
+		scisql_demo database, which contains all of the referenced tables
+		and a tiny amount of sample data.
+	</p>
+
+	<h3>Supported region types</h3>
+	<p>
+		SciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
+		spherical circles (defined by a center and opening angle), spherical
+		ellipses (the orthographic projection of a standard 2-d ellipse onto
+		the sphere, where the 2-d ellipse is on a plane tangent to the unit
+		sphere at the ellipse center), and spherical convex polygons (where
+		polygon edges are great circles). Note also that spherical convex
+		polygons have a binary representation, produced by s2CPolyToBin(),
+		allowing them to be stored as values in a BINARY table column.
+	</p>
+
+	<h3>Points-in-region queries</h3>
+	<p>
+		SciSQL contains several UDFs for checking whether a point lies inside
+		a region. These are: s2PtInBox(), s2PtInCircle(), s2PtInCPoly() and
+		s2PtInEllipse(). They return 1 if the input point is inside the input
+		region and 0 otherwise.
+	</p>
+	<p>
+		Given these UDFs, a simple way to answer question 1 is illustrated by
+		the following example:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+SELECT objectId
+    FROM Object
+    WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</pre>
+	<p>
+		This query returns all the objects within 0.01 degrees of
+		(RA, Dec) = (0, 0). It is inefficient for small search regions
+		because the s2PtInCircle() UDF must be called for every row in
+		the <tt>Object</tt> table.
+	</p>
+	<p>
+		Lets assume that <tt>Object</tt> contains an indexed BIGINT column
+		named <tt>htmId20</tt>. If it does not, the column and index can be
+		added with ALTER TABLE. <tt>htmId20</tt> can be populated with the
+		subdivision-level 20 HTM IDs of object positions as follows:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+ALTER TABLE Object DISABLE KEYS;
+UPDATE Object
+    SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+ALTER TABLE Object ENABLE KEYS;</pre>
+	<p>
+		The HTM subdivision level must be between 0 and 24. At subdivision
+		level N, there are 8*4<sup>N</sup> triangles in the mesh, so the
+		higher subdivision levels correspond to finer tesselations of the
+		unit sphere.
+	</p>
+	<p>
+		Now that HTM IDs for object positions are available and indexed,
+		the query above can be made more efficient:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
+
+SELECT o.objectId
+    FROM Object AS o INNER JOIN scisql.Region AS r
+         ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+    WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</pre>
+	<p>
+		What's going on here? The first line in the example calls the
+		s2CircleRegion() stored procedure. This procedure creates a temporary
+		table called <tt>scisql.Region</tt> with two BIGINT NOT NULL columns
+		named htmMin and htmMax. It then stores the HTM IDs overlapping the
+		search region in <tt>scisql.Region</tt> (as ranges).
+	</p>
+	<p>
+		Next, the original query is augmented with a join against
+		<tt>scisql.Region</tt>. This limits the objects considered by
+		s2PtInCircle() to those within the HTM triangles overlapping the
+		search region; the index on htmId20 allows MySQL to retrieve these
+		objects very quickly when the search region is small. Note that if
+		the search region is large (meaning that a large fraction of the
+		table being searched is inside the search region), then the original 
+		query may actually be faster.
+	</p>
+	<p>
+		Here is another example, this time with a search region taken from
+		a table called <tt>Science_Ccd_Exposure</tt>. This table includes a 
+		a column named ccdPoly that contains polygonal approximations to the
+                regions of the sphere observed by CCD exposures.
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+SELECT ccdPoly FROM Science_Ccd_Exposure
+    WHERE scienceCcdExposureId = 43856062009
+    INTO @poly;
+
+CALL scisql.s2CPolyRegion(@poly, 20);
+
+SELECT o.objectId
+    FROM Object AS o INNER JOIN scisql.Region AS r
+         ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+    WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</pre>
+	<p>
+		The first statement stores the polygonal boundary of a particular CCD
+		exposure into the user variable <tt>@poly</tt>, the second computes
+		overlapping HTM IDs, and the third performs the points-in-region
+		query as before.
+	</p>
+
+	<h3>Regions-containing-point queries</h3>
+	<p>
+		An example for this type of query is:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
+    WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</pre>
+	<p>
+		This query returns all the CCD exposures containing the point
+		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
+		auxiliary table is introduced:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+CREATE TABLE Science_Ccd_Exposure_HtmId10 (
+    scienceCcdExposureId BIGINT  NOT NULL,
+    htmId10              INTEGER NOT NULL,
+    PRIMARY KEY (htmId10, scienceCcdExposureId),
+    KEY (scienceCcdExposureId)
+);</pre>
+	<p>
+		<tt>Science_Ccd_Exposure_HtmId10</tt> will store the level 10 HTM ID
+		of every triangle overlapping a CCD exposure. To populate it, start
+		by dumping the primary key and polygon vertex colunms from 
+		<tt>Science_Ccd_Exposure</tt>:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+SELECT scienceCcdExposureId,
+       llcRa, llcDecl,
+       ulcRa, ulcDecl,
+       urcRa, urcDecl,
+       lrcRa, lrcDecl
+    FROM Science_Ccd_Exposure
+    INTO OUTFILE '/tmp/ccds.tsv';</pre>
+	<p>
+		Then, run the SciSQL region indexing utility:
+	</p>
+	<pre class="prettyprint lang-bash linenums">
+${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/ccd_htmid10.tsv /tmp/ccds.tsv</pre>
+	<p>
+		and load the results:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+TRUNCATE TABLE Science_Ccd_Exposure_HtmId10;
+LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</pre>
+	<p>
+		The example regions-containing-point query can now be expressed
+		more efficiently as:
+	</p>
+	<pre class="prettyprint lang-sql linenums">
+SELECT sce.scienceCcdExposureId
+    FROM Science_Ccd_Exposure AS sce, (
+             SELECT scienceCcdExposureId
+             FROM Science_Ccd_Exposure_HtmId10
+             WHERE htmId10 = s2HtmId(0, 0, 10)
+         ) AS h
+    WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
+          s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</pre>
+	</div>
+
+
+	<h2>Functions</h2>
+	
+	<div id="udf-s2-angSep" class="udf">
+		<h3><a name="s2-angSep"></a>angSep</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION angSep (</td>
+				<td class="argname">lon1</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of first position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat1</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of first position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lon2</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of second position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat2</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of second position.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION angSep (</td>
+				<td class="argname">x1</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">X coordinate of first position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">y1</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Y coordinate of first position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">z1</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Z coordinate of first position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">x2</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">X coordinate of second position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">y2</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Y coordinate of second position.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">z2</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Z coordinate of second position.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns the angular separation in degrees between two
+        positions on the unit sphere.
+
+        Positions may be specified either as spherical coordinate pairs
+        (lon1, lat1) and (lon2, lat2), or as 3-vectors (x1, y1, z1) and
+        (x2, y2, z2) with arbitrary norm. If spherical coordinates are used,
+        all arguments are assumed to be in units of degrees.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned. MySQL
+            does not currently support storage of IEEE special values. However,
+            their presence is checked for to ensure reasonable behavior if a
+            future MySQL release does end up supporting them.</li>
+			<li class="">If spherical coordinates are passed in and either latitude
+            angle is not in the [-90, 90] degree range, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT angSep(0, 0, 0, 90);
+SELECT angSep(1, 0, 0, 0, 0, 1);
+SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-s2-s2CPolyHtmRanges" class="udf internal">
+		<h3><a name="s2-s2CPolyHtmRanges"></a>[internal] s2CPolyHtmRanges</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2CPolyHtmRanges (</td>
+				<td class="argname">poly</td>
+				<td class="argtype">BINARY,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Binary string representation of a polygon.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">maxranges</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Maximum number of ranges to report.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS MEDIUMBLOB</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns a binary-string representation of HTM ID ranges
+        overlapping a spherical convex polygon. The polygon must
+        be specified in binary-string form (as produced by s2CPolyToBin()).
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, this is an error
+            and NULL is returned.</li>
+			<li class="">If poly does not correspond to a valid binary serialization
+            of a spherical convex polygon, this is an error and NULL
+            is returned.</li>
+			<li class="">If level does not lie in the range [0, 24], this is an
+            error and NULL is returned.</li>
+			<li class="">maxranges can be set to any value. In practice, its value
+            is clamped such that the binary return string has size at
+            most 16MB (fits in a MEDIUMBLOB). Negative values are
+            interpreted to mean: "return as many ranges as possible
+            subject to the 16MB output size limit".</li>
+		</ul>
+	</div>
+
+	
+	<div id="udf-s2-s2CPolyToBin" class="udf">
+		<h3><a name="s2-s2CPolyToBin"></a>s2CPolyToBin</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2CPolyToBin (</td>
+				<td class="argname">v1Lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of first polygon vertex.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v1Lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of first polygon vertex.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v2Lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of second polygon vertex.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v2Lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of second polygon vertex.</td>
+			</tr>
+			<tr><td></td><td class="argname">...</td><td class="argtype"></td><td colspan="2"></td></tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BINARY</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns a binary-string representation of a spherical convex
+        polygon. The polygon must be specified as a sequence of at least
+        3 and at most 20 vertices. An N vertex input will result in a
+        binary string of length exactly 24*(N + 1).
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, NaN or +/-Inf, this is an error
+            and NULL is returned.</li>
+			<li class="">If any latitude angle lies outside of [-90, 90] degrees,
+            this is an error and NULL is returned.</li>
+			<li class="">Polygon vertices can be specified in either clockwise or
+            counter-clockwise order. However, the vertices are assumed to be
+            hemispherical, to define edges that do not intersect except at
+            vertices, and to define edges that form a convex polygon.</li>
+			<li class="">Input coordinate must be convertible to type DOUBLE PRECISION.
+            If their actual type is BIGINT or DECIMAL, then the conversion
+            can result in loss of precision and hence an inaccurate result.
+            Loss of precision will not occur so long as the inputs are values of
+            type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CREATE TEMPORARY TABLE Poly (
+    ra1  DOUBLE PRECISION NOT NULL,
+    dec1 DOUBLE PRECISION NOT NULL,
+    ra2  DOUBLE PRECISION NOT NULL,
+    dec2 DOUBLE PRECISION NOT NULL,
+    ra3  DOUBLE PRECISION NOT NULL,
+    dec3 DOUBLE PRECISION NOT NULL,
+    poly BINARY(96) DEFAULT NULL
+);
+
+INSERT INTO Poly VALUES (-10,  0,
+                          10,  0,
+                           0, 10,
+                         NULL);
+
+UPDATE Poly
+    SET poly = s2CPolyToBin(ra1, dec1,
+                            ra2, dec2,
+                            ra3, dec3);
+</pre>
+	</div>
+
+	
+	<div id="udf-s2-s2CircleHtmRanges" class="udf internal">
+		<h3><a name="s2-s2CircleHtmRanges"></a>[internal] s2CircleHtmRanges</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2CircleHtmRanges (</td>
+				<td class="argname">centerLon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of circle center.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">centerLat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of circle center.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">radius</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle radius.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">maxranges</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Maximum number of ranges to report.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS MEDIUMBLOB</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns a binary-string representation of HTM ID ranges
+        overlapping a circle on the unit sphere. This string will be
+        at most 16MB long, i.e. it will fit in a MEDIUMBLOB.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The centerLon, centerLat, and radius arguments must be
+            convertible to type DOUBLE PRECISION. If they are of type
+            BIGINT or DECIMAL, then the conversion can result in loss
+            of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values
+            of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT,
+            or TINYINT.</li>
+			<li class="">The level and maxranges arguments must be integers.</li>
+			<li class="">If any parameter is NULL, NaN or +/-Inf, this is an error
+            and NULL is returned.</li>
+			<li class="">If centerLat is not in the [-90, 90] degree range,
+            this is an error and NULL is returned.</li>
+			<li class="">If radius is negative or greater than 180, this is
+            an error and NULL is returned.</li>
+			<li class="">If level does not lie in the range [0, 24], this is an
+            error and NULL is returned.</li>
+			<li class="">maxranges can be set to any value. In practice, its value
+            is clamped such that the binary return string has size at
+            most 16MB (fits in a MEDIUMBLOB). Negative values are
+            interpreted to mean: "return as many ranges as possible
+            subject to the 16MB output size limit".</li>
+		</ul>
+	</div>
+
+	
+	<div id="udf-s2-s2HtmId" class="udf">
+		<h3><a name="s2-s2HtmId"></a>s2HtmId</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2HtmId (</td>
+				<td class="argname">lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of the point to index.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of the point to index.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, required to lie in the range [0, 24].</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BIGINT</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns the HTM ID of a point at the given
+        subdivision level.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, NULL is returned.</li>
+			<li class="">If lon or lat is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).</li>
+			<li class="">If lat lies outside of [-90, 90] degrees, this is an error
+            and NULL is returned.</li>
+			<li class="">If level is not in the range [0, 24], this is an error
+            and NULL is returned.</li>
+			<li class="">The lon and lat arguments must be convertible to type DOUBLE
+            PRECISION. If their actual type is BIGINT or DECIMAL, then the
+            conversion can result in loss of precision and hence an inaccurate
+            result. Loss of precision will not occur so long as the inputs are
+            values of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or
+            TINYINT.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
+    FROM Object LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-s2-s2PtInBox" class="udf">
+		<h3><a name="s2-s2PtInBox"></a>s2PtInBox</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2PtInBox (</td>
+				<td class="argname">lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lonMin</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Minimum longitude angle of points in box.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">latMin</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Minimum latitude angle points in box.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lonMax</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Maximum longitude angle of points in box.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">latMax</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Maximum latitude angle of points in box.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns 1 if the point (lon, lat) lies inside the given
+        longitude/latitude angle box, and 0 otherwise. The UDF handles
+        range reduction of longitudes so that one can easily test whether
+        a point is inside a box spanning the 0/360 degree longitude angle
+        discontinuity. However, performing this test with a UDF call will
+        inhibit the optimizer from using indexes, so in some cases it may
+        be preferrable to express the test in SQL.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, 0 is returned.</li>
+			<li class="">If any parameter is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).</li>
+			<li class="">If lat, latMin or latMax lie outside of [-90, 90] degrees,
+            this is an error and NULL is returned.</li>
+			<li class="">If both lonMin and lonMax lie in the range [0, 360], then lonMax
+            may be less than lonMin. For example, a box with lonMin = 350
+            and lonMax = 10 includes points with longitudes in the ranges
+            [350, 360) and [0, 10].</li>
+			<li class="">If either lonMin or lonMax lies outside of [0, 360], then lonMin
+            must be less than or equal to lonMax. Otherwise, NULL is returned.
+            However, the two values can be arbitrarily large. If they are
+            separated by 360 degrees or more, then the box spans [0, 360) in
+            longitude. Otherwise, lonMin and lonMax are range reduced. So for
+            example, a spherical box with lonMin = 350 and lonMax = 370
+            includes longitudes in the ranges [350, 360) and [0, 10].</li>
+			<li class="">Input values must be convertible to type DOUBLE PRECISION. If their
+            actual types are BIGINT or DECIMAL, then the conversion can result
+            in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT objectId, ra_PS, decl_PS
+    FROM Object
+    WHERE s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
+</pre>
+	</div>
+
+	
+	<div id="udf-s2-s2PtInCPoly" class="udf">
+		<h3><a name="s2-s2PtInCPoly"></a>s2PtInCPoly</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2PtInCPoly (</td>
+				<td class="argname">lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">poly</td>
+				<td class="argtype">VARBINARY</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Binary-string representation of polygon.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+		</table>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2PtInCPoly (</td>
+				<td class="argname">lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v1Lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of first polygon vertex.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v1Lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of first polygon vertex.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v2Lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of second polygon vertex.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">v2Lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of second polygon vertex.</td>
+			</tr>
+			<tr><td></td><td class="argname">...</td><td class="argtype"></td><td colspan="2"></td></tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns 1 if the point (lon, lat) lies inside the given
+        spherical convex polygon and 0 otherwise. The polygon may
+        be specified either as a VARBINARY byte string (as produced by
+        s2CPolyToBin()), or as a sequence of at least 3 and at most 20
+        vertex pairs.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, 0 is returned.</li>
+			<li class="">If any coordinate is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).</li>
+			<li class="">If any latitude angle lies outside of [-90, 90] degrees,
+            this is an error and NULL is returned.</li>
+			<li class="">Polygon vertices can be specified in either clockwise or
+            counter-clockwise order. However, vertices are assumed to be
+            hemispherical, to define edges that do not intersect except at
+            vertices, and to define edges that form a convex polygon.</li>
+			<li class="">Coordinate values must be convertible to type DOUBLE PRECISION. If
+            their actual types are BIGINT or DECIMAL, then the conversion can
+            result in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scienceCcdExposureId
+    FROM Science_Ccd_Exposure
+    WHERE s2PtInCPoly(0.0, 0.0,
+                      llcRa, llcDecl,
+                      ulcRa, ulcDecl,
+                      urcRa, urcDecl,
+                      lrcRa, lrcDecl) = 1;
+</pre>
+	</div>
+
+	
+	<div id="udf-s2-s2PtInCircle" class="udf">
+		<h3><a name="s2-s2PtInCircle"></a>s2PtInCircle</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2PtInCircle (</td>
+				<td class="argname">lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">centerLon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle center longitude angle.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">centerLat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle center latitude angle.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">radius</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle radius.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns 1 if the point (lon, lat) lies inside the given
+        spherical circle and 0 otherwise.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, 0 is returned.</li>
+			<li class="">If any parameter is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).</li>
+			<li class="">If lat or centerLat lies outside of [-90, 90] degrees, this is an
+            error and NULL is returned.</li>
+			<li class="">If radius is negative or greater than 180, this is
+            an error and NULL is returned.</li>
+			<li class="">Input values must be convertible to type DOUBLE PRECISION. If their
+            actual types are BIGINT or DECIMAL, then the conversion can result
+            in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT objectId, ra_PS, decl_PS
+    FROM Object
+    WHERE s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
+</pre>
+	</div>
+
+	
+	<div id="udf-s2-s2PtInEllipse" class="udf">
+		<h3><a name="s2-s2PtInEllipse"></a>s2PtInEllipse</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION s2PtInEllipse (</td>
+				<td class="argname">lon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Longitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">lat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Latitude angle of point to test.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">centerLon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Ellipse center longitude angle.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">centerLat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Ellipse center latitude angle.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">semiMajorAxisAngle</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">arcsec</td>
+				<td class="argdesc">Semi-major axis length.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">semiMinorAxisAngle</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">arcsec</td>
+				<td class="argdesc">Semi-minor axis length.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">positionAngle</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Ellipse position angle, east of north.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns 1 if the point (lon, lat) lies inside the given
+        spherical ellipse and 0 otherwise.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any parameter is NULL, 0 is returned.</li>
+			<li class="">If any parameter is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).</li>
+			<li class="">If lat or centerLat lies outside of [-90, 90] degrees, this is an
+            error and NULL is returned.</li>
+			<li class="">If semiMinorAxisAngle is negative or greater than
+            semiMajorAxisAngle, this is an error and NULL is returned.</li>
+			<li class="">If semiMajorAxisAngle is greater than 36,000 arcsec (10 deg),
+            this is an error and NULL is returned.</li>
+			<li class="">All inputs must be convertible to type DOUBLE PRECISION. If their
+            actual types are BIGINT or DECIMAL, then the conversion can result
+            in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT objectId, ra_PS, decl_PS
+    FROM Object
+    WHERE s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
+</pre>
+	</div>
+
+	<h2>Procedures</h2>
+	
+	<div id="proc-s2-s2CPolyRegion" class="proc">
+		<h3><a name="s2-s2CPolyRegion"></a>s2CPolyRegion</h3>
+		<table class="signature">
+			<tr>
+				<td class="decl">PROCEDURE s2CPolyRegion (</td>
+				<td class="argtype">IN</td>
+				<td class="argname">poly</td>
+				<td class="argtype">VARBINARY(255),</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Binary-string representation of a polygon.</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="argtype">IN</td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
+			</tr>
+			<tr>
+				<td class="decl">)</td>
+				<td class="return" colspan="3"></td>
+				<td colspan="2"></td>
+			</tr>
+		</table>
+		<div class="description">
+			Creates a temporary table `scisql.Region` containing HTM ID ranges
+         for the HTM triangles overlapping the given spherical convex polygon.
+         A maximum of 256 ranges will be returned. If the number of ID ranges 
+         at the
+         desired subdivision level exceeds this number, then the effective
+         subdivision level is decreased. This strategy can reduce the number
+         of ranges required to represent any input geometry to just 4, but
+         makes the resulting range list a poorer (coarser, higher area)
+         approximation to the input goemetry.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The `scisql.Region` table is allowed to exist prior to calling
+             s2CPolyRegion() - if it does, its contents are completely
+             replaced.</li>
+			<li class="">Before using this stored procedure, an adminstrator must GRANT
+             the required permissions (e.g. using scisqlGrant()).</li>
+			<li class="">If any input is NULL, the procedure will fail.</li>
+			<li class="">If poly is not a valid binary-string representation of a polygon
+             (e.g. as produced by s2CPolyToBin()), the procedure will fail.</li>
+			<li class="">If level does not lie in the range [0, 24], the procedure will
+             fail.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+SELECT * FROM scisql.Region;
+</pre>
+	</div>
+
+	
+	<div id="proc-s2-s2CircleRegion" class="proc">
+		<h3><a name="s2-s2CircleRegion"></a>s2CircleRegion</h3>
+		<table class="signature">
+			<tr>
+				<td class="decl">PROCEDURE s2CircleRegion (</td>
+				<td class="argtype">IN</td>
+				<td class="argname">centerLon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle center longitude angle.</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="argtype">IN</td>
+				<td class="argname">centerLat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle center latitude angle.</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="argtype">IN</td>
+				<td class="argname">radius</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle radius.</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="argtype">IN</td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
+			</tr>
+			<tr>
+				<td class="decl">)</td>
+				<td class="return" colspan="3"></td>
+				<td colspan="2"></td>
+			</tr>
+		</table>
+		<div class="description">
+			Creates a temporary table `scisql.Region` containing HTM ID ranges
+         for the HTM triangles overlapping the given circle. A maximum of 
+         256 ranges will be returned. If the number of ID ranges at the
+         desired subdivision level exceeds this number, then the effective
+         subdivision level is decreased. This strategy can reduce the number
+         of ranges required to represent any input geometry to just 4, but
+         makes the resulting range list a poorer (coarser, higher area)
+         approximation to the input goemetry.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The `scisql.Region` table is allowed to exist prior to calling
+             s2CircleRegion() - if it does, its contents are completely
+             replaced.</li>
+			<li class="">Before using this stored procedure, an adminstrator must GRANT
+             the required permissions (e.g. using scisqlGrant()).</li>
+			<li class="">If any input is NULL, NaN or +/-Inf, the procedure will fail.</li>
+			<li class="">If centerLat does not lie in the [-90, 90] degree range, the
+             procedure will fail.</li>
+			<li class="">If level does not lie in the range [0, 24], the procedure will
+             fail.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+SELECT * FROM scisql.Region;
+</pre>
+	</div>
+
+</div> <!-- end of #section-s2 -->
+
+<div id="section-photometry" class="section">
+	
+	<div class="section-docs"><p>
+	At the moment, these UDFs are limited to converting from raw fluxes to
+	calibrated AB fluxes and magnitudes.
+	</p></div>
+
+
+	<h2>Functions</h2>
+	
+	<div id="udf-photometry-dnToAbMag" class="udf">
+		<h3><a name="photometry-dnToAbMag"></a>dnToAbMag</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION dnToAbMag (</td>
+				<td class="argname">dn</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Converts a raw flux in DN to an AB magnitude.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
+    FROM Source AS src, Science_Ccd_Exposure ccd
+    WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-dnToAbMagSigma" class="udf">
+		<h3><a name="photometry-dnToAbMagSigma"></a>dnToAbMagSigma</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION dnToAbMagSigma (</td>
+				<td class="argname">dn</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">dnSigma</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Standard deviation of dn.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxMag0Sigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Standard deviation of fluxMag0.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Converts a raw flux error to an AB magnitude error.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
+                      ccd.fluxMag0, ccd.fluxMag0Sigma)
+    FROM Source AS src, Science_Ccd_Exposure ccd
+    WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-dnToFlux" class="udf">
+		<h3><a name="photometry-dnToFlux"></a>dnToFlux</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION dnToFlux (</td>
+				<td class="argname">dn</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Converts a raw flux in DN to a calibrated (AB) flux. The return
+        value will be in units of erg/cm<sup>2</sup>/sec/Hz.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+-- An example using the LSST schema:
+SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
+    FROM Source AS src, Science_Ccd_Exposure ccd
+    WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-dnToFluxSigma" class="udf">
+		<h3><a name="photometry-dnToFluxSigma"></a>dnToFluxSigma</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION dnToFluxSigma (</td>
+				<td class="argname">dn</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">dnSigma</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Standard deviation of dn.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxMag0Sigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Standard deviation of fluxMag0.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Converts a raw flux error to a calibrated (AB) flux error. The return
+        value will be in units of erg/cm<sup>2</sup>/sec/Hz.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
+                      ccd.fluxMag0, ccd.fluxMag0Sigma)
+    FROM Source AS src, Science_Ccd_Exposure ccd
+    WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-fluxToAbMag" class="udf">
+		<h3><a name="photometry-fluxToAbMag"></a>fluxToAbMag</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION fluxToAbMag (</td>
+				<td class="argname">flux</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
+				<td class="argdesc">Calibrated flux to convert to an AB magnitude.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Converts a cailbrated (AB) flux to an AB magnitude.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The flux argument must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If the flux argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT fluxToAbMag(rFlux_PS)
+    FROM Object
+    WHERE rFlux_PS IS NOT NULL
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-fluxToAbMagSigma" class="udf">
+		<h3><a name="photometry-fluxToAbMagSigma"></a>fluxToAbMagSigma</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION fluxToAbMagSigma (</td>
+				<td class="argname">flux</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
+				<td class="argdesc">Calibrated (AB) flux.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">fluxSigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
+				<td class="argdesc">Calibrated (AB) flux error.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Converts a cailbrated (AB) flux error to an AB magnitude error.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If the flux argument is zero, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
+    FROM Object
+    WHERE rFlux_PS IS NOT NULL and rFlux_PS_Sigma IS NOT NULL
+    LIMIT 10;
+</pre>
+	</div>
+
+</div> <!-- end of #section-photometry -->
+
+<div id="section-statistics" class="section">
+	
+	<div class="section-docs"><p>
+	These UDFs provide the ability to compute medians and percentiles. Averages and 
+	standard deviations can already be computed with the AVG and STDDEV SQL constructs.
+	</p></div>
+
+
+	<h2>Functions</h2>
+	
+	<div id="udf-statistics-median" class="udf">
+		<h3><a name="statistics-median"></a>median</h3>
+		<table class="signature">
+			<tr><td class="decl">AGGREGATE FUNCTION median (</td>
+				<td class="argname">value</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Value, column name or expression yielding input values.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns the median of a GROUP of values.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">NULL and NaN values are ignored. MySQL does not currently support
+            storage of NaNs.  However, their presence is checked for to ensure
+            reasonable behaviour if a future MySQL release does end up
+            supporting them.</li>
+			<li class="">If all input values for a GROUP are NULL/NaN, then NULL is returned.</li>
+			<li class="">If there are no inputs, NULL is returned.</li>
+			<li class="">If there are an even number of elements in the input GROUP,
+            the return value is the mean of the two middle elements in a
+            sorted copy of the GROUP.</li>
+			<li class="">As previously mentioned, input values are coerced to be of type
+            DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL,
+            then the coercion can result in loss of precision and hence an
+            inaccurate result. Loss of precision will not occur so long as
+            median() is called on values of type DOUBLE PRECISION, FLOAT,
+            INTEGER, SMALLINT, or TINYINT.</li>
+			<li class="">This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+            input values per GROUP.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT objectId, median(psfFlux)
+    FROM Source
+    WHERE objectId IS NOT NULL
+    GROUP BY objectId;
+</pre>
+	</div>
+
+	
+	<div id="udf-statistics-percentile" class="udf">
+		<h3><a name="statistics-percentile"></a>percentile</h3>
+		<table class="signature">
+			<tr><td class="decl">AGGREGATE FUNCTION percentile (</td>
+				<td class="argname">value</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Value, column name, or expression yielding input values.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">percent</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Desired percentile, must lie in the range [0, 100].</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Returns the desired percentile of a GROUP of values.
+
+        Given a GROUP of N DOUBLE PRECISION values, percentile returns the
+        value V such that at most floor(N * percent/100.0) of the values are
+        less than V and at most N - floor(N * percent/100.0) are greater.
+
+        The percent argument must not vary across the elements of a GROUP for
+        which a percentile is being computed, or the return value is undefined.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">NULL and NaN values are ignored. MySQL does not currently support
+            storage of NaNs.  However, their presence is checked for to ensure
+            reasonable behaviour if a future MySQL release does end up
+            supporting them.</li>
+			<li class="">If all inputs are NULL/NaN, then NULL is returned.</li>
+			<li class="">If there are no input values, NULL is returned.</li>
+			<li class="">If the input GROUP contains exactly one value, that value is
+            returned.</li>
+			<li class="">If the percent argument is NULL or does not lie in the range
+            [0, 100], NULL is returned.</li>
+			<li class="">If (N - 1) * percent/100.0 = K is an integer, the value returned
+            is the K-th smallest element in a sorted copy of the input GROUP A.
+            Otherwise, the return value is A[k] + f*(A[k + 1] - A[k]), where
+            k = floor(K) and f = K - k.</li>
+			<li class="">As previously mentioned, input values are coerced to be of type
+            DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL,
+            then the coercion can result in loss of precision and hence an
+            inaccurate result. Loss of precision will not occur so long as
+            median() is called on values of type DOUBLE PRECISION, FLOAT,
+            INTEGER, SMALLINT, or TINYINT.</li>
+			<li class="">This UDF can handle a maximum of 2<sup>28</sup> (268,435,456)
+            input values per GROUP.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT objectId,
+       percentile(psfFlux, 25) AS firstQuartile,
+       percentile(psfFlux, 75) AS thirdQuartile
+    FROM Source
+    WHERE objectId IS NOT NULL
+    GROUP BY objectId
+    LIMIT 10;
+</pre>
+	</div>
+
+</div> <!-- end of #section-statistics -->
+
+<div id="section-misc" class="section">
+	
+	<div class="section-docs"><p>
+	These UDFs and stored procedures are either administrative, internal, or
+	informational - they are not directly useful for scientific computation / queries.
+	</p></div>
+
+
+	<h2>Functions</h2>
+	
+	<div id="udf-misc-extractInt64" class="udf internal">
+		<h3><a name="misc-extractInt64"></a>[internal] extractInt64</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION extractInt64 (</td>
+				<td class="argname">data</td>
+				<td class="argtype">STRING,</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Byte string to extract a 64-bit integer from.</td>
+			</tr>
+			<tr><td></td>
+				<td class="argname">idx</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">The index of the 64-bit integer to extract.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BIGINT</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Extracts a 64-bit integer stored in host byte order
+        from a binary string.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If any argument is NULL, NULL is returned.</li>
+			<li class="">If idx is negative or out of range, NULL is returned.</li>
+		</ul>
+	</div>
+
+	
+	<div id="udf-misc-scisqlFail" class="udf internal">
+		<h3><a name="misc-scisqlFail"></a>[internal] scisqlFail</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION scisqlFail (</td>
+				<td class="return" colspan="2">) RETURNS BIGINT</td></tr>
+		</table>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION scisqlFail (</td>
+				<td class="argname">message</td>
+				<td class="argtype">STRING</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Error message.</td>
+			</tr>
+			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BIGINT</td><td colspan="2"></td></tr>
+		</table>
+		<div class="description">
+			Fails with an optional error message.
+        <p>
+            This UDF exists solely because MySQL 5.1 does not support
+            SIGNAL in stored procedures. The error messages it produces
+            are slightly more readable than the results of hacks like
+            <tt>SELECT * FROM `Lorem ipsum dolor`</tt>.
+        </p>
+		</div>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisqlFail('Lorem ipsum dolor');
+</pre>
+	</div>
+
+	
+	<div id="udf-misc-scisqlVersion" class="udf">
+		<h3><a name="misc-scisqlVersion"></a>scisqlVersion</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION scisqlVersion (</td>
+				<td class="return" colspan="2">) RETURNS CHAR</td></tr>
+		</table>
+		<div class="description">
+			Returns the version of the sciSQL library in use.
+		</div>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisqlVersion();
+</pre>
+	</div>
+
+	<h2>Procedures</h2>
+	
+	<div id="proc-misc-scisqlGrant" class="proc">
+		<h3><a name="misc-scisqlGrant"></a>scisqlGrant</h3>
+		<table class="signature">
+			<tr>
+				<td class="decl">PROCEDURE scisqlGrant (</td>
+				<td class="argtype">IN</td>
+				<td class="argname">user</td>
+				<td class="argtype">VARCHAR(255),</td>
+				<td class="argunits"></td>
+				<td class="argdesc">User name - may not contain wildcards.</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="argtype">IN</td>
+				<td class="argname">host</td>
+				<td class="argtype">VARCHAR(255)</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Host name - wildcards ('%') are allowed.</td>
+			</tr>
+			<tr>
+				<td class="decl">)</td>
+				<td class="return" colspan="3"></td>
+				<td colspan="2"></td>
+			</tr>
+		</table>
+		<div class="description">
+			Gives a user connecting from the specified host permission to call
+         SciSQL stored procedures and to create/use temporary tables in the
+         scisql database.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">You must have MySQL admin priviledges (including GRANT OPTION)
+             to call this stored procedure.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CALL scisql.scisqlGrant('bob', 'localhost');
+</pre>
+	</div>
+
+</div> <!-- end of #section-misc -->
+
+</div> <!-- end of #content -->
+
+<script type="text/javascript"><!--
+	$(document).ready(prettyPrint);
+	$(document).ready(function () {
+		$('#content a[name]').each(function() {
+			$(this).css('position', 'relative').css('top', '-90px').html('&nbsp;');
+		});
+		$('#nav a').each(function() {
+			$(this).click(function() {
+				var href = $(this).attr("href").substring(1);
+				var loc = href.split('-');
+				var section = loc[0];
+				$('#nav a.active').removeClass('active');
+				$(this).addClass('active');
+				var seclink = $('#nav a[href="#' + section + '"]');
+				$('#title').text(seclink.text());
+				if (loc.length > 1) {
+					seclink.addClass('active');
+				}
+				section = $('#section-' + section);
+				if (!section.is(':visible')) {
+					$('#content div.section:visible').hide();
+					section.fadeIn(300);
+				}
+			});
+		});
+		var _loc = null;
+		var _hashchange = function() {
+			var l = document.location.toString();
+			if (l == _loc) {
+				return;
+			}
+			_loc = l;
+			var i = l.indexOf('#');
+			var e = (i != -1) ? $('#nav a[href="' + l.substring(i) + '"]') : $('#nav a[href="#overview"]');
+			e.click();
+		};
+		_hashchange();
+		if ('onhashchange' in window) {
+			window.onhashchange = _hashchange;
+		} else {
+			setInterval(_hashchange, 100);
+		}
+	});
+--></script>
+</body>
+</html>
+

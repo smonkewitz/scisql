@@ -1,0 +1,374 @@
+<sections>
+
+<section name="overview" title="Overview">
+	<div class="section-docs">
+	<p>
+        SciSQL provides science-specific tools and extensions for SQL. Currently, the project
+        contains user defined functions (UDFs) and stored procedures for MySQL in the areas
+        of spherical geometry, statistics, and photometry. The project was motivated by the
+        needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
+        and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
+        <a href="http://www.energy.gov/">DOE</a>. SciSQL is distributed under the terms of the
+        <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License v3</a>.
+	</p>
+	<ul>
+	        <li><a href="https://launchpad.net/scisql">Official site</a></li>
+	        <li><a href="https://bugs.launchpad.net/scisql/+filebug">Report a bug</a></li>
+	        <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
+	</ul>
+	<p>
+	SciSQL is also distributed with a pair of Javascript libraries. These are:
+	</p>
+	<ul>
+		<li>
+			<a href="http://jquery.com/">jQuery</a>, copyright John Resig and
+			dual-licensed under the <a href="http://jquery.org/license/">MIT
+			and GPL version 2 licenses</a>
+		</li>
+		<li>
+			<a href="http://code.google.com/p/google-code-prettify/">Google prettify</a>,
+			distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">
+			Apache License version 2.0</a>
+		</li>
+	</ul>
+	</div>
+</section>
+
+
+<section name="install" title="Building &amp; Installation">
+	<div class="section-docs">
+
+	<h3>Prerequisites</h3>
+	<dl>
+		<dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
+		<dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
+		<dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
+		<dd>
+			This is a Python DB API 2.0 implementation for MySQL,
+			and is required when running the unit tests.
+		</dd>
+		<dt><a href="http://www.makotemplates.org/download.html">Mako</a></dt>
+		<dd>
+			The Mako templating system is only required for developers,
+			and is used to build release documentation.
+		</dd>
+	</dl>
+	<p>
+	In order to install the UDFs, you will need write permission to the MySQL server
+	plug-in directory, as well as a MySQL account with admin priviledges.
+	</p>
+
+	<h3 class="warning">Databases reserved for SciSQL use</h3>
+	<p>
+	The following database names are reserved for use by SciSQL:
+	</p>
+	<dl>
+		<dt>scisql</dt>
+		<dd>Contains SciSQL stored procedures.</dd>
+		<dt>scisql_test</dt>
+		<dd>Used by SciSQL unit tests.</dd>
+		<dt>scisql_demo</dt>
+		<dd>Contains sample data that can be used to exercise the SciSQL UDFs.</dd>
+	</dl>
+	<p>
+	The scisql and scisql_demo databases are dropped and re-created during
+	installation. If you are using these databases for other things,
+	you must migrate their contents to a different database prior to installing
+	SciSQL. If you do not, <strong>YOU WILL LOSE DATA</strong>.
+	</p>
+
+	<h3>Configuration</h3>
+	<p>
+    	Run <tt>./configure</tt> from the top-level SciSQL directory. Passing <tt>--help</tt>
+	will yield a list of configuration options. Here are the ones most likely to require
+	tweaking:
+	</p>
+	<dl>
+		<dt><tt>--prefix</tt></dt>
+		<dd>Set this to the top-level MySQL server install directory.</dd>
+		<dt><tt>--mysql-user</tt></dt>
+		<dd>Set this to the name of a MySQL admin user</dd>
+		<dt><tt>--mysql-socket</tt></dt>
+		<dd>Set this to the name of the MySQL server UNIX socket file</dd>
+	</dl>
+	<p>
+	You will be prompted for the MySQL admin user password during configuration.
+	Connection details, including this password, are stored in
+	<tt>build/c4che/.my.cnf</tt> in the MySQL options file format. This allows various
+	build steps to connect to MySQL without constantly prompting for a password.
+	</p>
+	<p>
+	Even though the <tt>.my.cnf</tt> file permissions are set such that only its creator
+	is allowed read/write access, for security reasons it is still recommended to
+	run <tt>`make distclean`</tt> once sciSQL has been installed. This will remove the
+	entire build directory and its contents.
+	</p>
+	<p>
+	If you wish to build/install only the SciSQL client utilities and documentation,
+	run configure with the --client-only option. In this case, a MySQL server or
+	client install is not required, the only executable generated is scisql_index
+	(a utility which generates HTM indexes for tables of circles or polygons stored
+	in tab-separated-value format), and --prefix can be set to a directory of your
+	choice.
+	</p>
+
+	<h3>Build/Install</h3>
+	<p>
+	SciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
+	<tt>make install</tt>, and <tt>make uninstall</tt> commands.
+	</p>
+	<p>
+        The <tt>install</tt> command will CREATE the SciSQL UDFs, stored procedures, and
+        databases (including the scisql_demo database). It will also automatically
+        run the SciSQL unit tests. You can re-run the tests anytime with <tt>`make test`</tt>.
+	</p>
+        <p>
+        The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
+        </p>
+
+        <h3>Reporting bugs and getting help</h3>
+        <p>
+        If you encounter test-case failures, or think you've identified a
+        bug in the SciSQL code, please file a report here:
+        </p>
+        <p><a href="https://bugs.launchpad.net/scisql/+filebug">https://bugs.launchpad.net/scisql/+filebug</a></p>
+        <p>
+        For other help or inquiries, submit your questions here:
+        </p>
+        <p><a href="https://answers.launchpad.net/scisql/+addquestion">https://answers.launchpad.net/scisql/+addquestion</a></p>
+	</div>
+</section>
+
+
+<section name="s2" title="Spherical Geometry">
+	<div class="section-docs">
+	<p>
+		The aim of the spherical geometry UDFs and stored procedures is to
+		allow quick answers to the following sorts of questions:
+	</p>
+	<ol>
+		<li>
+		<em>Which points in a table lie inside a region on the sphere?</em> For example,
+		an astronomer might wish to know which stars and galaxies lie inside the
+		region of the sky observed by a single camera CCD.
+		</li>
+		<li>
+		<em>Which spherical regions in a table contain a particular point?</em> For
+		example, an astronomer might with to know which telescope images overlap
+		the position of interesting object X.
+		</li>
+	</ol>
+
+	<h3>HTM indexing</h3>
+	<p>
+		To accelerate these types of queries, SciSQL maps points/regions
+		to the integer ID(s) of their containing/overlapping triangles in a
+		Hierarchical Triangular Mesh (HTM). This is a decomposition of the
+		unit sphere defined by A. Szalay, T. Budavari, G. Fekete at the
+		Johns Hopkins University, and Jim Gray, Microsoft Research. See
+		the following links for more information:
+	</p>
+	<ul>
+		<li><a href="http://voservices.net/spherical/">http://voservices.net/spherical/</a></li>
+		<li><a href="http://adsabs.harvard.edu/abs/2010PASP..122.1375B">http://adsabs.harvard.edu/abs/2010PASP..122.1375B</a></li>
+	</ul>
+	<p>
+		To accelerate spatial queries, standard B-tree indexes are created
+		on the point/region HTM IDs and spatial constraints are expressed
+		in terms of those IDs. This allows the database optimizer to restrict
+		the rows that must be considered by a spatial query.
+	</p>
+	<p>
+		Read on to learn how to create and take advantage of HTM indexes on
+		tables containing spatial data. The examples below can be run in the
+		scisql_demo database, which contains all of the referenced tables
+		and a tiny amount of sample data.
+	</p>
+
+	<h3>Supported region types</h3>
+	<p>
+		SciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
+		spherical circles (defined by a center and opening angle), spherical
+		ellipses (the orthographic projection of a standard 2-d ellipse onto
+		the sphere, where the 2-d ellipse is on a plane tangent to the unit
+		sphere at the ellipse center), and spherical convex polygons (where
+		polygon edges are great circles). Note also that spherical convex
+		polygons have a binary representation, produced by s2CPolyToBin(),
+		allowing them to be stored as values in a BINARY table column.
+	</p>
+
+	<h3>Points-in-region queries</h3>
+	<p>
+		SciSQL contains several UDFs for checking whether a point lies inside
+		a region. These are: s2PtInBox(), s2PtInCircle(), s2PtInCPoly() and
+		s2PtInEllipse(). They return 1 if the input point is inside the input
+		region and 0 otherwise.
+	</p>
+	<p>
+		Given these UDFs, a simple way to answer question 1 is illustrated by
+		the following example:
+	</p>
+	<example>
+SELECT objectId
+    FROM Object
+    WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</example>
+	<p>
+		This query returns all the objects within 0.01 degrees of
+		(RA, Dec) = (0, 0). It is inefficient for small search regions
+		because the s2PtInCircle() UDF must be called for every row in
+		the <tt>Object</tt> table.
+	</p>
+	<p>
+		Lets assume that <tt>Object</tt> contains an indexed BIGINT column
+		named <tt>htmId20</tt>. If it does not, the column and index can be
+		added with ALTER TABLE. <tt>htmId20</tt> can be populated with the
+		subdivision-level 20 HTM IDs of object positions as follows:
+	</p>
+	<example>
+ALTER TABLE Object DISABLE KEYS;
+UPDATE Object
+    SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+ALTER TABLE Object ENABLE KEYS;</example>
+	<p>
+		The HTM subdivision level must be between 0 and 24. At subdivision
+		level N, there are 8*4<sup>N</sup> triangles in the mesh, so the
+		higher subdivision levels correspond to finer tesselations of the
+		unit sphere.
+	</p>
+	<p>
+		Now that HTM IDs for object positions are available and indexed,
+		the query above can be made more efficient:
+	</p>
+	<example>
+CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
+
+SELECT o.objectId
+    FROM Object AS o INNER JOIN scisql.Region AS r
+         ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+    WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</example>
+	<p>
+		What's going on here? The first line in the example calls the
+		s2CircleRegion() stored procedure. This procedure creates a temporary
+		table called <tt>scisql.Region</tt> with two BIGINT NOT NULL columns
+		named htmMin and htmMax. It then stores the HTM IDs overlapping the
+		search region in <tt>scisql.Region</tt> (as ranges).
+	</p>
+	<p>
+		Next, the original query is augmented with a join against
+		<tt>scisql.Region</tt>. This limits the objects considered by
+		s2PtInCircle() to those within the HTM triangles overlapping the
+		search region; the index on htmId20 allows MySQL to retrieve these
+		objects very quickly when the search region is small. Note that if
+		the search region is large (meaning that a large fraction of the
+		table being searched is inside the search region), then the original 
+		query may actually be faster.
+	</p>
+	<p>
+		Here is another example, this time with a search region taken from
+		a table called <tt>Science_Ccd_Exposure</tt>. This table includes a 
+		a column named ccdPoly that contains polygonal approximations to the
+                regions of the sphere observed by CCD exposures.
+	</p>
+	<example>
+SELECT ccdPoly FROM Science_Ccd_Exposure
+    WHERE scienceCcdExposureId = 43856062009
+    INTO @poly;
+
+CALL scisql.s2CPolyRegion(@poly, 20);
+
+SELECT o.objectId
+    FROM Object AS o INNER JOIN scisql.Region AS r
+         ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
+    WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</example>
+	<p>
+		The first statement stores the polygonal boundary of a particular CCD
+		exposure into the user variable <tt>@poly</tt>, the second computes
+		overlapping HTM IDs, and the third performs the points-in-region
+		query as before.
+	</p>
+
+	<h3>Regions-containing-point queries</h3>
+	<p>
+		An example for this type of query is:
+	</p>
+	<example>
+SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
+    WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</example>
+	<p>
+		This query returns all the CCD exposures containing the point
+		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
+		auxiliary table is introduced:
+	</p>
+	<example test="false">
+CREATE TABLE Science_Ccd_Exposure_HtmId10 (
+    scienceCcdExposureId BIGINT  NOT NULL,
+    htmId10              INTEGER NOT NULL,
+    PRIMARY KEY (htmId10, scienceCcdExposureId),
+    KEY (scienceCcdExposureId)
+);</example>
+	<p>
+		<tt>Science_Ccd_Exposure_HtmId10</tt> will store the level 10 HTM ID
+		of every triangle overlapping a CCD exposure. To populate it, start
+		by dumping the primary key and polygon vertex colunms from 
+		<tt>Science_Ccd_Exposure</tt>:
+	</p>
+	<example>
+SELECT scienceCcdExposureId,
+       llcRa, llcDecl,
+       ulcRa, ulcDecl,
+       urcRa, urcDecl,
+       lrcRa, lrcDecl
+    FROM Science_Ccd_Exposure
+    INTO OUTFILE '/tmp/ccds.tsv';</example>
+	<p>
+		Then, run the SciSQL region indexing utility:
+	</p>
+	<example lang="bash">
+${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/ccd_htmid10.tsv /tmp/ccds.tsv</example>
+	<p>
+		and load the results:
+	</p>
+	<example>
+TRUNCATE TABLE Science_Ccd_Exposure_HtmId10;
+LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</example>
+	<p>
+		The example regions-containing-point query can now be expressed
+		more efficiently as:
+	</p>
+	<example>
+SELECT sce.scienceCcdExposureId
+    FROM Science_Ccd_Exposure AS sce, (
+             SELECT scienceCcdExposureId
+             FROM Science_Ccd_Exposure_HtmId10
+             WHERE htmId10 = s2HtmId(0, 0, 10)
+         ) AS h
+    WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
+          s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</example>
+	</div>
+</section>
+
+
+<section name="photometry" title="Photometry">
+	<div class="section-docs"><p>
+	At the moment, these UDFs are limited to converting from raw fluxes to
+	calibrated AB fluxes and magnitudes.
+	</p></div>
+</section>
+
+
+<section name="statistics" title="Statistics">
+	<div class="section-docs"><p>
+	These UDFs provide the ability to compute medians and percentiles. Averages and 
+	standard deviations can already be computed with the AVG and STDDEV SQL constructs.
+	</p></div>
+</section>
+
+
+<section name="misc" title="Miscellaneous">
+	<div class="section-docs"><p>
+	These UDFs and stored procedures are either administrative, internal, or
+	informational - they are not directly useful for scientific computation / queries.
+	</p></div>
+</section>
+
+</sections>

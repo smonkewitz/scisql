@@ -22,10 +22,8 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the s2PtInEllipse() UDF.
-#
+
+from __future__ import with_statement
 
 import math
 import random
@@ -34,16 +32,6 @@ import unittest
 
 from base import *
 
-
-def angSep(ra1, dec1, ra2, dec2):
-    sdt = math.sin(math.radians(ra1 - ra2) * 0.5)
-    sdp = math.sin(math.radians(dec1 - dec2) * 0.5)
-    cc = math.cos(math.radians(dec1)) * math.cos(math.radians(dec2))
-    s = math.sqrt(sdp * sdp + cc * sdt * sdt)
-    if s > 1.0:
-        return 180.0
-    else:
-        return 2.0 * math.degrees(math.asin(s))
 
 def s2PtInEllipse(ra, dec, ra_cen, dec_cen, smaa, smia, ang):
     ra = math.radians(ra)
@@ -83,6 +71,7 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(S2PtInEllipseTestCase, self).setUp()
 
     def _s2PtInEllipse(self, result, *args):
         stmt = "SELECT s2PtInEllipse(%s, %s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))

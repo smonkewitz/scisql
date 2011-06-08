@@ -19,49 +19,76 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
-
-    angSep(DOUBLE PRECISION lon1,
-           DOUBLE PRECISION lat1,
-           DOUBLE PRECISION lon2,
-           DOUBLE PRECISION lat2)
-
-    angSep(DOUBLE PRECISION x1,
-           DOUBLE PRECISION y1,
-           DOUBLE PRECISION z1,
-           DOUBLE PRECISION x2,
-           DOUBLE PRECISION y2,
-           DOUBLE PRECISION z2)
-
-    angSep() is a MySQL UDF returning the angular separation in degrees
-    between two positions on the unit sphere.
-
-    Example:
-    --------
-
-    SELECT angSep(ra, decl, raObject, declObject)
-        FROM Source
-        WHERE objectId = 12345;
-
-    Inputs:
-    -------
+/**
+<udf name="angSep" return_type="DOUBLE PRECISION" section="s2">
+    <desc>
+        Returns the angular separation in degrees between two
+        positions on the unit sphere.
 
         Positions may be specified either as spherical coordinate pairs
-    (lon1, lat1) and (lon2, lat2), or as 3-vectors (x1, y1, z1) and
-    (x2, y2, z2) with arbitrary norm. If spherical coordinates are used,
-    all arguments are assumed to be in units of degrees.
+        (lon1, lat1) and (lon2, lat2), or as 3-vectors (x1, y1, z1) and
+        (x2, y2, z2) with arbitrary norm. If spherical coordinates are used,
+        all arguments are assumed to be in units of degrees.
+    </desc>
+    <args>
+        <arg name="lon1" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of first position.
+        </arg>
+        <arg name="lat1" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of first position.
+        </arg>
+        <arg name="lon2" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of second position.
+        </arg>
+        <arg name="lat2" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of second position.
+        </arg>
+    </args>
+    <args>
+         <arg name="x1" type="DOUBLE PRECISION">
+            X coordinate of first position.
+         </arg>
+         <arg name="y1" type="DOUBLE PRECISION">
+            Y coordinate of first position.
+         </arg>
+         <arg name="z1" type="DOUBLE PRECISION">
+            Z coordinate of first position.
+         </arg> 
+         <arg name="x2" type="DOUBLE PRECISION">
+            X coordinate of second position.
+         </arg>
+         <arg name="y2" type="DOUBLE PRECISION">
+            Y coordinate of second position.
+         </arg>
+         <arg name="z2" type="DOUBLE PRECISION">
+            Z coordinate of second position.
+         </arg> 
+    </args>
+    <notes>
+        <note>
+            All arguments must be convertible to type DOUBLE PRECISION.
+        </note>
+        <note>
+            If any argument is NULL, NaN, or +/-Inf, NULL is returned. MySQL
+            does not currently support storage of IEEE special values. However,
+            their presence is checked for to ensure reasonable behavior if a
+            future MySQL release does end up supporting them.
+        </note>
+        <note>
+            If spherical coordinates are passed in and either latitude
+            angle is not in the [-90, 90] degree range, NULL is returned.
+        </note>
+    </notes>
+    <example>
+        SELECT angSep(0, 0, 0, 90);
+        SELECT angSep(1, 0, 0, 0, 0, 1);
+        SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
+    </example>
+</udf>
+*/
 
-    Note that:
-
-    - All arguments must be convertible to type DOUBLE PRECISION.
-    - If any argument is NULL, NaN, or +/-Inf, NULL is returned. MySQL
-      does not currently support storage of IEEE special values. However,
-      their presence is checked for to ensure reasonable behaviour if a
-      future MySQL release does end up supporting them.
-    - If spherical coordinates are passed in and either latitude
-      angle is not in the [-90, 90] degree range, NULL is returned.
- */
 #include <math.h>
 #include <stdio.h>
 

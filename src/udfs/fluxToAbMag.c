@@ -19,7 +19,35 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
- */
+*/
+
+/**
+<udf name="fluxToAbMag" return_type="DOUBLE PRECISION" section="photometry">
+    <desc>
+        Converts a cailbrated (AB) flux to an AB magnitude.
+    </desc>
+    <args>
+        <arg name="flux" type="DOUBLE PRECISION" units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
+            Calibrated flux to convert to an AB magnitude.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            The flux argument must be convertible to type DOUBLE PRECISION.
+        </note>
+        <note>
+            If the flux argument is NULL, NaN, or +/-Inf, NULL is returned.
+        </note>
+    </notes>
+    <example>
+        SELECT fluxToAbMag(rFlux_PS)
+            FROM Object
+            WHERE rFlux_PS IS NOT NULL
+            LIMIT 10;
+    </example>
+</udf>
+*/
+
 #include <stdio.h>
 
 #include "mysql.h"

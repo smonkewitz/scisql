@@ -19,45 +19,57 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
-    s2HtmId(DOUBLE PRECISION lon,
-            DOUBLE PRECISION lat,
-            INTEGER level)
+/**
+<udf name="s2HtmId" return_type="BIGINT" section="s2">
+    <desc>
+        Returns the HTM ID of a point at the given
+        subdivision level.
+    </desc>
+    <args>
+        <arg name="lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of the point to index.
+        </arg>
+        <arg name="lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of the point to index.
+        </arg>
+        <arg name="level" type="INTEGER">
+            HTM subdivision level, required to lie in the range [0, 24].
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any parameter is NULL, NULL is returned.
+        </note>
+        <note>
+            If lon or lat is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).
+        </note>
+        <note>
+            If lat lies outside of [-90, 90] degrees, this is an error
+            and NULL is returned.
+        </note>
+        <note>
+            If level is not in the range [0, 24], this is an error
+            and NULL is returned.
+        </note>
+        <note>
+            The lon and lat arguments must be convertible to type DOUBLE
+            PRECISION. If their actual type is BIGINT or DECIMAL, then the
+            conversion can result in loss of precision and hence an inaccurate
+            result. Loss of precision will not occur so long as the inputs are
+            values of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or
+            TINYINT.
+        </note>
+    </notes>
+    <example>
+        SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
+            FROM Object LIMIT 10;
+    </example>
+</udf>
+*/
 
-    A MySQL UDF returning the HTM ID of the point (lon, lat) at the
-    given subdivision level. The values returned are of type BIGINT.
-
-    Example:
-    --------
-
-    SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS)
-        FROM Object;
-
-    Inputs:
-    -------
-
-    The lon and lat arguments must be convertible to type DOUBLE PRECISION,
-    and are assumed to be in units of degrees. The level argument must be
-    an integer. Note that:
-
-    - If any parameter is NULL, NULL is returned.
-
-    - If lon or lat is NaN or +/-Inf, this is an error and
-      NULL is returned (IEEE specials are not currently supported by MySQL).
-
-    - If lat lies outside of [-90, 90] degrees, this is an error
-      and NULL is returned.
-
-    - If level is negative or greater than 24, this is
-      an error and NULL is returned.
-
-    - As previously mentioned, input coordinates are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as the inputs are values
-      of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
- */
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -22,12 +22,9 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the percentile() UDF.
-#
 
 from __future__ import with_statement
+
 import math
 import random
 import sys
@@ -41,6 +38,7 @@ class PercentileTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(PercentileTestCase, self).setUp()
 
     def testDistinct(self):
         """Test small and large sequences of distinct values.

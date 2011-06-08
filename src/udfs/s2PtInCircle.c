@@ -19,48 +19,63 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="s2PtInCircle" return_type="INTEGER" section="s2">
+    <desc>
+        Returns 1 if the point (lon, lat) lies inside the given
+        spherical circle and 0 otherwise.
+    </desc>
+    <args>
+        <arg name="lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of point to test.
+        </arg>
+        <arg name="lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of point to test.
+        </arg>
+        <arg name="centerLon" type="DOUBLE PRECISION" units="deg">
+            Circle center longitude angle.
+        </arg>
+        <arg name="centerLat" type="DOUBLE PRECISION" units="deg">
+            Circle center latitude angle.
+        </arg>
+        <arg name="radius" type="DOUBLE PRECISION" units="deg">
+            Circle radius.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any parameter is NULL, 0 is returned.
+        </note>
+        <note>
+            If any parameter is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).
+        </note>
+        <note>
+            If lat or centerLat lies outside of [-90, 90] degrees, this is an
+            error and NULL is returned.
+        </note>
+        <note>
+            If radius is negative or greater than 180, this is
+            an error and NULL is returned.
+        </note>
+        <note>
+            Input values must be convertible to type DOUBLE PRECISION. If their
+            actual types are BIGINT or DECIMAL, then the conversion can result
+            in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.
+        </note>
+    </notes>
+    <example>
+        SELECT objectId, ra_PS, decl_PS
+            FROM Object
+            WHERE s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
+    </example>
+</udf>
+*/
 
-    s2PtInBox(DOUBLE PRECISION lon,
-              DOUBLE PRECISION lat,
-              DOUBLE PRECISION centerLon,
-              DOUBLE PRECISION centerLat,
-              DOUBLE PRECISION radius)
-
-    A MySQL UDF returning 1 if the point (lon, lat) lies inside the
-    the given spherical circle, and 0 otherwise.
-
-    Example:
-    --------
-
-    SELECT objectId, ra_PS, decl_PS
-        FROM Object
-        WHERE s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
-
-    Inputs:
-    -------
-
-    All arguments must be convertible to type DOUBLE PRECISION, and are
-    assumed to be in units of degrees. Note that:
-
-    - If any parameter is NULL, 0 is returned.
-
-    - If any parameter is NaN or +/-Inf, this is an error and
-      NULL is returned (IEEE specials are not currently supported by MySQL).
-
-    - If lat or centerLat lie outside of [-90, 90] degrees,
-      this is an error and NULL is returned.
-
-    - If radius is negative or greater than 180, this is
-      an error and NULL is returned.
-
-    - As previously mentioned, input values are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as the inputs are values
-      of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
- */
 #include <stdlib.h>
 #include <stdio.h>
 

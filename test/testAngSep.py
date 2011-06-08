@@ -22,12 +22,9 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the angSep() UDF.
-#
 
 from __future__ import with_statement
+
 import random
 import sys
 import unittest
@@ -40,6 +37,7 @@ class AngSepTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(AngSepTestCase, self).setUp()
 
     def _angSep(self, result, *args):
         stmt = "SELECT angSep(%s, %s, %s, %s)" % tuple(map(dbparam, args))

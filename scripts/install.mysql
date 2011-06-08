@@ -1,0 +1,257 @@
+USE mysql;
+
+
+DROP FUNCTION IF EXISTS angSep;
+DROP FUNCTION IF EXISTS s2CircleHtmRanges;
+DROP FUNCTION IF EXISTS s2CPolyHtmRanges;
+DROP FUNCTION IF EXISTS s2CPolyToBin;
+DROP FUNCTION IF EXISTS s2HtmId;
+DROP FUNCTION IF EXISTS s2PtInBox;
+DROP FUNCTION IF EXISTS s2PtInCircle;
+DROP FUNCTION IF EXISTS s2PtInCPoly;
+DROP FUNCTION IF EXISTS s2PtInEllipse;
+
+DROP FUNCTION IF EXISTS median;
+DROP FUNCTION IF EXISTS percentile;
+
+DROP FUNCTION IF EXISTS dnToAbMag;
+DROP FUNCTION IF EXISTS dnToAbMagSigma;
+DROP FUNCTION IF EXISTS dnToFlux;
+DROP FUNCTION IF EXISTS dnToFluxSigma;
+DROP FUNCTION IF EXISTS fluxToAbMag;
+DROP FUNCTION IF EXISTS fluxToAbMagSigma;
+
+DROP FUNCTION IF EXISTS extractInt64;
+DROP FUNCTION IF EXISTS scisqlFail;
+DROP FUNCTION IF EXISTS scisqlVersion;
+
+
+CREATE FUNCTION angSep RETURNS REAL SONAME 'libscisql.so';
+CREATE FUNCTION s2CircleHtmRanges RETURNS STRING SONAME 'libscisql.so';
+CREATE FUNCTION s2CPolyHtmRanges RETURNS STRING SONAME 'libscisql.so';
+CREATE FUNCTION s2CPolyToBin RETURNS STRING SONAME 'libscisql.so';
+CREATE FUNCTION s2HtmId RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION s2PtInBox RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION s2PtInCircle RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION s2PtInCPoly RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION s2PtInEllipse RETURNS INTEGER SONAME 'libscisql.so';
+
+CREATE AGGREGATE FUNCTION median RETURNS REAL SONAME 'libscisql.so';
+CREATE AGGREGATE FUNCTION percentile RETURNS REAL SONAME 'libscisql.so';
+
+CREATE FUNCTION dnToAbMag RETURNS REAL SONAME 'libscisql.so';
+CREATE FUNCTION dnToAbMagSigma RETURNS REAL SONAME 'libscisql.so';
+CREATE FUNCTION dnToFlux RETURNS REAL SONAME 'libscisql.so';
+CREATE FUNCTION dnToFluxSigma RETURNS REAL SONAME 'libscisql.so';
+CREATE FUNCTION fluxToAbMag RETURNS REAL SONAME 'libscisql.so';
+CREATE FUNCTION fluxToAbMagSigma RETURNS REAL SONAME 'libscisql.so';
+
+CREATE FUNCTION extractInt64 RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION scisqlFail RETURNS INTEGER SONAME 'libscisql.so';
+CREATE FUNCTION scisqlVersion RETURNS STRING SONAME 'libscisql.so';
+
+
+-- Create stored procedures that turn HTM ID range BLOBs into
+-- temporary tables
+
+DROP DATABASE IF EXISTS scisql;
+CREATE DATABASE scisql;
+
+USE scisql;
+
+DELIMITER //
+
+-- <proc name="s2CircleRegion" section="s2">
+--     <desc>
+--         Creates a temporary table `scisql.Region` containing HTM ID ranges
+--         for the HTM triangles overlapping the given circle. A maximum of 
+--         256 ranges will be returned. If the number of ID ranges at the
+--         desired subdivision level exceeds this number, then the effective
+--         subdivision level is decreased. This strategy can reduce the number
+--         of ranges required to represent any input geometry to just 4, but
+--         makes the resulting range list a poorer (coarser, higher area)
+--         approximation to the input goemetry.
+--     </desc>
+--     <args>
+--         <arg name="centerLon" type="DOUBLE PRECISION" units="deg">
+--             Circle center longitude angle.
+--         </arg>
+--         <arg name="centerLat" type="DOUBLE PRECISION" units="deg">
+--             Circle center latitude angle.
+--         </arg>
+--         <arg name="radius" type="DOUBLE PRECISION" units="deg">
+--             Circle radius.
+--         </arg>
+--         <arg name="level" type="INTEGER">
+--             HTM subdivision level, must be in range [0, 24].
+--         </arg>
+--     </args>
+--     <notes>
+--         <note>
+--             The `scisql.Region` table is allowed to exist prior to calling
+--             s2CircleRegion() - if it does, its contents are completely
+--             replaced.
+--         </note>
+--         <note>
+--             Before using this stored procedure, an adminstrator must GRANT
+--             the required permissions (e.g. using scisqlGrant()).
+--         </note>
+--         <note>
+--             If any input is NULL, NaN or +/-Inf, the procedure will fail.
+--         </note>
+--         <note>
+--             If centerLat does not lie in the [-90, 90] degree range, the
+--             procedure will fail.
+--         </note>
+--         <note>
+--             If level does not lie in the range [0, 24], the procedure will
+--             fail.
+--         </note>
+--     </notes>
+--     <example>
+--         CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+--         SELECT * FROM scisql.Region;
+--     </example>
+-- </proc>
+CREATE PROCEDURE s2CircleRegion(IN centerLon DOUBLE PRECISION,
+                                IN centerLat DOUBLE PRECISION,
+                                IN radius DOUBLE PRECISION,
+                                IN level INTEGER)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    DECLARE htmRanges MEDIUMBLOB;
+    DECLARE i INTEGER;
+    DECLARE n INTEGER;
+
+    SET htmRanges = s2CircleHtmRanges(centerLon, centerLat, radius, level, 256);
+    IF htmRanges IS NULL THEN
+        SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping circle');
+        -- MySQL 5.5+ support the much saner:
+        -- SIGNAL SQLSTATE VALUE '45000'
+        --    SET MESSAGE_TEXT = 'Failed to compute ranges of HTM IDs overlapping circle';
+    END IF;
+    CREATE TEMPORARY TABLE IF NOT EXISTS Region (htmMin BIGINT NOT NULL, htmMax BIGINT NOT NULL);
+    TRUNCATE Region;
+    SET n = OCTET_LENGTH(htmRanges) / 8;
+    SET i = 0;
+    WHILE i < n DO
+        INSERT INTO Region VALUES (extractInt64(htmRanges, i), extractInt64(htmRanges, i + 1));
+        SET i = i + 2;
+    END WHILE;
+END //
+
+
+-- <proc name="s2CPolyRegion" section="s2">
+--     <desc>
+--         Creates a temporary table `scisql.Region` containing HTM ID ranges
+--         for the HTM triangles overlapping the given spherical convex polygon.
+--         A maximum of 256 ranges will be returned. If the number of ID ranges 
+--         at the
+--         desired subdivision level exceeds this number, then the effective
+--         subdivision level is decreased. This strategy can reduce the number
+--         of ranges required to represent any input geometry to just 4, but
+--         makes the resulting range list a poorer (coarser, higher area)
+--         approximation to the input goemetry.
+--     </desc>
+--     <args>
+--         <arg name="poly" type="VARBINARY(255)">
+--             Binary-string representation of a polygon.
+--         </arg>
+--         <arg name="level" type="INTEGER">
+--             HTM subdivision level, must be in range [0, 24].
+--         </arg>
+--     </args>
+--     <notes>
+--         <note>
+--             The `scisql.Region` table is allowed to exist prior to calling
+--             s2CPolyRegion() - if it does, its contents are completely
+--             replaced.
+--         </note>
+--         <note>
+--             Before using this stored procedure, an adminstrator must GRANT
+--             the required permissions (e.g. using scisqlGrant()).
+--         </note>
+--         <note>
+--             If any input is NULL, the procedure will fail.
+--         </note>
+--         <note>
+--             If poly is not a valid binary-string representation of a polygon
+--             (e.g. as produced by s2CPolyToBin()), the procedure will fail.
+--         </note>
+--         <note>
+--             If level does not lie in the range [0, 24], the procedure will
+--             fail.
+--         </note>
+--     </notes>
+--     <example>
+--         CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+--         SELECT * FROM scisql.Region;
+--     </example>
+-- </proc>
+CREATE PROCEDURE s2CPolyRegion(IN poly VARBINARY(255),
+                               IN level INTEGER)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    DECLARE htmRanges MEDIUMBLOB;
+    DECLARE i INTEGER;
+    DECLARE n INTEGER;
+
+    SET htmRanges = s2CPolyHtmRanges(poly, level, 256);
+    IF htmRanges IS NULL THEN
+        SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping polygon');
+        -- MySQL 5.5+ support the much saner:
+        -- SIGNAL SQLSTATE VALUE '45000'
+        --    SET MESSAGE_TEXT = 'Failed to compute ranges of HTM IDs overlapping circle';
+    END IF;
+    CREATE TEMPORARY TABLE IF NOT EXISTS Region (htmMin BIGINT NOT NULL, htmMax BIGINT NOT NULL);
+    TRUNCATE Region;
+    SET n = OCTET_LENGTH(htmRanges) / 8;
+    SET i = 0;
+    WHILE i < n DO
+        INSERT INTO Region VALUES (extractInt64(htmRanges, i), extractInt64(htmRanges, i + 1));
+        SET i = i + 2;
+    END WHILE;
+END //
+
+
+-- <proc name="scisqlGrant" section="misc">
+--     <desc>
+--         Gives a user connecting from the specified host permission to call
+--         SciSQL stored procedures and to create/use temporary tables in the
+--         scisql database.
+--     </desc>
+--     <args>
+--         <arg name="user" type="VARCHAR(255)">
+--             User name - may not contain wildcards.
+--         </arg>
+--         <arg name="host" type="VARCHAR(255)">
+--             Host name - wildcards ('%') are allowed.
+--         </arg>
+--     </args>
+--     <notes>
+--         <note>
+--             You must have MySQL admin priviledges (including GRANT OPTION)
+--             to call this stored procedure.
+--         </note>
+--     </notes>
+--     <example test="false">
+--         CALL scisql.scisqlGrant('bob', 'localhost');
+--     </example>
+-- </proc>
+CREATE PROCEDURE scisqlGrant(IN user VARCHAR(255),
+                             IN host VARCHAR(255))
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    SET @_s = CONCAT("GRANT SELECT,INSERT,DROP,CREATE TEMPORARY TABLES,EXECUTE ON scisql.* TO '",
+                     user, "'@'", host, "'");
+    PREPARE stmt FROM @_s;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+DELIMITER ;
+

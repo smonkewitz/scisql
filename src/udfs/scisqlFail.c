@@ -19,23 +19,29 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="scisqlFail" return_type="BIGINT" section="misc" internal="true">
+    <desc>
+        Fails with an optional error message.
+        <p>
+            This UDF exists solely because MySQL 5.1 does not support
+            SIGNAL in stored procedures. The error messages it produces
+            are slightly more readable than the results of hacks like
+            <tt>SELECT * FROM `Lorem ipsum dolor`</tt>.
+        </p>
+    </desc>
+    <args />
+    <args>
+        <arg name="message" type="STRING">Error message.</arg>
+    </args>
+    <example test="false">
+        SELECT scisqlFail('Lorem ipsum dolor');
+    </example>
+</udf>
+*/
 
-    scisqlFail(VARCHAR message)
-
-    A MySQL UDF that raises an exception with an optional error message.
-    The only reason it exists is that MySQL 5.1 does not support SIGNAL
-    in stored procedures, and error messages coming from a UDF are a bit
-    more readable than the results of hacks like:
-
-    SELECT * FROM `Lorem ipsum dolor`;
-
-    Example:
-    --------
-
-    SELECT scisqlFail('Lorem ipsum dolor');
- */
 #include <string.h>
 
 #include "mysql.h"

@@ -38,13 +38,17 @@ out = 'build'
 
 
 def options(ctx):
+    ctx.add_option('--client-only', dest='client_only', action='store_true',
+                   default=False, help='Build client utilities only')
     ctx.load('compiler_c')
     ctx.load('mysql', tooldir='tools')
 
 def configure(ctx):
+    ctx.env.SCISQL_CLIENT_ONLY = ctx.options.client_only
     ctx.load('compiler_c')
-    ctx.load('mysql', tooldir='tools')
-    ctx.check_mysql(atleast_version='5')
+    if not ctx.options.client_only:
+        ctx.load('mysql', tooldir='tools')
+        ctx.check_mysql(atleast_version='5')
     ctx.env['CFLAGS'] = ['-Wall',
                          '-Wextra',
                          '-O3'
@@ -83,15 +87,16 @@ def configure(ctx):
 
 def build(ctx):
     # UDF shared library
-    ctx.shlib(
-        source=ctx.path.ant_glob('src/*.c') +
-               ctx.path.ant_glob('src/udfs/*.c'),
-        includes='src',
-        target='scisql',
-        name='scisql',
-        use='MYSQL M',
-        install_path=ctx.env.MYSQL_PLUGIN_DIR
-    )
+    if not ctx.env.SCISQL_CLIENT_ONLY:
+        ctx.shlib(
+            source=ctx.path.ant_glob('src/*.c') +
+                   ctx.path.ant_glob('src/udfs/*.c'),
+            includes='src',
+            target='scisql',
+            name='scisql',
+            use='MYSQL M',
+            install_path=ctx.env.MYSQL_PLUGIN_DIR
+        )
     # Off-line spatial indexing tool
     ctx.program(
         source='src/util/index.c src/geometry.c src/htm.c',
@@ -115,7 +120,11 @@ def build(ctx):
         install_path=False,
         use='M'
     )
-    if ctx.cmd == 'install':
+    if ctx.env.SCISQL_CLIENT_ONLY:
+        doc_dir = ctx.path.find_dir('doc')
+        ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**'),
+                          cwd=doc_dir, relative_trick=True)
+    if ctx.cmd == 'install' and not ctx.env.SCISQL_CLIENT_ONLY:
         ctx.add_post_fun(create_post)
         ctx.add_post_fun(test)
     elif ctx.cmd == 'uninstall':
@@ -126,11 +135,12 @@ def create_post(ctx):
     """Run create_udfs script in a separate build context, from a post-build function.
     This ensures that the scisql shared library has already been installed.
     """
-    dir = os.path.join(ctx.path.get_bld().abspath(), '.create_udfs')
+    dir = os.path.join(ctx.path.get_bld().abspath(), '.mysql')
     bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
     bld.init_dirs()
     bld.env = ctx.env
-    bld(source='scripts/create_udfs.mysql')
+    bld(source='scripts/install.mysql')
+    bld(source='scripts/demo.mysql')
     bld.compile()
 
 
@@ -139,7 +149,8 @@ class DropContext(Build.BuildContext):
     fun = 'drop'
 
 def drop(ctx):
-    ctx(source='scripts/drop_udfs.mysql')
+    if not ctx.env.SCISQL_CLIENT_ONLY:
+        ctx(source='scripts/uninstall.mysql')
 
 
 class TestContext(Build.BuildContext):
@@ -165,7 +176,8 @@ class Tests(object):
             Logs.pprint('CYAN', msg, sep=': ')
             out = utest.change_ext('.log')
             env = os.environ.copy()
-            env['MYSQL_CNF'] = ctx.env['MYSQL_CNF']
+            if not ctx.env.SCISQL_CLIENT_ONLY:
+                env['MYSQL_CNF'] = ctx.env['MYSQL_CNF']
             with open(out.abspath(), 'wb') as f:
                 try:
                     proc = Utils.subprocess.Popen([utest.abspath()],
@@ -193,6 +205,7 @@ def test(ctx):
     tests = Tests()
     tests.utest(source=ctx.path.get_bld().make_node('test/testHtm'))
     tests.utest(source=ctx.path.get_bld().make_node('test/testSelect'))
-    tests.utest(source=ctx.path.ant_glob('test/test*.py'))
+    if not ctx.env.SCISQL_CLIENT_ONLY:
+        tests.utest(source=ctx.path.ant_glob('test/test*.py'))
     tests.run(ctx)
 

@@ -1,9 +1,15 @@
 Science Tools for MySQL
 =======================
 
-    Science-specific tools and extensions for SQL. Currently the project
-contains user defined functions (UDFs) for MySQL including spatial geometry,
-astronomy specific functions and mathematical functions.
+    SciSQL provides science-specific tools and extensions for SQL. Currently,
+the project contains user defined functions (UDFs) and stored procedures for
+MySQL in the areas of spherical geometry, statistics, and photometry. It is
+distributed under the terms of the GNU Lesser General Public License,
+version 3.
+
+    Note that the doc/index.html file in the SciSQL distribution contains
+all the instructions below, as well as documentation for all the SciSQL UDFs
+and stored procedures.
 
 
 Installation prerequisites:
@@ -12,12 +18,30 @@ Installation prerequisites:
 - Python 2.5.x or later   (http://www.python.org/download/)
 - MySQL server 5.x        (http://dev.mysql.com/downloads/)
 - MySQLdb 1.2.x           (http://sourceforge.net/projects/mysql-python/)
+- Mako                    (http://www.makotemplates.org/download.html)
 
 MySQLdb, a Python DB API 2.0 implementation for MySQL, is only required
-in order to run the unit tests.
+in order to run the unit tests. The Mako template engine is required only
+for developers that wish to rebuild the HTML documentation.
  
 In order to install the UDFs, you need write permission to the MySQL server
 plug-in directory as well as a MySQL account with admin priviledges.
+
+
+Databases reserved for SciSQL use:
+----------------------------------
+
+The following database names are reserved for use by SciSQL:
+
+- scisql                  Contains SciSQL stored procedures.
+- scisql_test             Used by SciSQL unit tests.
+- scisql_demo             Contains sample data that can be used to
+                          exercise the SciSQL UDFs.
+
+The scisql and scisql_demo databases are dropped and re-created during
+installation. If you are using these databases for other things,
+you must migrate their contents to a different database prior to installing
+SciSQL. If you do not, YOU WILL LOSE DATA.
 
 
 SciSQL configuration:
@@ -36,10 +60,17 @@ Connection details, including this password, are stored in
 build/c4che/.my.cnf in the MySQL options file format. This allows various
 build steps to connect to MySQL without constantly prompting for a password.
 
-Though the .my.cnf file permissions are set such that only the creator is
-allowed read/write access, for security reasons it is still recommended to
-run `make distclean` once SciSQL has been installed - this will remove the
+Even though the .my.cnf file permissions are set such that only its creator
+is allowed read/write access, for security reasons it is still recommended to
+run `make distclean` once SciSQL has been installed. This will remove the
 entire build directory and its contents.
+
+If you wish to build/install only the SciSQL client utilities and documentation,
+run configure with the --client-only option. In this case, a MySQL server or
+client install is not required, the only executable generated is scisql_index
+(a utility which generates HTM indexes for tables of circles or polygons stored
+in tab-separated-value format), and --prefix can be set to a directory of your
+choice.
 
 
 Building and installation:
@@ -48,9 +79,11 @@ Building and installation:
     SciSQL is built, installed, and uninstalled with the usual make,
 make install, and make uninstall commands.
 
-Note that install/uninstall will CREATE/DROP the SciSQL UDFs. The install
-command will also automatically run the test cases. You can re-run the
-tests anytime with `make test`.
+The install command will CREATE the SciSQL UDFs, stored procedures, and
+databases (including the scisql_demo database). It will also automatically
+run the SciSQL unit tests. You can re-run the tests anytime with `make test`.
+
+The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
 
 
 Reporting bugs and getting help:
@@ -61,7 +94,7 @@ bug in the SciSQL code, please file a report here:
 
 https://bugs.launchpad.net/scisql/+filebug
 
-    For other help, submit your questions here:
+    For other help or inquiries, submit your questions here:
 
 https://answers.launchpad.net/scisql/+addquestion
 

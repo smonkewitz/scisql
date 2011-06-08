@@ -20,19 +20,20 @@
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
     ================================================================
+*/
 
+/**
+<udf name="scisqlVersion" return_type="CHAR" section="misc">
+    <desc>
+        Returns the version of the sciSQL library in use.
+    </desc>
+    <args />
+    <example>
+        SELECT scisqlVersion();
+    </example>
+</udf>
+*/
 
-    scisqlVersion()
-
-    A MySQL UDF returning the version of the sciSQL UDF library in use. The
-    result is a string.
-
-    Example:
-    --------
-
-    SELECT scisqlVersion();
-
- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

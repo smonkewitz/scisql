@@ -22,10 +22,8 @@
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the s2PtInCircle() UDF.
-#
+
+from __future__ import with_statement
 
 import math
 import random
@@ -40,6 +38,7 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(S2PtInCircleTestCase, self).setUp()
 
     def _s2PtInCircle(self, result, *args):
         stmt = "SELECT s2PtInCircle(%s, %s, %s, %s, %s)" % tuple(map(dbparam, args))

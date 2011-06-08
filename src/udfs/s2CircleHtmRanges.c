@@ -19,49 +19,72 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="s2CircleHtmRanges" return_type="MEDIUMBLOB" section="s2" internal="true">
+    <desc>
+        Returns a binary-string representation of HTM ID ranges
+        overlapping a circle on the unit sphere. This string will be
+        at most 16MB long, i.e. it will fit in a MEDIUMBLOB.
+    </desc>
+    <args>
+        <arg name="centerLon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of circle center.
+        </arg>
+        <arg name="centerLat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of circle center.
+        </arg>
+        <arg name="radius" type="DOUBLE PRECISION" units="deg">
+            Circle radius.
+        </arg>
+        <arg name="level" type="INTEGER">
+            HTM subdivision level, must be in range [0, 24].
+        </arg>
+        <arg name="maxranges" type="INTEGER">
+            Maximum number of ranges to report.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            The centerLon, centerLat, and radius arguments must be
+            convertible to type DOUBLE PRECISION. If they are of type
+            BIGINT or DECIMAL, then the conversion can result in loss
+            of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values
+            of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT,
+            or TINYINT.
+        </note>
+        <note>
+            The level and maxranges arguments must be integers.
+        </note>
+        <note>
+            If any parameter is NULL, NaN or +/-Inf, this is an error
+            and NULL is returned.
+        </note>
+        <note>
+            If centerLat is not in the [-90, 90] degree range,
+            this is an error and NULL is returned.
+        </note>
+        <note>
+            If radius is negative or greater than 180, this is
+            an error and NULL is returned.
+        </note>
+        <note>
+            If level does not lie in the range [0, 24], this is an
+            error and NULL is returned.
+        </note>
+        <note>
+            maxranges can be set to any value. In practice, its value
+            is clamped such that the binary return string has size at
+            most 16MB (fits in a MEDIUMBLOB). Negative values are
+            interpreted to mean: "return as many ranges as possible
+            subject to the 16MB output size limit".
+        </note>
+    </notes>
+</udf>
+*/
 
-    s2CircleHtmRanges(DOUBLE PRECISION centerLon,
-                      DOUBLE PRECISION centerLat,
-                      DOUBLE PRECISION radius,
-                      INTEGER level,
-                      INTEGER maxranges)
-
-    A MySQL UDF returning a byte-string representation of HTM ID ranges
-    overlapping a spherical circle.
-
-    Inputs:
-    -------
-
-    The centerLon, centerLat, and radius arguments must be convertible
-    to type DOUBLE PRECISION, and are assumed to be in units of degrees.
-    The maxranges and level arguments must be integers. Note that:
-
-    - If any parameter is NULL, 0 is returned.
-
-    - If any parameter is NaN or +/-Inf, this is an error and
-      NULL is returned (IEEE specials are not currently supported by MySQL).
-
-    - If centerLat is not in the [-90, 90] degree range,
-      this is an error and NULL is returned.
-
-    - If radius is negative or greater than 180, this is
-      an error and NULL is returned.
-
-    - As previously mentioned, coordinates and radius are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as the inputs are values
-      of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
-
-    - level must be in the range [0, 24]
-
-    - maxranges can be set to any value. In practice, its value is clamped
-      such that the binary return string has size at most 16MB. Negative
-      values are interpreted to mean "return as many ranges as possible,
-      subject to the 16MB output size limit".
- */
 #include <stdlib.h>
 #include <stdio.h>
 
