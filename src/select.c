@@ -177,7 +177,7 @@ static __inline size_t _median5(const double *array) {
         -   n > 0
  */
 static size_t _medianOfMedians(double *array, size_t n) {
-    size_t i, j, m;
+    size_t i, j, m=0;
     while (1) {
         if (n <= 5) {
             switch (n) {
