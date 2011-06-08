@@ -33,6 +33,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <math.h>
+#include <stdio.h>
+#include <errno.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -465,22 +467,30 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                 /* create temp file */
                 fd = mkstemp(fname);
                 if (fd == -1) {
+                    fprintf(stderr, "scisql_percentile_state_add: mkstemp filed for %s, errno: %i\n",
+                            fname, errno); 
                     return 1;
                 }
                 /* guard against other processes using the file */
                 if (fchmod(fd, S_IRUSR | S_IWUSR) != 0) {
                     unlink(fname);
                     close(fd);
+                    fprintf(stderr, "scisql_percentile_state_add: chmod failed for %s, errno: %i\n",
+                            fname, errno); 
                     return 1;
                 }
                 /* unlink it immediately */
                 if (unlink(fname) != 0) {
                     close(fd);
+                    fprintf(stderr, "scisql_percentile_state_add: unlink failed for %s, errno: %i\n",
+                            fname, errno); 
                     return 1;
                 }
                 /* adjust file size */
                 if (ftruncate(fd, SCISQL_MMAP_FSIZE) != 0) {
                     close(fd);
+                    fprintf(stderr, "scisql_percentile_state_add: ftruncate failed for %s, errno: %d\n",
+                            fname, errno); 
                     return 1;
                 }
                 /* memory map it */
@@ -498,6 +508,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                     if (buf == MAP_FAILED) {
 #endif
                         close(fd);
+                        fprintf(stderr, "mmap failed for %s\n", fname); 
                         return 1;
 #if MAP_HUGETLB
                     }
