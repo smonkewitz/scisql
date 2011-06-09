@@ -178,23 +178,23 @@ class Tests(object):
             env = os.environ.copy()
             if not ctx.env.SCISQL_CLIENT_ONLY:
                 env['MYSQL_CNF'] = ctx.env['MYSQL_CNF']
-            with open(out.abspath(), 'wb') as f:
-                try:
-                    proc = Utils.subprocess.Popen([utest.abspath()],
-                                                  shell=False, env=env, stderr=f, stdout=f)
-                    proc.communicate()
-                except:
-                    nexcept += 1
-                    ex_type, ex_val, _ = sys.exc_info()
-                    msg = traceback.format_exception_only(ex_type, ex_val)[-1].strip()
-                    Logs.pprint('RED', msg)
+            f = open(out.abspath(), 'wb')
+            try:
+                proc = Utils.subprocess.Popen([utest.abspath()],
+                                              shell=False, env=env, stderr=f, stdout=f)
+                proc.communicate()
+            except:
+                nexcept += 1
+                ex_type, ex_val, _ = sys.exc_info()
+                msg = traceback.format_exception_only(ex_type, ex_val)[-1].strip()
+                Logs.pprint('RED', msg)
+            else:
+                if proc.returncode != 0:
+                    nfail += 1
+                    Logs.pprint('YELLOW', 'FAIL [see %s]' % out.abspath())
                 else:
-                    if proc.returncode != 0:
-                        nfail += 1
-                        Logs.pprint('YELLOW', 'FAIL [see %s]' % out.abspath())
-                    else:
-                        nok += 1
-                        Logs.pprint('CYAN', 'OK')
+                    nok += 1
+                    Logs.pprint('CYAN', 'OK')
         if nfail == 0 and nexcept == 0:
             Logs.pprint('CYAN', '\nAll %d tests passed!\n' % nok)
         else:

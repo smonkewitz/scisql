@@ -303,8 +303,8 @@ def ast(elt):
         raise RuntimeError('Unrecognized XML element <%s>' % elt.tag)
 
 def extract_docs_from_c(filename):
-    with open(filename, 'rb') as f:
-        text = f.read()
+    f = open(filename, 'rb')
+    text = f.read()
     # Extract comment blocks from file - note that nested comment blocks
     # are not dealt with properly
     comments = []
@@ -339,16 +339,16 @@ def extract_docs_from_c(filename):
 
 def extract_docs_from_sql(filename):
     comments = []
-    with open(filename, 'rb') as f:
-        block = '' 
-        for line in f:
-            m = re.match(r'\s*--', line)
-            if m != None:
-                block += line[len(m.group(0)):]
-            else:
-                if len(block) > 0:
-                    comments.append(block)
-                block = ''
+    f = open(filename, 'rb')
+    block = '' 
+    for line in f:
+        m = re.match(r'\s*--', line)
+        if m != None:
+            block += line[len(m.group(0)):]
+        else:
+            if len(block) > 0:
+                comments.append(block)
+            block = ''
     docs = []
     for xml in comments:
         if xml.find("</udf>") == -1 and xml.find("</proc>") == -1:
@@ -402,8 +402,8 @@ def _test(obj):
             source.flush()
             source.seek(0)
             try:
-                with open(os.devnull, 'wb') as devnull:
-                    subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
+                devnull = open(os.devnull, 'wb')
+                subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
             except:
                 print >>sys.stderr, "Failed to run documentation example:\n\n%s\n\n" % ex.source
 
@@ -425,8 +425,8 @@ def gen_docs(root, sections, html=True):
     lookup = TemplateLookup(directories=[os.path.join(root, 'tools', 'templates')])
     if html:
         template = lookup.get_template('index.mako')
-        with open(os.path.join(root, 'doc', 'index.html'), 'wb') as f:
-            f.write(template.render(sections=sections))
+        f = open(os.path.join(root, 'doc', 'index.html'), 'wb')
+        f.write(template.render(sections=sections))
     else:
         template = lookup.get_template('lsst_schema_browser.mako')
         sys.stdout.write(template.render(sections=sections))

@@ -65,16 +65,16 @@ def _parseMyCnf(my_cnf):
     if not isinstance(my_cnf, basestring):
         raise RuntimeError('invalid MySQL options file path')
     kw = {}
-    with open(my_cnf, 'rb') as f:
-        for line in f:
-           kv = [s.strip() for s in line.split('=')]
-           if len(kv) == 2:
-               if kv[0] == 'user':
-                   kw['user'] = kv[1]
-               elif kv[0] == 'password':
-                   kw['passwd'] = kv[1]
-               elif kv[0] == 'socket':
-                   kw['unix_socket'] = kv[1]
+    f = open(my_cnf, 'rb')
+    for line in f:
+        kv = [s.strip() for s in line.split('=')]
+        if len(kv) == 2:
+            if kv[0] == 'user':
+                kw['user'] = kv[1]
+            elif kv[0] == 'password':
+                kw['passwd'] = kv[1]
+            elif kv[0] == 'socket':
+                kw['unix_socket'] = kv[1]
     return kw
 
 
