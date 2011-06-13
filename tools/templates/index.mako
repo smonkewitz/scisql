@@ -7,7 +7,7 @@
 <%def name="section_nav(section)">
 	% if len(section.udfs) > 0:
 		% if len(section.procs) > 0:
-		<h4>Functions</h4>
+		<h4>UDFs</h4>
 		% endif
 		<ul class="section_nav">
 		% for fun in section.udfs:
@@ -17,7 +17,7 @@
 	% endif
 	% if len(section.procs) > 0:
 		% if len(section.udfs) > 0:
-		<h4>Procedures</h4>
+		<h4>Stored Procedures</h4>
 		% endif
 		<ul class="section_nav">
 		% for proc in section.procs:
@@ -65,13 +65,13 @@
 	${section.content}
 
 	% if len(section.udfs) > 0:
-	<h2>Functions</h2>
+	<h2>User Defined Functions</h2>
 		% for udf in section.udfs:
 	${udf_docs(section, udf)}
 		% endfor
 	% endif
 	% if len(section.procs) > 0:
-	<h2>Procedures</h2>
+	<h2>Stored Procedures</h2>
 		% for proc in section.procs:
 	${proc_docs(section, proc)}
 		% endfor
@@ -123,6 +123,10 @@
 		} else {
 			setInterval(_hashchange, 100);
 		}
+		$('#nav').height($(window).height() - 75);
+		$(window).resize(function() {
+			$('#nav').height($(window).height() - 75);
+		});
 	});
 --></script>
 </body>

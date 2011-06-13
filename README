@@ -20,9 +20,9 @@ Installation prerequisites:
 - MySQLdb 1.2.x           (http://sourceforge.net/projects/mysql-python/)
 - Mako 0.4.x              (http://www.makotemplates.org/download.html)
 
-MySQLdb, a Python DB API 2.0 implementation for MySQL, is only required
-in order to run the unit tests. The Mako templating library is required only
-if you wish to rebuild the HTML documentation.
+MySQLdb, a Python DB API 2.0 implementation for MySQL, is required in order
+to run the unit tests and uninstall sciSQL. The Mako templating library is
+required only if you wish to rebuild the HTML documentation.
  
 In order to install the UDFs, you need write permission to the MySQL server
 plug-in directory as well as a MySQL account with admin priviledges.

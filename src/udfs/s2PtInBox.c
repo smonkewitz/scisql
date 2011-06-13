@@ -90,7 +90,7 @@
     <example>
         SELECT objectId, ra_PS, decl_PS
             FROM Object
-            WHERE ${SCISQL_PREFX}s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
+            WHERE ${SCISQL_PREFIX}s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
     </example>
 </udf>
 */

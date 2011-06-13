@@ -37,15 +37,18 @@
 
 <section name="install" title="Building &amp; Installation">
 	<div class="section-docs">
-
+	<p>
+	Read on for instructions on how to configure, build, test, install and uninstall the
+        sciSQL software.
+        </p>
 	<h3>Prerequisites</h3>
 	<dl>
 		<dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
 		<dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
 		<dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
 		<dd>
-			This is a Python DB API 2.0 implementation for MySQL,
-			and is required when running the unit tests.
+			This is a Python DB API 2.0 implementation for MySQL, and is
+			required when running the unit tests and uninstalling sciSQL.
 		</dd>
 		<dt><a href="http://www.makotemplates.org/download.html">Mako 0.4.x</a></dt>
 		<dd>
@@ -136,7 +139,7 @@
 	You may wish to regenerate the HTML documentation if you've chosen a      
 	non-default value for <tt>--scisql-prefix</tt>, as the HTML distributed with release
 	tar-balls is built under the assumption that <tt>--scisql-prefix="scisql_"</tt>.
-	To do this, run <tt>make gen_html</tt>.
+	To do this, run <tt>make html_docs</tt>.
 	</p>
 	<p>
 	Finally, note that after installation each UDF will be available under two
@@ -329,7 +332,7 @@ SELECT o.objectId
 	</p>
 	<example>
 SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
-    WHERE ${SCISQL_PREFIX}s2PtInCPoly(0, 0, ccdPoly) = 1;</example>
+    WHERE ${SCISQL_PREFIX}s2PtInCPoly(0, 0, poly) = 1;</example>
 	<p>
 		This query returns all the CCD exposures containing the point
 		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
@@ -348,6 +351,8 @@ CREATE TABLE Science_Ccd_Exposure_HtmId10 (
 		by dumping the primary key and polygon vertex colunms from 
 		<tt>Science_Ccd_Exposure</tt>:
 	</p>
+        <example lang="bash">
+rm -f /tmp/scisql_demo_ccds.tsv</example>
 	<example>
 SELECT scienceCcdExposureId,
        llcRa, llcDecl,
@@ -355,18 +360,18 @@ SELECT scienceCcdExposureId,
        urcRa, urcDecl,
        lrcRa, lrcDecl
     FROM Science_Ccd_Exposure
-    INTO OUTFILE '/tmp/ccds.tsv';</example>
+    INTO OUTFILE '/tmp/scisql_demo_ccds.tsv';</example>
 	<p>
 		Then, run the sciSQL region indexing utility:
 	</p>
 	<example lang="bash">
-${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/ccd_htmid10.tsv /tmp/ccds.tsv</example>
+$${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/scisql_demo_htmid10.tsv /tmp/scisql_demo_ccds.tsv</example>
 	<p>
 		and load the results:
 	</p>
 	<example>
 TRUNCATE TABLE Science_Ccd_Exposure_HtmId10;
-LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</example>
+LOAD DATA LOCAL INFILE '/tmp/scisql_demo_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</example>
 	<p>
 		The example regions-containing-point query can now be expressed
 		more efficiently as:
@@ -379,7 +384,7 @@ SELECT sce.scienceCcdExposureId
              WHERE htmId10 = ${SCISQL_PREFIX}s2HtmId(0, 0, 10)
          ) AS h
     WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
-          ${SCISQL_PREFIX}s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</example>
+          ${SCISQL_PREFIX}s2PtInCPoly(0, 0, sce.poly) = 1;</example>
 	</div>
 </section>
 

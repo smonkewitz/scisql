@@ -166,15 +166,5 @@ class MySqlScript(Task.Task):
     after = ['vnum', 'inst']
     vars = ['MYSQL', 'MYSQL_CNF']
 
-    def __init__(self, *k, **kw):
-        Task.Task.__init__(self, *k, **kw)
-        # Without this, the task environment is not propagated to os.environ
-        # of subprocesses.
-        env = {}
-        for k, v in self.generator.bld.env.table.items():
-            if k.startswith('SCISQL_') and isinstance(v, str):
-               env[k] = v
-        self.env.env = env
- 
 MySqlScript = Task.always_run(MySqlScript)
 

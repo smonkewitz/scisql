@@ -99,7 +99,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX} //
 
--- <proc name="s2CircleRegion" section="s2">
+-- <proc name="${SCISQL_PREFIX}s2CircleRegion" section="s2">
 --     <desc>
 --         Creates a temporary table `scisql.Region` containing HTM ID ranges
 --         for the HTM triangles overlapping the given circle. A maximum of 
@@ -132,7 +132,7 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX} //
 --         </note>
 --         <note>
 --             Before using this stored procedure, an adminstrator must GRANT
---             the required permissions (e.g. using grantPermissions()).
+--             the required permissions (e.g. using ${SCISQL_PREFIX}grantPermissions()).
 --         </note>
 --         <note>
 --             If any input is NULL, NaN or +/-Inf, the procedure will fail.
@@ -147,7 +147,7 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX} //
 --         </note>
 --     </notes>
 --     <example>
---         CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+--         CALL scisql.${SCISQL_PREFIX}s2CircleRegion(0, 0, 0.5, 20);
 --         SELECT * FROM scisql.Region;
 --     </example>
 -- </proc>
@@ -202,7 +202,7 @@ END //
 
 DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX} //
 
--- <proc name="s2CPolyRegion" section="s2">
+-- <proc name="${SCISQL_PREFIX}s2CPolyRegion" section="s2">
 --     <desc>
 --         Creates a temporary table `scisql.Region` containing HTM ID ranges
 --         for the HTM triangles overlapping the given spherical convex polygon.
@@ -225,19 +225,19 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX} //
 --     <notes>
 --         <note>
 --             The `scisql.Region` table is allowed to exist prior to calling
---             s2CPolyRegion() - if it does, its contents are completely
+--             ${SCISQL_PREFIX}s2CPolyRegion() - if it does, its contents are completely
 --             replaced.
 --         </note>
 --         <note>
 --             Before using this stored procedure, an adminstrator must GRANT
---             the required permissions (e.g. using grantPermissions()).
+--             the required permissions (e.g. using ${SCISQL_PREFIX}grantPermissions()).
 --         </note>
 --         <note>
 --             If any input is NULL, the procedure will fail.
 --         </note>
 --         <note>
 --             If poly is not a valid binary-string representation of a polygon
---             (e.g. as produced by s2CPolyToBin()), the procedure will fail.
+--             (e.g. as produced by ${SCISQL_PREFIX}s2CPolyToBin()), the procedure will fail.
 --         </note>
 --         <note>
 --             If level does not lie in the range [0, 24], the procedure will
@@ -245,7 +245,7 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX} //
 --         </note>
 --     </notes>
 --     <example>
---         CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+--         CALL scisql.${SCISQL_PREFIX}s2CPolyRegion(${SCISQL_PREFIX}s2CPolyToBin(0,0, 1,0, 0,1), 20);
 --         SELECT * FROM scisql.Region;
 --     </example>
 -- </proc>
@@ -295,7 +295,7 @@ END //
 
 DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}grantPermissions${SCISQL_VSUFFIX} //
 
--- <proc name="grantPermissions" section="misc">
+-- <proc name="${SCISQL_PREFIX}grantPermissions" section="misc">
 --     <desc>
 --         Gives a user connecting from the specified host permission to call
 --         SciSQL stored procedures and to create/use temporary tables in the

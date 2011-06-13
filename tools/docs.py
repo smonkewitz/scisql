@@ -38,9 +38,13 @@ try:
     import xml.etree.cElementTree as etree
 except:
     import xml.etree.ElementTree as etree
-from mako.template import Template
-from mako.lookup import TemplateLookup
 
+_have_mako = True
+try:
+    from mako.template import Template
+    from mako.lookup import TemplateLookup
+except:
+    _have_mako = False
 
 # -- Helper functions ----
 
@@ -391,6 +395,7 @@ def extract_docs(root):
 # -- Testing examples in documentation ----
 
 def _test(obj):
+    nfail = 0
     for ex in obj.examples:
         if not ex.test or ex.lang not in ('sql', 'bash'):
             continue
@@ -408,15 +413,18 @@ def _test(obj):
                     subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
             except:
                 print >>sys.stderr, "Failed to run documentation example:\n\n%s\n\n" % ex.source
+                nfail += 1
+    return nfail 
 
 def run_doc_examples(sections):
     """Runs all examples marked as testable in the SciSQL documentation.
     """
+    nfail = 0
     for sec in sections:
-        _test(sec)
+        nfail += _test(sec)
         for elt in itertools.chain(sec.udfs, sec.procs):
-            _test(elt)
-
+            nfail += _test(elt)
+    return nfail
 
 # -- Documentation generation ----
 
@@ -428,10 +436,13 @@ def gen_docs(root, sections, html=True):
     if html:
         template = lookup.get_template('index.mako')
         with open(os.path.join(root, 'doc', 'index.html'), 'wb') as f:
-            f.write(template.render(sections=sections))
+            f.write(template.render(sections=sections,
+                                    SCISQL_VERSION=os.environ['SCISQL_VERSION']))
     else:
         template = lookup.get_template('lsst_schema_browser.mako')
-        sys.stdout.write(template.render(sections=sections))
+        with open('metadata_scisql.sql', 'wb') as f:
+            f.write(template.render(sections=sections,
+                                    SCISQL_VERSION=os.environ['SCISQL_VERSION']))
 
 
 # -- Usage and command line processing
@@ -446,14 +457,14 @@ usage = """
 
     Make sure code samples in the documentation actually run.
 
-%prog html_docs
+%prog html_docs 
 
     Generate HTML documentation for sciSQL in doc/index.html.
 
 %prog lsst_docs
 
-    Generate documentation in LSST schema browser format and
-    write it to standard out.
+    Generate documentation in LSST schema browser format in
+    metadata_scisql.sql
 """
 
 def main():
@@ -464,8 +475,12 @@ def main():
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     sections = extract_docs(root)
     if len(args) == 0 or args[0] == 'test_docs':
-        run_doc_examples(sections)
+        nfail = run_doc_examples(sections)
+        if nfail != 0:
+            sys.exit(1)
     else:
+        if not _have_mako:
+            parser.error("You must install mako 0.4.x to generate documentation")
         gen_docs(root, sections, html=(args[0] == 'html_docs'))
 
 if __name__ == '__main__':

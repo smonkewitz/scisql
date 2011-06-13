@@ -25,7 +25,6 @@
 
 from __future__ import with_statement
 
-import getpass
 import math
 import os
 import unittest

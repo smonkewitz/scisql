@@ -7,7 +7,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>SCISQL Documentation</title>
+	<title>sciSQL 0.1 Documentation</title>
 	<link href="docs.css" type="text/css" rel="stylesheet" />
 	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="prettify/prettify.js"></script>
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-<div id="header">sciSQL: Science Tools for MySQL</div>
+<div id="header">sciSQL 0.1: Science Tools for MySQL</div>
 <div id="index">Index</div>
 <div id="title"></div>
 
@@ -40,22 +40,22 @@
 	<h3><a href="#s2">Spherical Geometry</a></h3>
 
 		
-		<h4>Functions</h4>
+		<h4>UDFs</h4>
 		<ul class="section_nav">
-			<li><a href="#s2-angSep" title="Returns the angular separation in degrees between two positions on the unit sphere.">angSep</a></li>
-			<li><a href="#s2-s2CPolyHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a spherical convex polygon.">s2CPolyHtmRanges</a></li>
-			<li><a href="#s2-s2CPolyToBin" title="Returns a binary-string representation of a spherical convex polygon.">s2CPolyToBin</a></li>
-			<li><a href="#s2-s2CircleHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a circle on the unit sphere.">s2CircleHtmRanges</a></li>
-			<li><a href="#s2-s2HtmId" title="Returns the HTM ID of a point at the given subdivision level.">s2HtmId</a></li>
-			<li><a href="#s2-s2PtInBox" title="Returns 1 if the point (lon, lat) lies inside the given longitude/latitude angle box, and 0 otherwise.">s2PtInBox</a></li>
-			<li><a href="#s2-s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">s2PtInCPoly</a></li>
-			<li><a href="#s2-s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">s2PtInCircle</a></li>
-			<li><a href="#s2-s2PtInEllipse" title="Returns 1 if the point (lon, lat) lies inside the given spherical ellipse and 0 otherwise.">s2PtInEllipse</a></li>
+			<li><a href="#s2-scisql_angSep" title="Returns the angular separation in degrees between two positions on the unit sphere.">scisql_angSep</a></li>
+			<li><a href="#s2-scisql_s2CPolyHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a spherical convex polygon.">scisql_s2CPolyHtmRanges</a></li>
+			<li><a href="#s2-scisql_s2CPolyToBin" title="Returns a binary-string representation of a spherical convex polygon.">scisql_s2CPolyToBin</a></li>
+			<li><a href="#s2-scisql_s2CircleHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a circle on the unit sphere.">scisql_s2CircleHtmRanges</a></li>
+			<li><a href="#s2-scisql_s2HtmId" title="Returns the HTM ID of a point at the given subdivision level.">scisql_s2HtmId</a></li>
+			<li><a href="#s2-scisql_s2PtInBox" title="Returns 1 if the point (lon, lat) lies inside the given longitude/latitude angle box, and 0 otherwise.">scisql_s2PtInBox</a></li>
+			<li><a href="#s2-scisql_s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">scisql_s2PtInCPoly</a></li>
+			<li><a href="#s2-scisql_s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">scisql_s2PtInCircle</a></li>
+			<li><a href="#s2-scisql_s2PtInEllipse" title="Returns 1 if the point (lon, lat) lies inside the given spherical ellipse and 0 otherwise.">scisql_s2PtInEllipse</a></li>
 		</ul>
-		<h4>Procedures</h4>
+		<h4>Stored Procedures</h4>
 		<ul class="section_nav">
-			<li><a href="#s2-s2CPolyRegion" title="Creates a temporary table `scisql.">s2CPolyRegion</a></li>
-			<li><a href="#s2-s2CircleRegion" title="Creates a temporary table `scisql.">s2CircleRegion</a></li>
+			<li><a href="#s2-scisql_s2CPolyRegion" title="Creates a temporary table `scisql.">scisql_s2CPolyRegion</a></li>
+			<li><a href="#s2-scisql_s2CircleRegion" title="Creates a temporary table `scisql.">scisql_s2CircleRegion</a></li>
 		</ul>
 
 	</li>
@@ -65,12 +65,12 @@
 
 		
 		<ul class="section_nav">
-			<li><a href="#photometry-dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">dnToAbMag</a></li>
-			<li><a href="#photometry-dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">dnToAbMagSigma</a></li>
-			<li><a href="#photometry-dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">dnToFlux</a></li>
-			<li><a href="#photometry-dnToFluxSigma" title="Converts a raw flux error to a calibrated (AB) flux error.">dnToFluxSigma</a></li>
-			<li><a href="#photometry-fluxToAbMag" title="Converts a cailbrated (AB) flux to an AB magnitude.">fluxToAbMag</a></li>
-			<li><a href="#photometry-fluxToAbMagSigma" title="Converts a cailbrated (AB) flux error to an AB magnitude error.">fluxToAbMagSigma</a></li>
+			<li><a href="#photometry-scisql_dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">scisql_dnToAbMag</a></li>
+			<li><a href="#photometry-scisql_dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">scisql_dnToAbMagSigma</a></li>
+			<li><a href="#photometry-scisql_dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">scisql_dnToFlux</a></li>
+			<li><a href="#photometry-scisql_dnToFluxSigma" title="Converts a raw flux error to a calibrated (AB) flux error.">scisql_dnToFluxSigma</a></li>
+			<li><a href="#photometry-scisql_fluxToAbMag" title="Converts a cailbrated (AB) flux to an AB magnitude.">scisql_fluxToAbMag</a></li>
+			<li><a href="#photometry-scisql_fluxToAbMagSigma" title="Converts a cailbrated (AB) flux error to an AB magnitude error.">scisql_fluxToAbMagSigma</a></li>
 		</ul>
 
 	</li>
@@ -80,8 +80,8 @@
 
 		
 		<ul class="section_nav">
-			<li><a href="#statistics-median" title="Returns the median of a GROUP of values.">median</a></li>
-			<li><a href="#statistics-percentile" title="Returns the desired percentile of a GROUP of values.">percentile</a></li>
+			<li><a href="#statistics-scisql_median" title="Returns the median of a GROUP of values.">scisql_median</a></li>
+			<li><a href="#statistics-scisql_percentile" title="Returns the desired percentile of a GROUP of values.">scisql_percentile</a></li>
 		</ul>
 
 	</li>
@@ -90,15 +90,15 @@
 	<h3><a href="#misc">Miscellaneous</a></h3>
 
 		
-		<h4>Functions</h4>
+		<h4>UDFs</h4>
 		<ul class="section_nav">
-			<li><a href="#misc-extractInt64" title="Extracts a 64-bit integer stored in host byte order from a binary string.">extractInt64</a></li>
-			<li><a href="#misc-scisqlFail" title="Fails with an optional error message.">scisqlFail</a></li>
-			<li><a href="#misc-scisqlVersion" title="Returns the version of the sciSQL library in use.">scisqlVersion</a></li>
+			<li><a href="#misc-scisql_extractInt64" title="Extracts a 64-bit integer stored in host byte order from a binary string.">scisql_extractInt64</a></li>
+			<li><a href="#misc-scisql_getVersion" title="Returns the version of the sciSQL library in use.">scisql_getVersion</a></li>
+			<li><a href="#misc-scisql_raiseError" title="Fails with an optional error message.">scisql_raiseError</a></li>
 		</ul>
-		<h4>Procedures</h4>
+		<h4>Stored Procedures</h4>
 		<ul class="section_nav">
-			<li><a href="#misc-scisqlGrant" title="Gives a user connecting from the specified host permission to call SciSQL stored procedures and to create/use temporary tables in the scisql database.">scisqlGrant</a></li>
+			<li><a href="#misc-scisql_grantPermissions" title="Gives a user connecting from the specified host permission to call SciSQL stored procedures and to create/use temporary tables in the scisql database.">scisql_grantPermissions</a></li>
 		</ul>
 
 	</li>
@@ -119,12 +119,12 @@
 	
 	<div class="section-docs">
 	<p>
-        SciSQL provides science-specific tools and extensions for SQL. Currently, the project
+        sciSQL provides science-specific tools and extensions for SQL. Currently, the project
         contains user defined functions (UDFs) and stored procedures for MySQL in the areas
         of spherical geometry, statistics, and photometry. The project was motivated by the
         needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
         and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
-        <a href="http://www.energy.gov/">DOE</a>. SciSQL is distributed under the terms of the
+        <a href="http://www.energy.gov/">DOE</a>. sciSQL is distributed under the terms of the
         <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License v3</a>.
 	</p>
 	<ul>
@@ -133,7 +133,7 @@
 	        <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
 	</ul>
 	<p>
-	SciSQL is also distributed with a pair of Javascript libraries. These are:
+	sciSQL is also distributed with a pair of Javascript libraries. These are:
 	</p>
 	<ul>
 		<li>
@@ -155,20 +155,23 @@
 <div id="section-install" class="section">
 	
 	<div class="section-docs">
-
+	<p>
+	Read on for instructions on how to configure, build, test, install and uninstall the
+        sciSQL software.
+        </p>
 	<h3>Prerequisites</h3>
 	<dl>
 		<dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
 		<dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
 		<dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
 		<dd>
-			This is a Python DB API 2.0 implementation for MySQL,
-			and is required when running the unit tests.
+			This is a Python DB API 2.0 implementation for MySQL, and is
+			required when running the unit tests and uninstalling sciSQL.
 		</dd>
-		<dt><a href="http://www.makotemplates.org/download.html">Mako</a></dt>
+		<dt><a href="http://www.makotemplates.org/download.html">Mako 0.4.x</a></dt>
 		<dd>
-			The Mako templating system is only required for developers,
-			and is used to build release documentation.
+			This Python templating library is required when
+			rebuilding release documentation.
 		</dd>
 	</dl>
 	<p>
@@ -176,28 +179,32 @@
 	plug-in directory, as well as a MySQL account with admin priviledges.
 	</p>
 
-	<h3 class="warning">Databases reserved for SciSQL use</h3>
+	<h3 class="warning">Databases reserved for sciSQL use</h3>
 	<p>
-	The following database names are reserved for use by SciSQL:
+	The following database names are reserved for use by sciSQL:
 	</p>
 	<dl>
 		<dt>scisql</dt>
-		<dd>Contains SciSQL stored procedures.</dd>
+		<dd>Contains sciSQL stored procedures.</dd>
 		<dt>scisql_test</dt>
-		<dd>Used by SciSQL unit tests.</dd>
+		<dd>Used by sciSQL unit tests.</dd>
 		<dt>scisql_demo</dt>
-		<dd>Contains sample data that can be used to exercise the SciSQL UDFs.</dd>
+		<dd>Contains sample data that can be used to exercise the sciSQL UDFs.</dd>
 	</dl>
 	<p>
-	The scisql and scisql_demo databases are dropped and re-created during
-	installation. If you are using these databases for other things,
-	you must migrate their contents to a different database prior to installing
-	SciSQL. If you do not, <strong>YOU WILL LOSE DATA</strong>.
+	The scisql_demo database is dropped and re-created during installation. If you
+	are using it for other things, you must migrate its contents to a different
+	database prior to installing sciSQL. If you do not,
+	<strong>YOU WILL LOSE DATA</strong>.
+	</p>
+	<p>
+	Even though the scisql and scisql_test databases are never automatically
+	dropped, their use is <strong>STRONGLY DISCOURAGED</strong>.
 	</p>
 
 	<h3>Configuration</h3>
 	<p>
-    	Run <tt>./configure</tt> from the top-level SciSQL directory. Passing <tt>--help</tt>
+    	Run <tt>./configure</tt> from the top-level sciSQL directory. Passing <tt>--help</tt>
 	will yield a list of configuration options. Here are the ones most likely to require
 	tweaking:
 	</p>
@@ -208,6 +215,12 @@
 		<dd>Set this to the name of a MySQL admin user</dd>
 		<dt><tt>--mysql-socket</tt></dt>
 		<dd>Set this to the name of the MySQL server UNIX socket file</dd>
+		<dt><tt>--scisql-prefix</tt></dt>
+		<dd>
+		This string will be used as a prefix for all sciSQL UDF and stored procedure
+		names. You can specify an empty string, which will result in unprefixed names.
+		The default is "scisql_".
+		</dd>
 	</dl>
 	<p>
 	You will be prompted for the MySQL admin user password during configuration.
@@ -222,7 +235,7 @@
 	entire build directory and its contents.
 	</p>
 	<p>
-	If you wish to build/install only the SciSQL client utilities and documentation,
+	If you wish to build/install only the sciSQL client utilities and documentation,
 	run configure with the --client-only option. In this case, a MySQL server or
 	client install is not required, the only executable generated is scisql_index
 	(a utility which generates HTM indexes for tables of circles or polygons stored
@@ -232,22 +245,45 @@
 
 	<h3>Build/Install</h3>
 	<p>
-	SciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
+	sciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
 	<tt>make install</tt>, and <tt>make uninstall</tt> commands.
 	</p>
 	<p>
-        The <tt>install</tt> command will CREATE the SciSQL UDFs, stored procedures, and
+        The <tt>install</tt> command will CREATE the sciSQL UDFs, stored procedures, and
         databases (including the scisql_demo database). It will also automatically
-        run the SciSQL unit tests. You can re-run the tests anytime with <tt>`make test`</tt>.
+        run the sciSQL unit tests. You can re-run the tests anytime with <tt>make test</tt>.
 	</p>
-        <p>
-        The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
-        </p>
+	<p>
+	You may wish to regenerate the HTML documentation if you've chosen a      
+	non-default value for <tt>--scisql-prefix</tt>, as the HTML distributed with release
+	tar-balls is built under the assumption that <tt>--scisql-prefix="scisql_"</tt>.
+	To do this, run <tt>make html_docs</tt>.
+	</p>
+	<p>
+	Finally, note that after installation each UDF will be available under two
+	names: one including a version number and one without. For example, assuming
+	that <tt>--scisql-prefix="foo_"</tt> and that the sciSQL version number is
+	<tt>1.2.3</tt>,	a hypothetical UDF named <tt>bar</tt> would be available as:
+	</p>
+	<ul><li>foo_bar</li><li>foo_bar_1_2_3</li></ul>
+	<p>
+	The <tt>uninstall</tt> command will drop the versioned sciSQL UDFs and stored
+	procedures. It will also drop the unversioned UDFs/procedures, but only
+	if the unversioned UDF/procedure was created by the version of
+	sciSQL being uninstalled. As a consequence, it is possible to have
+	multiple versions of sciSQL installed at the same time, and the behavior
+	of two versions can be compared from within a single MySQL instance.
+	An unversioned name will resolve to the most recently installed versioned
+	name.
+	</p>
+	<p>
+	The uninstall command will also drop the scisql_demo database.
+	</p>
 
         <h3>Reporting bugs and getting help</h3>
         <p>
         If you encounter test-case failures, or think you've identified a
-        bug in the SciSQL code, please file a report here:
+        bug in the sciSQL code, please file a report here:
         </p>
         <p><a href="https://bugs.launchpad.net/scisql/+filebug">https://bugs.launchpad.net/scisql/+filebug</a></p>
         <p>
@@ -281,7 +317,7 @@
 
 	<h3>HTM indexing</h3>
 	<p>
-		To accelerate these types of queries, SciSQL maps points/regions
+		To accelerate these types of queries, sciSQL maps points/regions
 		to the integer ID(s) of their containing/overlapping triangles in a
 		Hierarchical Triangular Mesh (HTM). This is a decomposition of the
 		unit sphere defined by A. Szalay, T. Budavari, G. Fekete at the
@@ -307,22 +343,24 @@
 
 	<h3>Supported region types</h3>
 	<p>
-		SciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
+		sciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
 		spherical circles (defined by a center and opening angle), spherical
 		ellipses (the orthographic projection of a standard 2-d ellipse onto
 		the sphere, where the 2-d ellipse is on a plane tangent to the unit
 		sphere at the ellipse center), and spherical convex polygons (where
 		polygon edges are great circles). Note also that spherical convex
-		polygons have a binary representation, produced by s2CPolyToBin(),
-		allowing them to be stored as values in a BINARY table column.
+		polygons have a binary representation, produced by
+                scisql_s2CPolyToBin(), allowing them to be stored as values
+                in a BINARY table column.
 	</p>
 
 	<h3>Points-in-region queries</h3>
 	<p>
-		SciSQL contains several UDFs for checking whether a point lies inside
-		a region. These are: s2PtInBox(), s2PtInCircle(), s2PtInCPoly() and
-		s2PtInEllipse(). They return 1 if the input point is inside the input
-		region and 0 otherwise.
+		sciSQL contains several UDFs for checking whether a point lies inside
+		a region. These are: scisql_s2PtInBox(),
+		scisql_s2PtInCircle(), scisql_s2PtInCPoly() and
+		scisql_s2PtInEllipse(). They return 1 if the input point is
+		inside the input region and 0 otherwise.
 	</p>
 	<p>
 		Given these UDFs, a simple way to answer question 1 is illustrated by
@@ -331,12 +369,12 @@
 	<pre class="prettyprint lang-sql linenums">
 SELECT objectId
     FROM Object
-    WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</pre>
+    WHERE scisql_s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</pre>
 	<p>
 		This query returns all the objects within 0.01 degrees of
 		(RA, Dec) = (0, 0). It is inefficient for small search regions
-		because the s2PtInCircle() UDF must be called for every row in
-		the <tt>Object</tt> table.
+		because the scisql_s2PtInCircle() UDF must be called for
+		every row in the <tt>Object</tt> table.
 	</p>
 	<p>
 		Lets assume that <tt>Object</tt> contains an indexed BIGINT column
@@ -347,7 +385,7 @@ SELECT objectId
 	<pre class="prettyprint lang-sql linenums">
 ALTER TABLE Object DISABLE KEYS;
 UPDATE Object
-    SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+    SET htmId20 = scisql_s2HtmId(ra_PS, decl_PS, 20);
 ALTER TABLE Object ENABLE KEYS;</pre>
 	<p>
 		The HTM subdivision level must be between 0 and 24. At subdivision
@@ -360,46 +398,47 @@ ALTER TABLE Object ENABLE KEYS;</pre>
 		the query above can be made more efficient:
 	</p>
 	<pre class="prettyprint lang-sql linenums">
-CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
+CALL scisql.scisql_s2CircleRegion(0, 0, 0.01, 20);
 
 SELECT o.objectId
     FROM Object AS o INNER JOIN scisql.Region AS r
          ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-    WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</pre>
+    WHERE scisql_s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</pre>
 	<p>
 		What's going on here? The first line in the example calls the
-		s2CircleRegion() stored procedure. This procedure creates a temporary
-		table called <tt>scisql.Region</tt> with two BIGINT NOT NULL columns
-		named htmMin and htmMax. It then stores the HTM IDs overlapping the
-		search region in <tt>scisql.Region</tt> (as ranges).
+		scisql_s2CircleRegion() stored procedure. This procedure
+		creates a temporary table called <tt>scisql.Region</tt> with two
+		BIGINT NOT NULL columns named htmMin and htmMax. It then stores
+		the HTM IDs overlapping the search region in <tt>scisql.Region</tt>
+		(as ranges).
 	</p>
 	<p>
 		Next, the original query is augmented with a join against
 		<tt>scisql.Region</tt>. This limits the objects considered by
-		s2PtInCircle() to those within the HTM triangles overlapping the
-		search region; the index on htmId20 allows MySQL to retrieve these
-		objects very quickly when the search region is small. Note that if
-		the search region is large (meaning that a large fraction of the
-		table being searched is inside the search region), then the original 
-		query may actually be faster.
+		scisql_s2PtInCircle() to those within the HTM triangles
+		overlapping the search region; the index on htmId20 allows MySQL to
+		retrieve these objects very quickly when the search region is small.
+		Note that if the search region is large (meaning that a large fraction
+		of the table being searched is inside the search region), then the
+		original query may actually be faster.
 	</p>
 	<p>
 		Here is another example, this time with a search region taken from
 		a table called <tt>Science_Ccd_Exposure</tt>. This table includes a 
-		a column named ccdPoly that contains polygonal approximations to the
-                regions of the sphere observed by CCD exposures.
+		a column named <tt>poly</tt> that contains polygonal approximations
+		to the regions of the sphere observed by CCD exposures.
 	</p>
 	<pre class="prettyprint lang-sql linenums">
-SELECT ccdPoly FROM Science_Ccd_Exposure
+SELECT poly FROM Science_Ccd_Exposure
     WHERE scienceCcdExposureId = 43856062009
     INTO @poly;
 
-CALL scisql.s2CPolyRegion(@poly, 20);
+CALL scisql.scisql_s2CPolyRegion(@poly, 20);
 
 SELECT o.objectId
     FROM Object AS o INNER JOIN scisql.Region AS r
          ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-    WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</pre>
+    WHERE scisql_s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</pre>
 	<p>
 		The first statement stores the polygonal boundary of a particular CCD
 		exposure into the user variable <tt>@poly</tt>, the second computes
@@ -413,7 +452,7 @@ SELECT o.objectId
 	</p>
 	<pre class="prettyprint lang-sql linenums">
 SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
-    WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</pre>
+    WHERE scisql_s2PtInCPoly(0, 0, poly) = 1;</pre>
 	<p>
 		This query returns all the CCD exposures containing the point
 		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
@@ -432,6 +471,8 @@ CREATE TABLE Science_Ccd_Exposure_HtmId10 (
 		by dumping the primary key and polygon vertex colunms from 
 		<tt>Science_Ccd_Exposure</tt>:
 	</p>
+        <pre class="prettyprint lang-bash linenums">
+rm -f /tmp/scisql_demo_ccds.tsv</pre>
 	<pre class="prettyprint lang-sql linenums">
 SELECT scienceCcdExposureId,
        llcRa, llcDecl,
@@ -439,18 +480,18 @@ SELECT scienceCcdExposureId,
        urcRa, urcDecl,
        lrcRa, lrcDecl
     FROM Science_Ccd_Exposure
-    INTO OUTFILE '/tmp/ccds.tsv';</pre>
+    INTO OUTFILE '/tmp/scisql_demo_ccds.tsv';</pre>
 	<p>
-		Then, run the SciSQL region indexing utility:
+		Then, run the sciSQL region indexing utility:
 	</p>
 	<pre class="prettyprint lang-bash linenums">
-${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/ccd_htmid10.tsv /tmp/ccds.tsv</pre>
+${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/scisql_demo_htmid10.tsv /tmp/scisql_demo_ccds.tsv</pre>
 	<p>
 		and load the results:
 	</p>
 	<pre class="prettyprint lang-sql linenums">
 TRUNCATE TABLE Science_Ccd_Exposure_HtmId10;
-LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</pre>
+LOAD DATA LOCAL INFILE '/tmp/scisql_demo_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</pre>
 	<p>
 		The example regions-containing-point query can now be expressed
 		more efficiently as:
@@ -460,19 +501,19 @@ SELECT sce.scienceCcdExposureId
     FROM Science_Ccd_Exposure AS sce, (
              SELECT scienceCcdExposureId
              FROM Science_Ccd_Exposure_HtmId10
-             WHERE htmId10 = s2HtmId(0, 0, 10)
+             WHERE htmId10 = scisql_s2HtmId(0, 0, 10)
          ) AS h
     WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
-          s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</pre>
+          scisql_s2PtInCPoly(0, 0, sce.poly) = 1;</pre>
 	</div>
 
 
-	<h2>Functions</h2>
+	<h2>User Defined Functions</h2>
 	
-	<div id="udf-s2-angSep" class="udf">
-		<h3><a name="s2-angSep"></a>angSep</h3>
+	<div id="udf-s2-scisql_angSep" class="udf">
+		<h3><a name="s2-scisql_angSep"></a>scisql_angSep</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION angSep (</td>
+			<tr><td class="decl">FUNCTION scisql_angSep (</td>
 				<td class="argname">lon1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -499,7 +540,7 @@ SELECT sce.scienceCcdExposureId
 			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION angSep (</td>
+			<tr><td class="decl">FUNCTION scisql_angSep (</td>
 				<td class="argname">x1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
@@ -558,17 +599,17 @@ SELECT sce.scienceCcdExposureId
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT angSep(0, 0, 0, 90);
-SELECT angSep(1, 0, 0, 0, 0, 1);
-SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
+SELECT scisql_angSep(0, 0, 0, 90);
+SELECT scisql_angSep(1, 0, 0, 0, 0, 1);
+SELECT scisql_angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2CPolyHtmRanges" class="udf internal">
-		<h3><a name="s2-s2CPolyHtmRanges"></a>[internal] s2CPolyHtmRanges</h3>
+	<div id="udf-s2-scisql_s2CPolyHtmRanges" class="udf internal">
+		<h3><a name="s2-scisql_s2CPolyHtmRanges"></a>[internal] scisql_s2CPolyHtmRanges</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2CPolyHtmRanges (</td>
+			<tr><td class="decl">FUNCTION scisql_s2CPolyHtmRanges (</td>
 				<td class="argname">poly</td>
 				<td class="argtype">BINARY,</td>
 				<td class="argunits"></td>
@@ -591,7 +632,8 @@ SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 		<div class="description">
 			Returns a binary-string representation of HTM ID ranges
         overlapping a spherical convex polygon. The polygon must
-        be specified in binary-string form (as produced by s2CPolyToBin()).
+        be specified in binary-string form (as produced by
+        scisql_s2CPolyToBin()).
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
@@ -611,10 +653,10 @@ SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 	</div>
 
 	
-	<div id="udf-s2-s2CPolyToBin" class="udf">
-		<h3><a name="s2-s2CPolyToBin"></a>s2CPolyToBin</h3>
+	<div id="udf-s2-scisql_s2CPolyToBin" class="udf">
+		<h3><a name="s2-scisql_s2CPolyToBin"></a>scisql_s2CPolyToBin</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2CPolyToBin (</td>
+			<tr><td class="decl">FUNCTION scisql_s2CPolyToBin (</td>
 				<td class="argname">v1Lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -681,17 +723,18 @@ INSERT INTO Poly VALUES (-10,  0,
                          NULL);
 
 UPDATE Poly
-    SET poly = s2CPolyToBin(ra1, dec1,
-                            ra2, dec2,
-                            ra3, dec3);
+    SET poly = scisql_s2CPolyToBin(
+        ra1, dec1,
+        ra2, dec2,
+        ra3, dec3);
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2CircleHtmRanges" class="udf internal">
-		<h3><a name="s2-s2CircleHtmRanges"></a>[internal] s2CircleHtmRanges</h3>
+	<div id="udf-s2-scisql_s2CircleHtmRanges" class="udf internal">
+		<h3><a name="s2-scisql_s2CircleHtmRanges"></a>[internal] scisql_s2CircleHtmRanges</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2CircleHtmRanges (</td>
+			<tr><td class="decl">FUNCTION scisql_s2CircleHtmRanges (</td>
 				<td class="argname">centerLon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -755,10 +798,10 @@ UPDATE Poly
 	</div>
 
 	
-	<div id="udf-s2-s2HtmId" class="udf">
-		<h3><a name="s2-s2HtmId"></a>s2HtmId</h3>
+	<div id="udf-s2-scisql_s2HtmId" class="udf">
+		<h3><a name="s2-scisql_s2HtmId"></a>scisql_s2HtmId</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2HtmId (</td>
+			<tr><td class="decl">FUNCTION scisql_s2HtmId (</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -800,16 +843,16 @@ UPDATE Poly
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
+SELECT objectId, ra_PS, decl_PS, scisql_s2HtmId(ra_PS, decl_PS, 20)
     FROM Object LIMIT 10;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInBox" class="udf">
-		<h3><a name="s2-s2PtInBox"></a>s2PtInBox</h3>
+	<div id="udf-s2-scisql_s2PtInBox" class="udf">
+		<h3><a name="s2-scisql_s2PtInBox"></a>scisql_s2PtInBox</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2PtInBox (</td>
+			<tr><td class="decl">FUNCTION scisql_s2PtInBox (</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -884,15 +927,15 @@ SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId, ra_PS, decl_PS
     FROM Object
-    WHERE s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
+    WHERE scisql_s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInCPoly" class="udf">
-		<h3><a name="s2-s2PtInCPoly"></a>s2PtInCPoly</h3>
+	<div id="udf-s2-scisql_s2PtInCPoly" class="udf">
+		<h3><a name="s2-scisql_s2PtInCPoly"></a>scisql_s2PtInCPoly</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2PtInCPoly (</td>
+			<tr><td class="decl">FUNCTION scisql_s2PtInCPoly (</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -913,7 +956,7 @@ SELECT objectId, ra_PS, decl_PS
 			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2PtInCPoly (</td>
+			<tr><td class="decl">FUNCTION scisql_s2PtInCPoly (</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -956,8 +999,8 @@ SELECT objectId, ra_PS, decl_PS
 			Returns 1 if the point (lon, lat) lies inside the given
         spherical convex polygon and 0 otherwise. The polygon may
         be specified either as a VARBINARY byte string (as produced by
-        s2CPolyToBin()), or as a sequence of at least 3 and at most 20
-        vertex pairs.
+        scisql_s2CPolyToBin()), or as a sequence of at least 3
+        and at most 20 vertex pairs.
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
@@ -980,19 +1023,20 @@ SELECT objectId, ra_PS, decl_PS
 		<pre class="prettyprint lang-sql linenums">
 SELECT scienceCcdExposureId
     FROM Science_Ccd_Exposure
-    WHERE s2PtInCPoly(0.0, 0.0,
-                      llcRa, llcDecl,
-                      ulcRa, ulcDecl,
-                      urcRa, urcDecl,
-                      lrcRa, lrcDecl) = 1;
+    WHERE scisql_s2PtInCPoly(
+        0.0, 0.0,
+        llcRa, llcDecl,
+        ulcRa, ulcDecl,
+        urcRa, urcDecl,
+        lrcRa, lrcDecl) = 1;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInCircle" class="udf">
-		<h3><a name="s2-s2PtInCircle"></a>s2PtInCircle</h3>
+	<div id="udf-s2-scisql_s2PtInCircle" class="udf">
+		<h3><a name="s2-scisql_s2PtInCircle"></a>scisql_s2PtInCircle</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2PtInCircle (</td>
+			<tr><td class="decl">FUNCTION scisql_s2PtInCircle (</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -1047,15 +1091,15 @@ SELECT scienceCcdExposureId
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId, ra_PS, decl_PS
     FROM Object
-    WHERE s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
+    WHERE scisql_s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInEllipse" class="udf">
-		<h3><a name="s2-s2PtInEllipse"></a>s2PtInEllipse</h3>
+	<div id="udf-s2-scisql_s2PtInEllipse" class="udf">
+		<h3><a name="s2-scisql_s2PtInEllipse"></a>scisql_s2PtInEllipse</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION s2PtInEllipse (</td>
+			<tr><td class="decl">FUNCTION scisql_s2PtInEllipse (</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
@@ -1124,17 +1168,17 @@ SELECT objectId, ra_PS, decl_PS
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId, ra_PS, decl_PS
     FROM Object
-    WHERE s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
+    WHERE scisql_s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
 </pre>
 	</div>
 
-	<h2>Procedures</h2>
+	<h2>Stored Procedures</h2>
 	
-	<div id="proc-s2-s2CPolyRegion" class="proc">
-		<h3><a name="s2-s2CPolyRegion"></a>s2CPolyRegion</h3>
+	<div id="proc-s2-scisql_s2CPolyRegion" class="proc">
+		<h3><a name="s2-scisql_s2CPolyRegion"></a>scisql.scisql_s2CPolyRegion</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE s2CPolyRegion (</td>
+				<td class="decl">PROCEDURE scisql_s2CPolyRegion (</td>
 				<td class="argtype">IN</td>
 				<td class="argname">poly</td>
 				<td class="argtype">VARBINARY(255),</td>
@@ -1169,29 +1213,29 @@ SELECT objectId, ra_PS, decl_PS
 		<h5>Notes</h5>
 		<ul class="notes">
 			<li class="">The `scisql.Region` table is allowed to exist prior to calling
-             s2CPolyRegion() - if it does, its contents are completely
+             scisql_s2CPolyRegion() - if it does, its contents are completely
              replaced.</li>
 			<li class="">Before using this stored procedure, an adminstrator must GRANT
-             the required permissions (e.g. using scisqlGrant()).</li>
+             the required permissions (e.g. using scisql_grantPermissions()).</li>
 			<li class="">If any input is NULL, the procedure will fail.</li>
 			<li class="">If poly is not a valid binary-string representation of a polygon
-             (e.g. as produced by s2CPolyToBin()), the procedure will fail.</li>
+             (e.g. as produced by scisql_s2CPolyToBin()), the procedure will fail.</li>
 			<li class="">If level does not lie in the range [0, 24], the procedure will
              fail.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+CALL scisql.scisql_s2CPolyRegion(scisql_s2CPolyToBin(0,0, 1,0, 0,1), 20);
 SELECT * FROM scisql.Region;
 </pre>
 	</div>
 
 	
-	<div id="proc-s2-s2CircleRegion" class="proc">
-		<h3><a name="s2-s2CircleRegion"></a>s2CircleRegion</h3>
+	<div id="proc-s2-scisql_s2CircleRegion" class="proc">
+		<h3><a name="s2-scisql_s2CircleRegion"></a>scisql.scisql_s2CircleRegion</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE s2CircleRegion (</td>
+				<td class="decl">PROCEDURE scisql_s2CircleRegion (</td>
 				<td class="argtype">IN</td>
 				<td class="argname">centerLon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
@@ -1241,10 +1285,10 @@ SELECT * FROM scisql.Region;
 		<h5>Notes</h5>
 		<ul class="notes">
 			<li class="">The `scisql.Region` table is allowed to exist prior to calling
-             s2CircleRegion() - if it does, its contents are completely
+             scisql_s2CircleRegion() - if it does, its contents are completely
              replaced.</li>
 			<li class="">Before using this stored procedure, an adminstrator must GRANT
-             the required permissions (e.g. using scisqlGrant()).</li>
+             the required permissions (e.g. using scisql_grantPermissions()).</li>
 			<li class="">If any input is NULL, NaN or +/-Inf, the procedure will fail.</li>
 			<li class="">If centerLat does not lie in the [-90, 90] degree range, the
              procedure will fail.</li>
@@ -1253,7 +1297,7 @@ SELECT * FROM scisql.Region;
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+CALL scisql.scisql_s2CircleRegion(0, 0, 0.5, 20);
 SELECT * FROM scisql.Region;
 </pre>
 	</div>
@@ -1268,12 +1312,12 @@ SELECT * FROM scisql.Region;
 	</p></div>
 
 
-	<h2>Functions</h2>
+	<h2>User Defined Functions</h2>
 	
-	<div id="udf-photometry-dnToAbMag" class="udf">
-		<h3><a name="photometry-dnToAbMag"></a>dnToAbMag</h3>
+	<div id="udf-photometry-scisql_dnToAbMag" class="udf">
+		<h3><a name="photometry-scisql_dnToAbMag"></a>scisql_dnToAbMag</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION dnToAbMag (</td>
+			<tr><td class="decl">FUNCTION scisql_dnToAbMag (</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
@@ -1298,7 +1342,7 @@ SELECT * FROM scisql.Region;
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
+SELECT scisql_dnToAbMag(src.psfFlux, ccd.fluxMag0)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
     LIMIT 10;
@@ -1306,10 +1350,10 @@ SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
 	</div>
 
 	
-	<div id="udf-photometry-dnToAbMagSigma" class="udf">
-		<h3><a name="photometry-dnToAbMagSigma"></a>dnToAbMagSigma</h3>
+	<div id="udf-photometry-scisql_dnToAbMagSigma" class="udf">
+		<h3><a name="photometry-scisql_dnToAbMagSigma"></a>scisql_dnToAbMagSigma</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION dnToAbMagSigma (</td>
+			<tr><td class="decl">FUNCTION scisql_dnToAbMagSigma (</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
@@ -1346,8 +1390,8 @@ SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
-                      ccd.fluxMag0, ccd.fluxMag0Sigma)
+SELECT scisql_dnToAbMagSigma(
+        src.psfFlux, src.psfFluxSigma, ccd.fluxMag0, ccd.fluxMag0Sigma)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
     LIMIT 10;
@@ -1355,10 +1399,10 @@ SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
 	</div>
 
 	
-	<div id="udf-photometry-dnToFlux" class="udf">
-		<h3><a name="photometry-dnToFlux"></a>dnToFlux</h3>
+	<div id="udf-photometry-scisql_dnToFlux" class="udf">
+		<h3><a name="photometry-scisql_dnToFlux"></a>scisql_dnToFlux</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION dnToFlux (</td>
+			<tr><td class="decl">FUNCTION scisql_dnToFlux (</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
@@ -1385,7 +1429,7 @@ SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
 -- An example using the LSST schema:
-SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
+SELECT scisql_dnToFlux(src.psfFlux, ccd.fluxMag0)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
     LIMIT 10;
@@ -1393,10 +1437,10 @@ SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
 	</div>
 
 	
-	<div id="udf-photometry-dnToFluxSigma" class="udf">
-		<h3><a name="photometry-dnToFluxSigma"></a>dnToFluxSigma</h3>
+	<div id="udf-photometry-scisql_dnToFluxSigma" class="udf">
+		<h3><a name="photometry-scisql_dnToFluxSigma"></a>scisql_dnToFluxSigma</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION dnToFluxSigma (</td>
+			<tr><td class="decl">FUNCTION scisql_dnToFluxSigma (</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
@@ -1434,8 +1478,8 @@ SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
-                      ccd.fluxMag0, ccd.fluxMag0Sigma)
+SELECT scisql_dnToAbMagSigma(
+        src.psfFlux, src.psfFluxSigma, ccd.fluxMag0, ccd.fluxMag0Sigma)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
     LIMIT 10;
@@ -1443,10 +1487,10 @@ SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
 	</div>
 
 	
-	<div id="udf-photometry-fluxToAbMag" class="udf">
-		<h3><a name="photometry-fluxToAbMag"></a>fluxToAbMag</h3>
+	<div id="udf-photometry-scisql_fluxToAbMag" class="udf">
+		<h3><a name="photometry-scisql_fluxToAbMag"></a>scisql_fluxToAbMag</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION fluxToAbMag (</td>
+			<tr><td class="decl">FUNCTION scisql_fluxToAbMag (</td>
 				<td class="argname">flux</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
@@ -1464,7 +1508,7 @@ SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT fluxToAbMag(rFlux_PS)
+SELECT scisql_fluxToAbMag(rFlux_PS)
     FROM Object
     WHERE rFlux_PS IS NOT NULL
     LIMIT 10;
@@ -1472,10 +1516,10 @@ SELECT fluxToAbMag(rFlux_PS)
 	</div>
 
 	
-	<div id="udf-photometry-fluxToAbMagSigma" class="udf">
-		<h3><a name="photometry-fluxToAbMagSigma"></a>fluxToAbMagSigma</h3>
+	<div id="udf-photometry-scisql_fluxToAbMagSigma" class="udf">
+		<h3><a name="photometry-scisql_fluxToAbMagSigma"></a>scisql_fluxToAbMagSigma</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION fluxToAbMagSigma (</td>
+			<tr><td class="decl">FUNCTION scisql_fluxToAbMagSigma (</td>
 				<td class="argname">flux</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
@@ -1500,7 +1544,7 @@ SELECT fluxToAbMag(rFlux_PS)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
+SELECT scisql_fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
     FROM Object
     WHERE rFlux_PS IS NOT NULL and rFlux_PS_Sigma IS NOT NULL
     LIMIT 10;
@@ -1517,12 +1561,12 @@ SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
 	</p></div>
 
 
-	<h2>Functions</h2>
+	<h2>User Defined Functions</h2>
 	
-	<div id="udf-statistics-median" class="udf">
-		<h3><a name="statistics-median"></a>median</h3>
+	<div id="udf-statistics-scisql_median" class="udf">
+		<h3><a name="statistics-scisql_median"></a>scisql_median</h3>
 		<table class="signature">
-			<tr><td class="decl">AGGREGATE FUNCTION median (</td>
+			<tr><td class="decl">AGGREGATE FUNCTION scisql_median (</td>
 				<td class="argname">value</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits"></td>
@@ -1555,7 +1599,7 @@ SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT objectId, median(psfFlux)
+SELECT objectId, scisql_median(psfFlux)
     FROM Source
     WHERE objectId IS NOT NULL
     GROUP BY objectId;
@@ -1563,10 +1607,10 @@ SELECT objectId, median(psfFlux)
 	</div>
 
 	
-	<div id="udf-statistics-percentile" class="udf">
-		<h3><a name="statistics-percentile"></a>percentile</h3>
+	<div id="udf-statistics-scisql_percentile" class="udf">
+		<h3><a name="statistics-scisql_percentile"></a>scisql_percentile</h3>
 		<table class="signature">
-			<tr><td class="decl">AGGREGATE FUNCTION percentile (</td>
+			<tr><td class="decl">AGGREGATE FUNCTION scisql_percentile (</td>
 				<td class="argname">value</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
@@ -1618,8 +1662,8 @@ SELECT objectId, median(psfFlux)
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId,
-       percentile(psfFlux, 25) AS firstQuartile,
-       percentile(psfFlux, 75) AS thirdQuartile
+       scisql_percentile(psfFlux, 25) AS firstQuartile,
+       scisql_percentile(psfFlux, 75) AS thirdQuartile
     FROM Source
     WHERE objectId IS NOT NULL
     GROUP BY objectId
@@ -1637,12 +1681,12 @@ SELECT objectId,
 	</p></div>
 
 
-	<h2>Functions</h2>
+	<h2>User Defined Functions</h2>
 	
-	<div id="udf-misc-extractInt64" class="udf internal">
-		<h3><a name="misc-extractInt64"></a>[internal] extractInt64</h3>
+	<div id="udf-misc-scisql_extractInt64" class="udf internal">
+		<h3><a name="misc-scisql_extractInt64"></a>[internal] scisql_extractInt64</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION extractInt64 (</td>
+			<tr><td class="decl">FUNCTION scisql_extractInt64 (</td>
 				<td class="argname">data</td>
 				<td class="argtype">STRING,</td>
 				<td class="argunits"></td>
@@ -1668,14 +1712,30 @@ SELECT objectId,
 	</div>
 
 	
-	<div id="udf-misc-scisqlFail" class="udf internal">
-		<h3><a name="misc-scisqlFail"></a>[internal] scisqlFail</h3>
+	<div id="udf-misc-scisql_getVersion" class="udf">
+		<h3><a name="misc-scisql_getVersion"></a>scisql_getVersion</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisqlFail (</td>
+			<tr><td class="decl">FUNCTION scisql_getVersion (</td>
+				<td class="return" colspan="2">) RETURNS CHAR</td></tr>
+		</table>
+		<div class="description">
+			Returns the version of the sciSQL library in use.
+		</div>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_getVersion();
+</pre>
+	</div>
+
+	
+	<div id="udf-misc-scisql_raiseError" class="udf internal">
+		<h3><a name="misc-scisql_raiseError"></a>[internal] scisql_raiseError</h3>
+		<table class="signature">
+			<tr><td class="decl">FUNCTION scisql_raiseError (</td>
 				<td class="return" colspan="2">) RETURNS BIGINT</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisqlFail (</td>
+			<tr><td class="decl">FUNCTION scisql_raiseError (</td>
 				<td class="argname">message</td>
 				<td class="argtype">STRING</td>
 				<td class="argunits"></td>
@@ -1694,33 +1754,17 @@ SELECT objectId,
 		</div>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT scisqlFail('Lorem ipsum dolor');
+SELECT scisql_raiseError('Lorem ipsum dolor');
 </pre>
 	</div>
 
+	<h2>Stored Procedures</h2>
 	
-	<div id="udf-misc-scisqlVersion" class="udf">
-		<h3><a name="misc-scisqlVersion"></a>scisqlVersion</h3>
-		<table class="signature">
-			<tr><td class="decl">FUNCTION scisqlVersion (</td>
-				<td class="return" colspan="2">) RETURNS CHAR</td></tr>
-		</table>
-		<div class="description">
-			Returns the version of the sciSQL library in use.
-		</div>
-		<h5>Examples</h5>
-		<pre class="prettyprint lang-sql linenums">
-SELECT scisqlVersion();
-</pre>
-	</div>
-
-	<h2>Procedures</h2>
-	
-	<div id="proc-misc-scisqlGrant" class="proc">
-		<h3><a name="misc-scisqlGrant"></a>scisqlGrant</h3>
+	<div id="proc-misc-scisql_grantPermissions" class="proc">
+		<h3><a name="misc-scisql_grantPermissions"></a>scisql.scisql_grantPermissions</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE scisqlGrant (</td>
+				<td class="decl">PROCEDURE scisql_grantPermissions (</td>
 				<td class="argtype">IN</td>
 				<td class="argname">user</td>
 				<td class="argtype">VARCHAR(255),</td>
@@ -1753,7 +1797,7 @@ SELECT scisqlVersion();
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-CALL scisql.scisqlGrant('bob', 'localhost');
+CALL scisql.scisql_grantPermissions('bob', 'localhost');
 </pre>
 	</div>
 
@@ -1803,6 +1847,10 @@ CALL scisql.scisqlGrant('bob', 'localhost');
 		} else {
 			setInterval(_hashchange, 100);
 		}
+		$('#nav').height($(window).height() - 75);
+		$(window).resize(function() {
+			$('#nav').height($(window).height() - 75);
+		});
 	});
 --></script>
 </body>

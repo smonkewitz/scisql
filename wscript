@@ -30,6 +30,14 @@ import traceback
 
 from waflib import Build, Logs, Utils
 
+_have_mako = True
+try:
+    import mako.template
+    import mako.lookup
+except:
+    _have_mako = False
+
+
 APPNAME = 'scisql'
 VERSION = '0.1'
 
@@ -94,6 +102,18 @@ def configure(ctx):
     ctx.define('SCISQL_VSUFFIX', ctx.env.SCISQL_VSUFFIX, quote=False)
     ctx.write_config_header('src/config.h')
 
+    # Create run-time environment for tasks
+    if not ctx.options.client_only:
+        env = os.environ.copy()    
+        env['MYSQL'] = ctx.env.MYSQL
+        env['MYSQL_CNF'] = ctx.env.MYSQL_CNF
+        env['MYSQL_DIR'] = ctx.env.MYSQL_DIR
+        env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
+        env['SCISQL_VERSION'] = VERSION
+        env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
+        ctx.env.env = env
+
+
 def build(ctx):
     # UDF shared library
     if not ctx.env.SCISQL_CLIENT_ONLY:
@@ -131,13 +151,15 @@ def build(ctx):
     )
     if ctx.env.SCISQL_CLIENT_ONLY:
         doc_dir = ctx.path.find_dir('doc')
-        ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**'),
+        ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
                           cwd=doc_dir, relative_trick=True)
     if ctx.cmd == 'install' and not ctx.env.SCISQL_CLIENT_ONLY:
         ctx.add_post_fun(create_post)
         ctx.add_post_fun(test)
     elif ctx.cmd == 'uninstall' and not ctx.env.SCISQL_CLIENT_ONLY:
-        ctx(source='scripts/uninstall.mysql')
+        ctx(rule='${SRC}',
+            source='scripts/uninstall.py',
+            always=True)
 
 
 def create_post(ctx):
@@ -178,16 +200,11 @@ class Tests(object):
             msg += ' ' * max(0, 40 - len(msg))
             Logs.pprint('CYAN', msg, sep=': ')
             out = utest.change_ext('.log')
-            env = os.environ.copy()
-            if not ctx.env.SCISQL_CLIENT_ONLY:
-                env['MYSQL'] = ctx.env['MYSQL']
-                env['MYSQL_CNF'] = ctx.env['MYSQL_CNF']
-                env['MYSQL_DIR'] = ctx.env['MYSQL_DIR']
-                env['SCISQL_PREFIX'] = ctx.env['SCISQL_PREFIX']
             with open(out.abspath(), 'wb') as f:
                 try:
                     proc = Utils.subprocess.Popen([utest.abspath()],
-                                                  shell=False, env=env, stderr=f, stdout=f)
+                                                  shell=False, env=ctx.env.env or None,
+                                                  stderr=f, stdout=f)
                     proc.communicate()
                 except:
                     nexcept += 1
@@ -214,16 +231,7 @@ def test(ctx):
     tests.utest(source=ctx.path.get_bld().make_node('test/testSelect'))
     if not ctx.env.SCISQL_CLIENT_ONLY:
         tests.utest(source=ctx.path.ant_glob('test/test*.py'))
-    tests.run(ctx)
-
-
-class TestDocsContext(Build.BuildContext):
-    cmd = 'test_docs'
-    fun = 'test_docs'
-
-def test_docs(ctx):
-    tests = Tests()
-    tests.utest(source=ctx.path.make_node('tools/docs.py'))
+        tests.utest(source=ctx.path.make_node('tools/docs.py'))
     tests.run(ctx)
 
 
@@ -232,7 +240,11 @@ class HtmlDocsContext(Build.BuildContext):
     fun = 'html_docs'
 
 def html_docs(ctx):
-    pass
+    if not _have_mako:
+        ctx.fatal('You must install mako 0.4.x to generate HTML documentation')
+    ctx(rule='${SRC} html_docs',
+        source='tools/docs.py',
+        always=True)
 
 
 class LsstDocsContext(Build.BuildContext):
@@ -240,5 +252,9 @@ class LsstDocsContext(Build.BuildContext):
     fun = 'lsst_docs'
 
 def lsst_docs(ctx):
-    pass
+    if not _have_mako:
+        ctx.fatal('You must install mako 0.4.x to generate LSST documentation')
+    ctx(rule='${SRC} lsst_docs',
+        source='tools/docs.py',
+        always=True)
 
