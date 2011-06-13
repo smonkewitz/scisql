@@ -513,70 +513,84 @@ SELECT sce.scienceCcdExposureId
 	<div id="udf-s2-scisql_angSep" class="udf">
 		<h3><a name="s2-scisql_angSep"></a>scisql_angSep</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_angSep (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_angSep (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of first position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of first position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon2</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of second position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat2</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of second position.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_angSep (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_angSep (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">x1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">X coordinate of first position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">y1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Y coordinate of first position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">z1</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Z coordinate of first position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">x2</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">X coordinate of second position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">y2</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Y coordinate of second position.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">z2</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Z coordinate of second position.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Returns the angular separation in degrees between two
@@ -609,25 +623,30 @@ SELECT scisql_angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 	<div id="udf-s2-scisql_s2CPolyHtmRanges" class="udf internal">
 		<h3><a name="s2-scisql_s2CPolyHtmRanges"></a>[internal] scisql_s2CPolyHtmRanges</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2CPolyHtmRanges (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2CPolyHtmRanges (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">poly</td>
 				<td class="argtype">BINARY,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Binary string representation of a polygon.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">level</td>
 				<td class="argtype">INTEGER,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">maxranges</td>
 				<td class="argtype">INTEGER</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Maximum number of ranges to report.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS MEDIUMBLOB</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS MEDIUMBLOB</td></tr>
 		</table>
 		<div class="description">
 			Returns a binary-string representation of HTM ID ranges
@@ -656,32 +675,38 @@ SELECT scisql_angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 	<div id="udf-s2-scisql_s2CPolyToBin" class="udf">
 		<h3><a name="s2-scisql_s2CPolyToBin"></a>scisql_s2CPolyToBin</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2CPolyToBin (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2CPolyToBin (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v1Lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of first polygon vertex.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v1Lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of first polygon vertex.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v2Lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of second polygon vertex.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v2Lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of second polygon vertex.</td>
 			</tr>
-			<tr><td></td><td class="argname">...</td><td class="argtype"></td><td colspan="2"></td></tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BINARY</td><td colspan="2"></td></tr>
+			<tr><td class="argkind">&nbsp;</td><td class="argname">...</td><td class="decl" colspan="3"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS BINARY</td></tr>
 		</table>
 		<div class="description">
 			Returns a binary-string representation of a spherical convex
@@ -734,37 +759,44 @@ UPDATE Poly
 	<div id="udf-s2-scisql_s2CircleHtmRanges" class="udf internal">
 		<h3><a name="s2-scisql_s2CircleHtmRanges"></a>[internal] scisql_s2CircleHtmRanges</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2CircleHtmRanges (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2CircleHtmRanges (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">centerLon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of circle center.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">centerLat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of circle center.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">radius</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle radius.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">level</td>
 				<td class="argtype">INTEGER,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">maxranges</td>
 				<td class="argtype">INTEGER</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Maximum number of ranges to report.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS MEDIUMBLOB</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS MEDIUMBLOB</td></tr>
 		</table>
 		<div class="description">
 			Returns a binary-string representation of HTM ID ranges
@@ -801,25 +833,30 @@ UPDATE Poly
 	<div id="udf-s2-scisql_s2HtmId" class="udf">
 		<h3><a name="s2-scisql_s2HtmId"></a>scisql_s2HtmId</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2HtmId (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2HtmId (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of the point to index.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of the point to index.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">level</td>
 				<td class="argtype">INTEGER</td>
 				<td class="argunits"></td>
 				<td class="argdesc">HTM subdivision level, required to lie in the range [0, 24].</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BIGINT</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS BIGINT</td></tr>
 		</table>
 		<div class="description">
 			Returns the HTM ID of a point at the given
@@ -852,43 +889,51 @@ SELECT objectId, ra_PS, decl_PS, scisql_s2HtmId(ra_PS, decl_PS, 20)
 	<div id="udf-s2-scisql_s2PtInBox" class="udf">
 		<h3><a name="s2-scisql_s2PtInBox"></a>scisql_s2PtInBox</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2PtInBox (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInBox (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lonMin</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Minimum longitude angle of points in box.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">latMin</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Minimum latitude angle points in box.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lonMax</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Maximum longitude angle of points in box.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">latMax</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Maximum latitude angle of points in box.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
 		</table>
 		<div class="description">
 			Returns 1 if the point (lon, lat) lies inside the given
@@ -935,65 +980,78 @@ SELECT objectId, ra_PS, decl_PS
 	<div id="udf-s2-scisql_s2PtInCPoly" class="udf">
 		<h3><a name="s2-scisql_s2PtInCPoly"></a>scisql_s2PtInCPoly</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2PtInCPoly (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInCPoly (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">poly</td>
 				<td class="argtype">VARBINARY</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Binary-string representation of polygon.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2PtInCPoly (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInCPoly (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v1Lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of first polygon vertex.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v1Lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of first polygon vertex.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v2Lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of second polygon vertex.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">v2Lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of second polygon vertex.</td>
 			</tr>
-			<tr><td></td><td class="argname">...</td><td class="argtype"></td><td colspan="2"></td></tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+			<tr><td class="argkind">&nbsp;</td><td class="argname">...</td><td class="decl" colspan="3"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
 		</table>
 		<div class="description">
 			Returns 1 if the point (lon, lat) lies inside the given
@@ -1036,37 +1094,44 @@ SELECT scienceCcdExposureId
 	<div id="udf-s2-scisql_s2PtInCircle" class="udf">
 		<h3><a name="s2-scisql_s2PtInCircle"></a>scisql_s2PtInCircle</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2PtInCircle (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInCircle (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">centerLon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle center longitude angle.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">centerLat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle center latitude angle.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">radius</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle radius.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
 		</table>
 		<div class="description">
 			Returns 1 if the point (lon, lat) lies inside the given
@@ -1099,49 +1164,58 @@ SELECT objectId, ra_PS, decl_PS
 	<div id="udf-s2-scisql_s2PtInEllipse" class="udf">
 		<h3><a name="s2-scisql_s2PtInEllipse"></a>scisql_s2PtInEllipse</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_s2PtInEllipse (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInEllipse (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Longitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">lat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Latitude angle of point to test.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">centerLon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Ellipse center longitude angle.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">centerLat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Ellipse center latitude angle.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">semiMajorAxisAngle</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">arcsec</td>
 				<td class="argdesc">Semi-major axis length.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">semiMinorAxisAngle</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">arcsec</td>
 				<td class="argdesc">Semi-minor axis length.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">positionAngle</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Ellipse position angle, east of north.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS INTEGER</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
 		</table>
 		<div class="description">
 			Returns 1 if the point (lon, lat) lies inside the given
@@ -1178,25 +1252,25 @@ SELECT objectId, ra_PS, decl_PS
 		<h3><a name="s2-scisql_s2CPolyRegion"></a>scisql.scisql_s2CPolyRegion</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE scisql_s2CPolyRegion (</td>
-				<td class="argtype">IN</td>
+				<td class="decl" colspan="5">PROCEDURE scisql_s2CPolyRegion (
+				</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
 				<td class="argname">poly</td>
 				<td class="argtype">VARBINARY(255),</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Binary-string representation of a polygon.</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="argtype">IN</td>
+				<td class="argkind">IN</td>
 				<td class="argname">level</td>
 				<td class="argtype">INTEGER</td>
 				<td class="argunits"></td>
 				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
 			</tr>
 			<tr>
-				<td class="decl">)</td>
-				<td class="return" colspan="3"></td>
-				<td colspan="2"></td>
+				<td class="decl" colspan="5">)</td>
 			</tr>
 		</table>
 		<div class="description">
@@ -1235,41 +1309,39 @@ SELECT * FROM scisql.Region;
 		<h3><a name="s2-scisql_s2CircleRegion"></a>scisql.scisql_s2CircleRegion</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE scisql_s2CircleRegion (</td>
-				<td class="argtype">IN</td>
+				<td class="decl" colspan="5">PROCEDURE scisql_s2CircleRegion (
+				</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
 				<td class="argname">centerLon</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle center longitude angle.</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="argtype">IN</td>
+				<td class="argkind">IN</td>
 				<td class="argname">centerLat</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle center latitude angle.</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="argtype">IN</td>
+				<td class="argkind">IN</td>
 				<td class="argname">radius</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">deg</td>
 				<td class="argdesc">Circle radius.</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="argtype">IN</td>
+				<td class="argkind">IN</td>
 				<td class="argname">level</td>
 				<td class="argtype">INTEGER</td>
 				<td class="argunits"></td>
 				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
 			</tr>
 			<tr>
-				<td class="decl">)</td>
-				<td class="return" colspan="3"></td>
-				<td colspan="2"></td>
+				<td class="decl" colspan="5">)</td>
 			</tr>
 		</table>
 		<div class="description">
@@ -1317,19 +1389,23 @@ SELECT * FROM scisql.Region;
 	<div id="udf-photometry-scisql_dnToAbMag" class="udf">
 		<h3><a name="photometry-scisql_dnToAbMag"></a>scisql_dnToAbMag</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_dnToAbMag (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToAbMag (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxMag0</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Converts a raw flux in DN to an AB magnitude.
@@ -1353,31 +1429,37 @@ SELECT scisql_dnToAbMag(src.psfFlux, ccd.fluxMag0)
 	<div id="udf-photometry-scisql_dnToAbMagSigma" class="udf">
 		<h3><a name="photometry-scisql_dnToAbMagSigma"></a>scisql_dnToAbMagSigma</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_dnToAbMagSigma (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToAbMagSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">dnSigma</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Standard deviation of dn.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxMag0</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxMag0Sigma</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Standard deviation of fluxMag0.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Converts a raw flux error to an AB magnitude error.
@@ -1402,19 +1484,23 @@ SELECT scisql_dnToAbMagSigma(
 	<div id="udf-photometry-scisql_dnToFlux" class="udf">
 		<h3><a name="photometry-scisql_dnToFlux"></a>scisql_dnToFlux</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_dnToFlux (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToFlux (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxMag0</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Converts a raw flux in DN to a calibrated (AB) flux. The return
@@ -1440,31 +1526,37 @@ SELECT scisql_dnToFlux(src.psfFlux, ccd.fluxMag0)
 	<div id="udf-photometry-scisql_dnToFluxSigma" class="udf">
 		<h3><a name="photometry-scisql_dnToFluxSigma"></a>scisql_dnToFluxSigma</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_dnToFluxSigma (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToFluxSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">dnSigma</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Standard deviation of dn.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxMag0</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxMag0Sigma</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">DN</td>
 				<td class="argdesc">Standard deviation of fluxMag0.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Converts a raw flux error to a calibrated (AB) flux error. The return
@@ -1490,13 +1582,16 @@ SELECT scisql_dnToAbMagSigma(
 	<div id="udf-photometry-scisql_fluxToAbMag" class="udf">
 		<h3><a name="photometry-scisql_fluxToAbMag"></a>scisql_fluxToAbMag</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_fluxToAbMag (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_fluxToAbMag (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">flux</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
 				<td class="argdesc">Calibrated flux to convert to an AB magnitude.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Converts a cailbrated (AB) flux to an AB magnitude.
@@ -1519,19 +1614,23 @@ SELECT scisql_fluxToAbMag(rFlux_PS)
 	<div id="udf-photometry-scisql_fluxToAbMagSigma" class="udf">
 		<h3><a name="photometry-scisql_fluxToAbMagSigma"></a>scisql_fluxToAbMagSigma</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_fluxToAbMagSigma (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_fluxToAbMagSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">flux</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
 				<td class="argdesc">Calibrated (AB) flux.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">fluxSigma</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
 				<td class="argdesc">Calibrated (AB) flux error.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Converts a cailbrated (AB) flux error to an AB magnitude error.
@@ -1566,13 +1665,16 @@ SELECT scisql_fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
 	<div id="udf-statistics-scisql_median" class="udf">
 		<h3><a name="statistics-scisql_median"></a>scisql_median</h3>
 		<table class="signature">
-			<tr><td class="decl">AGGREGATE FUNCTION scisql_median (</td>
+			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION scisql_median (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">value</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Value, column name or expression yielding input values.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Returns the median of a GROUP of values.
@@ -1610,19 +1712,23 @@ SELECT objectId, scisql_median(psfFlux)
 	<div id="udf-statistics-scisql_percentile" class="udf">
 		<h3><a name="statistics-scisql_percentile"></a>scisql_percentile</h3>
 		<table class="signature">
-			<tr><td class="decl">AGGREGATE FUNCTION scisql_percentile (</td>
+			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION scisql_percentile (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">value</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Value, column name, or expression yielding input values.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">percent</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Desired percentile, must lie in the range [0, 100].</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS DOUBLE PRECISION</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
 			Returns the desired percentile of a GROUP of values.
@@ -1686,19 +1792,23 @@ SELECT objectId,
 	<div id="udf-misc-scisql_extractInt64" class="udf internal">
 		<h3><a name="misc-scisql_extractInt64"></a>[internal] scisql_extractInt64</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_extractInt64 (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_extractInt64 (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">data</td>
 				<td class="argtype">STRING,</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Byte string to extract a 64-bit integer from.</td>
 			</tr>
-			<tr><td></td>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">idx</td>
 				<td class="argtype">INTEGER</td>
 				<td class="argunits"></td>
 				<td class="argdesc">The index of the 64-bit integer to extract.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BIGINT</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS BIGINT</td></tr>
 		</table>
 		<div class="description">
 			Extracts a 64-bit integer stored in host byte order
@@ -1715,8 +1825,8 @@ SELECT objectId,
 	<div id="udf-misc-scisql_getVersion" class="udf">
 		<h3><a name="misc-scisql_getVersion"></a>scisql_getVersion</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_getVersion (</td>
-				<td class="return" colspan="2">) RETURNS CHAR</td></tr>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_getVersion (
+				) RETURNS CHAR</td></tr>
 		</table>
 		<div class="description">
 			Returns the version of the sciSQL library in use.
@@ -1731,17 +1841,20 @@ SELECT scisql_getVersion();
 	<div id="udf-misc-scisql_raiseError" class="udf internal">
 		<h3><a name="misc-scisql_raiseError"></a>[internal] scisql_raiseError</h3>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_raiseError (</td>
-				<td class="return" colspan="2">) RETURNS BIGINT</td></tr>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_raiseError (
+				) RETURNS BIGINT</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl">FUNCTION scisql_raiseError (</td>
+			<tr><td class="decl" colspan="5">FUNCTION scisql_raiseError (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">message</td>
 				<td class="argtype">STRING</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Error message.</td>
 			</tr>
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS BIGINT</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS BIGINT</td></tr>
 		</table>
 		<div class="description">
 			Fails with an optional error message.
@@ -1764,25 +1877,25 @@ SELECT scisql_raiseError('Lorem ipsum dolor');
 		<h3><a name="misc-scisql_grantPermissions"></a>scisql.scisql_grantPermissions</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE scisql_grantPermissions (</td>
-				<td class="argtype">IN</td>
+				<td class="decl" colspan="5">PROCEDURE scisql_grantPermissions (
+				</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
 				<td class="argname">user</td>
 				<td class="argtype">VARCHAR(255),</td>
 				<td class="argunits"></td>
 				<td class="argdesc">User name - may not contain wildcards.</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="argtype">IN</td>
+				<td class="argkind">IN</td>
 				<td class="argname">host</td>
 				<td class="argtype">VARCHAR(255)</td>
 				<td class="argunits"></td>
 				<td class="argdesc">Host name - wildcards ('%') are allowed.</td>
 			</tr>
 			<tr>
-				<td class="decl">)</td>
-				<td class="return" colspan="3"></td>
-				<td colspan="2"></td>
+				<td class="decl" colspan="5">)</td>
 			</tr>
 		</table>
 		<div class="description">

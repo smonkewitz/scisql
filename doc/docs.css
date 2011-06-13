@@ -8,7 +8,7 @@ body {
 	margin: 0;
 	padding: 0;
 }
-pre, .decl, .argname, .argtype, .return {
+pre, .decl, .argkind, .argname, .argtype {
 	font-family: Courier, monospace;
 }
 dt {
@@ -157,8 +157,8 @@ table.signature td {
 	padding: 0.25em;
 	text-align: left;
 }
-table.signature td.decl {
-	text-align: right;
+table.signature td.argkind {
+	padding-left: 4em;
 }
 table.signature td.argname {
 	font-weight: bold;

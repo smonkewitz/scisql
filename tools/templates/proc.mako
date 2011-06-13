@@ -8,14 +8,13 @@
 	% endif
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE ${proc.name} (</td>
+				<td class="decl" colspan="5">PROCEDURE ${proc.name} (
 	% if len(proc.args) > 0:
+				</td>
+			</tr>
 		% for i, arg in enumerate(proc.args):
-			% if i != 0:
 			<tr>
-				<td></td>
-			% endif
-				<td class="argtype">${arg.kind}</td>
+				<td class="argkind">${arg.kind}</td>
 				<td class="argname">${arg.name}</td>
 			% if i != len(proc.args) - 1:
 				<td class="argtype">${arg.type},</td>
@@ -27,12 +26,10 @@
 			</tr>
 		% endfor
 			<tr>
-				<td class="decl">)</td>
-				<td class="return" colspan="3"></td>
-				<td colspan="2"></td>
+				<td class="decl" colspan="5">)</td>
 			</tr>
         % else:
-				<td class="return">)</td>
+				)</td>
 			</tr>
         % endif
 		</table>
