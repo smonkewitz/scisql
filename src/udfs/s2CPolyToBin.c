@@ -22,7 +22,7 @@
 */
 
 /**
-<udf name="s2CPolyToBin" return_type="BINARY" section="s2">
+<udf name="${SCISQL_PREFIX}s2CPolyToBin" return_type="BINARY" section="s2">
     <desc>
         Returns a binary-string representation of a spherical convex
         polygon. The polygon must be specified as a sequence of at least
@@ -83,9 +83,10 @@
                                  NULL);
 
         UPDATE Poly
-            SET poly = s2CPolyToBin(ra1, dec1,
-                                    ra2, dec2,
-                                    ra3, dec3);
+            SET poly = ${SCISQL_PREFIX}s2CPolyToBin(
+                ra1, dec1,
+                ra2, dec2,
+                ra3, dec3);
     </example>
 </udf>
 */
@@ -94,6 +95,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -101,17 +103,19 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool s2CPolyToBin_init(UDF_INIT *initid,
-                                     UDF_ARGS *args,
-                                     char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2CPolyToBin, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count < 6 ||
         args->arg_count > 2 * SCISQL_MAX_VERTS ||
         (args->arg_count & 1) != 0) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyToBin() expects between "
-                 "3 and %d spherical coordinate pairs", SCISQL_MAX_VERTS);
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2CPolyToBin) 
+                 " expects between 3 and %d spherical coordinate pairs",
+                 SCISQL_MAX_VERTS);
         return 1;
     }
     for (i = 0; i < args->arg_count; ++i) {
@@ -127,12 +131,13 @@ SCISQL_API my_bool s2CPolyToBin_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API char * s2CPolyToBin(UDF_INIT *initid SCISQL_UNUSED,
-                               UDF_ARGS *args,
-                               char *result,
-                               unsigned long *length,
-                               char *is_null,
-                               char *error SCISQL_UNUSED)
+SCISQL_API char * SCISQL_VERSIONED_FNAME(s2CPolyToBin, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *result,
+    unsigned long *length,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     scisql_s2cpoly poly;
     scisql_sc pt;
@@ -166,6 +171,10 @@ SCISQL_API char * s2CPolyToBin(UDF_INIT *initid SCISQL_UNUSED,
     }
     return result;
 }
+
+
+SCISQL_UDF_INIT(s2CPolyToBin)
+SCISQL_STRING_UDF(s2CPolyToBin)
 
 
 #ifdef __cplusplus

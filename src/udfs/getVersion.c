@@ -19,17 +19,16 @@
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
 */
 
 /**
-<udf name="scisqlVersion" return_type="CHAR" section="misc">
+<udf name="${SCISQL_PREFIX}getVersion" return_type="CHAR" section="misc">
     <desc>
         Returns the version of the sciSQL library in use.
     </desc>
     <args />
     <example>
-        SELECT scisqlVersion();
+        SELECT ${SCISQL_PREFIX}getVersion();
     </example>
 </udf>
 */
@@ -40,27 +39,28 @@
 
 #include "mysql.h"
 
-#include "common.h"
+#include "udf.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-SCISQL_API my_bool scisqlVersion_init(UDF_INIT *initid,
-                                      UDF_ARGS *args,
-                                      char *message)
+SCISQL_API my_bool SCISQL_FNAME(getVersion, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     if (args->arg_count != 0) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "scisqlVersion() expects no arguments");
+                 SCISQL_UDF_NAME(getVersion) " expects no arguments");
         return 1;
     }
     if (SCISQL_VERSION_STRING_LENGTH > 255) {
         initid->ptr = malloc(SCISQL_VERSION_STRING_LENGTH + 1);
         if (initid->ptr == 0) {
             snprintf(message, MYSQL_ERRMSG_SIZE,
-                     "scisqlVersion(): memory allocation failed");
+                     SCISQL_UDF_NAME(getVersion) " memory allocation failed");
             return 1;
         }
     }
@@ -70,12 +70,13 @@ SCISQL_API my_bool scisqlVersion_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API char * scisqlVersion(UDF_INIT *initid,
-                                UDF_ARGS *args SCISQL_UNUSED,
-                                char *result,
-                                unsigned long *length,
-                                char *is_null SCISQL_UNUSED,
-                                char *error SCISQL_UNUSED)
+SCISQL_API char * SCISQL_FNAME(getVersion, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args SCISQL_UNUSED,
+    char *result,
+    unsigned long *length,
+    char *is_null SCISQL_UNUSED,
+    char *error SCISQL_UNUSED)
 {
     char *r = (SCISQL_VERSION_STRING_LENGTH > 255) ? initid->ptr : result;
     *length = SCISQL_VERSION_STRING_LENGTH;
@@ -84,7 +85,9 @@ SCISQL_API char * scisqlVersion(UDF_INIT *initid,
 }
 
 
-SCISQL_API void scisqlVersion_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_FNAME(getVersion, _deinit) (
+    UDF_INIT *initid)
+{
     if (SCISQL_VERSION_STRING_LENGTH > 255) {
         free(initid->ptr);
     }

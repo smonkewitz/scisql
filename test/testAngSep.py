@@ -40,7 +40,7 @@ class AngSepTestCase(MySqlUdfTestCase):
         super(AngSepTestCase, self).setUp()
 
     def _angSep(self, result, *args):
-        stmt = "SELECT angSep(%s, %s, %s, %s)" % tuple(map(dbparam, args))
+        stmt = "SELECT %sangSep(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         if result is None:
@@ -81,7 +81,8 @@ class AngSepTestCase(MySqlUdfTestCase):
                      random.uniform(0.0, 360.0),
                      random.uniform(-90.0, 90.0)) for i in xrange(100)]
             t.insertMany(rows)
-            stmt = "SELECT i, angSep(ra1, decl1, ra2, decl2) FROM AngSep ORDER BY i"
+            stmt = """SELECT i, %sangSep(ra1, decl1, ra2, decl2) FROM AngSep
+                      ORDER BY i""" % self._prefix
             for res in self.query(stmt):
                 self.assertAlmostEqual(res[1], angSep(*rows[res[0]][1:]), 11,
                     "angSep(" + ",".join(map(repr, rows[res[0]][1:])) +

@@ -22,7 +22,7 @@
 */
 
 /**
-<udf name="s2PtInBox" return_type="INTEGER" section="s2">
+<udf name="${SCISQL_PREFIX}s2PtInBox" return_type="INTEGER" section="s2">
     <desc>
         Returns 1 if the point (lon, lat) lies inside the given
         longitude/latitude angle box, and 0 otherwise. The UDF handles
@@ -90,7 +90,7 @@
     <example>
         SELECT objectId, ra_PS, decl_PS
             FROM Object
-            WHERE s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
+            WHERE ${SCISQL_PREFX}s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
     </example>
 </udf>
 */
@@ -99,6 +99,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -106,14 +107,16 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool s2PtInBox_init(UDF_INIT *initid,
-                                  UDF_ARGS *args,
-                                  char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInBox, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     int i;
     my_bool const_item = 1;
     if (args->arg_count != 6) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "ptInS2Box() expects 6 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInBox)
+                 " expects exactly 6 arguments");
         return 1;
     }
     for (i = 0; i < 6; ++i) {
@@ -128,10 +131,11 @@ SCISQL_API my_bool s2PtInBox_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2PtInBox(UDF_INIT *initid SCISQL_UNUSED,
-                               UDF_ARGS *args,
-                               char *is_null,
-                               char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2PtInBox, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     scisql_sc p, bmin, bmax;
     double **a = (double **) args->args;
@@ -171,6 +175,10 @@ SCISQL_API long long s2PtInBox(UDF_INIT *initid SCISQL_UNUSED,
         return p.lon >= bmin.lon || p.lon <= bmax.lon;
     }
 }
+
+
+SCISQL_UDF_INIT(s2PtInBox)
+SCISQL_INTEGER_UDF(s2PtInBox)
 
 
 #ifdef __cplusplus

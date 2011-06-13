@@ -47,7 +47,7 @@ class MedianTestCase(MySqlUdfTestCase):
                 values = [(v,) for v in xrange(n)]
                 random.shuffle(values)
                 t.insertMany(values)
-                stmt = "SELECT median(x) FROM Median"
+                stmt = "SELECT %smedian(x) FROM Median" % self._prefix
                 rows = self.query(stmt)
                 median = 0.5 * (n - 1)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
@@ -64,7 +64,7 @@ class MedianTestCase(MySqlUdfTestCase):
         for n in (100, 10000):
             with self.tempTable("Median", ("x DOUBLE PRECISION",)) as t:
                 t.insertMany([(1,)]*n)
-                stmt = "SELECT median(x) FROM Median"
+                stmt = "SELECT %smedian(x) FROM Median" % self._prefix
                 rows = self.query(stmt)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
                 self.assertAlmostEqual(rows[0][0], 1.0, 15,

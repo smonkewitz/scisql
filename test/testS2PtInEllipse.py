@@ -74,7 +74,7 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
         super(S2PtInEllipseTestCase, self).setUp()
 
     def _s2PtInEllipse(self, result, *args):
-        stmt = "SELECT s2PtInEllipse(%s, %s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
+        stmt = "SELECT %ss2PtInEllipse(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
@@ -137,9 +137,8 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
                 elif r == False:
                     t.insert((0, ra, dec, ra_cen, dec_cen, smaa, smia, ang))
             stmt = """SELECT COUNT(*) FROM S2PtInEllipse
-                      WHERE s2PtInEllipse(ra, decl,
-                                          cenRa, cenDecl,
-                                          smaa, smia, posAng) != inside"""
+                      WHERE inside != %ss2PtInEllipse(
+                          ra, decl, cenRa, cenDecl, smaa, smia, posAng)""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))

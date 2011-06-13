@@ -22,7 +22,10 @@
  */
 
 /**
-<udf name="dnToAbMag" return_type="DOUBLE PRECISION" section="photometry">
+<udf name="${SCISQL_PREFIX}dnToAbMag"
+     return_type="DOUBLE PRECISION"
+     section="photometry">
+
     <desc>
         Converts a raw flux in DN to an AB magnitude.
     </desc>
@@ -46,7 +49,7 @@
         </note>
     </notes>
     <example>
-        SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
+        SELECT ${SCISQL_PREFIX}dnToAbMag(src.psfFlux, ccd.fluxMag0)
             FROM Source AS src, Science_Ccd_Exposure ccd
             WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
             LIMIT 10;
@@ -58,6 +61,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "photometry.h"
 
 #ifdef __cplusplus
@@ -65,13 +69,14 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool dnToAbMag_init(UDF_INIT *initid,
-                                  UDF_ARGS *args,
-                                  char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToAbMag, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     if (args->arg_count != 2) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "dnToAbMag() expects exactly 2 arguments");
+                 SCISQL_UDF_NAME(dnToAbMag) " expects exactly 2 arguments");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;
@@ -83,10 +88,11 @@ SCISQL_API my_bool dnToAbMag_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API double dnToAbMag(UDF_INIT *initid SCISQL_UNUSED,
-                            UDF_ARGS *args,
-                            char *is_null,
-                            char *error SCISQL_UNUSED)
+SCISQL_API double SCISQL_VERSIONED_FNAME(dnToAbMag, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     if (args->args[0] == 0 || args->args[1] == 0) {
         *is_null = 1;
@@ -95,6 +101,10 @@ SCISQL_API double dnToAbMag(UDF_INIT *initid SCISQL_UNUSED,
     return scisql_dn2ab(*((double *) args->args[0]),
                         *((double *) args->args[1]));
 }
+
+
+SCISQL_UDF_INIT(dnToAbMag)
+SCISQL_REAL_UDF(dnToAbMag)
 
 
 #ifdef __cplusplus

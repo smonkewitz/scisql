@@ -123,9 +123,9 @@ SCISQL_LOCAL void scisql_percentile_state_clear(scisql_percentile_state *p);
 SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                                              double *value);
 
-/*  Computes the percentile of the values tracked by p.
+/*  Computes and returns the percentile of the values tracked by p.
  */
-SCISQL_LOCAL double scisql_percentile(scisql_percentile_state *p);
+SCISQL_LOCAL double scisql_percentile_state_get(scisql_percentile_state *p);
 
 
 #ifdef __cplusplus

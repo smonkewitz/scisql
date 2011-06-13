@@ -51,14 +51,15 @@ class S2CPolyTestCase(MySqlUdfTestCase):
         super(S2CPolyTestCase, self).setUp()
 
     def _s2PtInCPoly(self, result, *args):
-        stmt = "SELECT s2PtInCPoly(%s)" % ",".join(map(dbparam, args))
+        stmt = "SELECT %ss2PtInCPoly(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
 
     def _s2PtInCPolyBin(self, result, ra, dec, *args):
-        stmt = "SELECT s2PtInCPoly(%s, %s, s2CPolyToBin(%s))" % (
-            dbparam(ra), dbparam(dec), ",".join(map(dbparam, args)))
+        stmt = "SELECT %ss2PtInCPoly(%s, %s, %ss2CPolyToBin(%s))" % (
+            self._prefix, dbparam(ra), dbparam(dec),
+            self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
@@ -146,40 +147,43 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                               VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)""" % (
                                (inside, ra, dec) + flatten(t))
                     self._cursor.execute(stmt)
-            stmt = "UPDATE S2CPoly SET poly = s2CPolyToBin(ra1, decl1, ra2, decl2, ra3, decl3)"
+            stmt = """UPDATE S2CPoly SET poly = %ss2CPolyToBin(
+                          ra1, decl1, ra2, decl2, ra3, decl3)""" % self._prefix
             self._cursor.execute(stmt)
             # Test with constant position
             stmt = """SELECT COUNT(*) FROM S2CPoly
-                      WHERE s2PtInCPoly(45, 45, poly) = 1"""
+                      WHERE %ss2PtInCPoly(45, 45, poly) = 1""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 100, stmt + " did not return 100")
             stmt = """SELECT COUNT(*) FROM S2CPoly
-                      WHERE s2PtInCPoly(45, 45, ra1, decl1, ra2, decl2, ra3, decl3) = 1"""
+                      WHERE %ss2PtInCPoly(45, 45,
+                          ra1, decl1, ra2, decl2, ra3, decl3) = 1""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 100, stmt + " did not return 100")
             # Test with constant polygon
             stmt = """SELECT COUNT(*) FROM S2CPoly
-                      WHERE s2PtInCPoly(ra, decl, %s) = 1""" % (
-                   ",".join(map(dbparam, flatten(self._tris[0]))))
+                      WHERE %ss2PtInCPoly(ra, decl, %s) = 1""" % (
+                   self._prefix, ",".join(map(dbparam, flatten(self._tris[0]))))
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], inFirst, "%s did not return %d" % (stmt, inFirst))
             stmt = """SELECT COUNT(*) FROM S2CPoly
-                      WHERE s2PtInCPoly(ra, decl, s2CPolyToBin(%s)) = 1""" % (
-                   ",".join(map(dbparam, flatten(self._tris[0]))))
+                      WHERE %ss2PtInCPoly(ra, decl, %ss2CPolyToBin(%s)) = 1""" % (
+                   self._prefix, self._prefix, ",".join(map(dbparam, flatten(self._tris[0]))))
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], inFirst, "%s did not return %d" % (stmt, inFirst))
             # Test with varying position and polygon
             stmt = """SELECT COUNT(*) FROM S2CPoly
-                      WHERE s2PtInCPoly(ra, decl, ra1, decl1, ra2, decl2, ra3, decl3) != inside"""
+                      WHERE %ss2PtInCPoly(ra, decl,
+                          ra1, decl1, ra2, decl2, ra3, decl3) != inside""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, stmt + " did not return 0")
             stmt = """SELECT COUNT(*) FROM S2CPoly
-                      WHERE s2PtInCPoly(ra, decl, poly) != inside"""
+                      WHERE %ss2PtInCPoly(ra, decl, poly) != inside""" % self._prefix
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, stmt + " did not return 0")
 

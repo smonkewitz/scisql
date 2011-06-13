@@ -22,7 +22,7 @@
 */
 
 /**
-<udf name="s2PtInEllipse" return_type="INTEGER" section="s2">
+<udf name="${SCISQL_PREFIX}s2PtInEllipse" return_type="INTEGER" section="s2">
     <desc>
         Returns 1 if the point (lon, lat) lies inside the given
         spherical ellipse and 0 otherwise.
@@ -81,7 +81,7 @@
     <example>
         SELECT objectId, ra_PS, decl_PS
             FROM Object
-            WHERE s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
+            WHERE ${SCISQL_PREFIX}s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
     </example>
 </udf>
 */
@@ -91,6 +91,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -111,15 +112,16 @@ typedef struct {
 } _scisql_s2ellipse;
 
 
-SCISQL_API my_bool s2PtInEllipse_init(UDF_INIT *initid,
-                                      UDF_ARGS *args,
-                                      char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInEllipse, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     int i;
     my_bool const_item = 1, const_ellipse = 1;
     if (args->arg_count != 7) {
-        snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "s2PtInEllipse() expects exactly 7 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInEllipse)
+                 " expects exactly 7 arguments");
         return 1;
     }
     for (i = 0; i < 7; ++i) {
@@ -142,10 +144,11 @@ SCISQL_API my_bool s2PtInEllipse_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2PtInEllipse(UDF_INIT *initid,
-                                   UDF_ARGS *args,
-                                   char *is_null,
-                                   char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2PtInEllipse, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     _scisql_s2ellipse ellipse;
     scisql_sc p, cen;
@@ -212,9 +215,16 @@ SCISQL_API long long s2PtInEllipse(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2PtInEllipse_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2PtInEllipse, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2PtInEllipse)
+SCISQL_UDF_DEINIT(s2PtInEllipse)
+SCISQL_INTEGER_UDF(s2PtInEllipse)
 
 
 #ifdef __cplusplus

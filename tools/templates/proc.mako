@@ -1,10 +1,10 @@
 <%def name="proc_docs(section, proc)">
 	% if proc.internal:
 	<div id="proc-${section.name}-${proc.name}" class="proc internal">
-		<h3><a name="${section.name}-${proc.name}"></a>[internal] ${proc.name}</h3>
+		<h3><a name="${section.name}-${proc.name}"></a>[internal] scisql.${proc.name}</h3>
 	% else:
 	<div id="proc-${section.name}-${proc.name}" class="proc">
-		<h3><a name="${section.name}-${proc.name}"></a>${proc.name}</h3>
+		<h3><a name="${section.name}-${proc.name}"></a>scisql.${proc.name}</h3>
 	% endif
 		<table class="signature">
 			<tr>

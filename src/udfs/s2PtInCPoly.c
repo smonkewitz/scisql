@@ -22,13 +22,13 @@
 */
 
 /**
-<udf name="s2PtInCPoly" return_type="INTEGER" section="s2">
+<udf name="${SCISQL_PREFIX}s2PtInCPoly" return_type="INTEGER" section="s2">
     <desc>
         Returns 1 if the point (lon, lat) lies inside the given
         spherical convex polygon and 0 otherwise. The polygon may
         be specified either as a VARBINARY byte string (as produced by
-        s2CPolyToBin()), or as a sequence of at least 3 and at most 20
-        vertex pairs.
+        ${SCISQL_PREFIX}s2CPolyToBin()), or as a sequence of at least 3
+        and at most 20 vertex pairs.
     </desc>
     <args>
         <arg name="lon" type="DOUBLE PRECISION" units="deg">
@@ -90,11 +90,12 @@
     <example>
         SELECT scienceCcdExposureId
             FROM Science_Ccd_Exposure
-            WHERE s2PtInCPoly(0.0, 0.0,
-                              llcRa, llcDecl,
-                              ulcRa, ulcDecl,
-                              urcRa, urcDecl,
-                              lrcRa, lrcDecl) = 1;
+            WHERE ${SCISQL_PREFIX}s2PtInCPoly(
+                0.0, 0.0,
+                llcRa, llcDecl,
+                ulcRa, ulcDecl,
+                urcRa, urcDecl,
+                lrcRa, lrcDecl) = 1;
     </example>
 </udf>
 */
@@ -105,6 +106,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -121,9 +123,10 @@ typedef struct {
 } _scisql_ptpoly_state;
 
 
-SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
-                                    UDF_ARGS *args,
-                                    char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInCPoly, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1, const_pos = 1, const_poly = 1;
@@ -132,14 +135,15 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
         if (args->arg_count < 8 ||
             args->arg_count > 2 + 2 * SCISQL_MAX_VERTS ||
             (args->arg_count & 1) != 0) {
-            snprintf(message, MYSQL_ERRMSG_SIZE, "s2PtInCPoly() expects "
-                     "between 4 and %d spherical coordinate pairs",
+            snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInCPoly)
+                     " expects between 4 and %d spherical coordinate pairs",
                      SCISQL_MAX_VERTS + 1);
             return 1;
         }
     } else if (args->arg_type[2] != STRING_RESULT) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "s2PtInCPoly() expects a "
-                 "spherical coordinate pair and a polygon byte string");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInCPoly) 
+                 " expects a spherical coordinate pair and a polygon"
+                 " byte-string");
         return 1;
     }
     for (i = 0; i < 2; ++i) {
@@ -175,10 +179,11 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2PtInCPoly(UDF_INIT *initid,
-                                 UDF_ARGS *args,
-                                 char *is_null,
-                                 char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2PtInCPoly, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     _scisql_ptpoly_state s;
     _scisql_ptpoly_state *state;
@@ -240,9 +245,16 @@ SCISQL_API long long s2PtInCPoly(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2PtInCPoly_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2PtInCPoly, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2PtInCPoly)
+SCISQL_UDF_DEINIT(s2PtInCPoly)
+SCISQL_INTEGER_UDF(s2PtInCPoly)
 
 
 #ifdef __cplusplus

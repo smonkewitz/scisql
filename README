@@ -18,11 +18,11 @@ Installation prerequisites:
 - Python 2.5.x or later   (http://www.python.org/download/)
 - MySQL server 5.x        (http://dev.mysql.com/downloads/)
 - MySQLdb 1.2.x           (http://sourceforge.net/projects/mysql-python/)
-- Mako                    (http://www.makotemplates.org/download.html)
+- Mako 0.4.x              (http://www.makotemplates.org/download.html)
 
 MySQLdb, a Python DB API 2.0 implementation for MySQL, is only required
-in order to run the unit tests. The Mako template engine is required only
-for developers that wish to rebuild the HTML documentation.
+in order to run the unit tests. The Mako templating library is required only
+if you wish to rebuild the HTML documentation.
  
 In order to install the UDFs, you need write permission to the MySQL server
 plug-in directory as well as a MySQL account with admin priviledges.
@@ -38,10 +38,12 @@ The following database names are reserved for use by SciSQL:
 - scisql_demo             Contains sample data that can be used to
                           exercise the SciSQL UDFs.
 
-The scisql and scisql_demo databases are dropped and re-created during
-installation. If you are using these databases for other things,
-you must migrate their contents to a different database prior to installing
-SciSQL. If you do not, YOU WILL LOSE DATA.
+The scisql_demo databases is dropped and re-created during installation. If you
+are using it for other things, you must migrate its contents to a different
+database prior to installing SciSQL. If you do not, YOU WILL LOSE DATA.
+
+Even though the scisql and scisql_test databases are never automatically
+dropped, their use is STRONGLY DISCOURAGED.
 
 
 SciSQL configuration:
@@ -54,6 +56,10 @@ tweaking:
   --prefix        Set this to the top-level MySQL server install directory
   --mysql-user    Set this to the name of a MySQL admin user
   --mysql-socket  Set this to the name of the MySQL server UNIX socket file
+  --scisql-prefix This string will be used as a prefix for all sciSQL UDF
+                  and stored procedure names. You can specify an empty
+                  string, which will result in unprefixed names. The
+                  default is "scisql_".
 
 You will be prompted for the MySQL admin user password during configuration.
 Connection details, including this password, are stored in
@@ -83,7 +89,29 @@ The install command will CREATE the SciSQL UDFs, stored procedures, and
 databases (including the scisql_demo database). It will also automatically
 run the SciSQL unit tests. You can re-run the tests anytime with `make test`.
 
-The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
+You may wish to regenerate the HTML documentation if you've chosen a 
+non-default value for --scisql-prefix, as the HTML distributed with release
+tar-balls is built under the assumption that --scisql-prefix="scisql_".
+To do this, run `make html_docs`.
+
+Finally, note that after installation each UDF will be available under two
+names: one including a version number and one without. For example, assuming
+that --scisql-prefix="foo_" and that the sciSQL version number is 1.2.3,
+a hypothetical UDF named "bar" would be available as:
+
+    foo_bar
+    foo_bar_1_2_3
+
+The uninstall command will drop the versioned SciSQL UDFs and stored
+procedures. It will also drop the unversioned UDFs/procedures, but only
+if the unversioned UDF/procedure was created by the version of
+sciSQL being uninstalled. As a consequence, it is possible to have
+multiple versions of sciSQL installed at the same time, and the behavior
+of two versions can be compared from within a single MySQL instance.
+An unversioned name will resolve to the most recently installed versioned
+name.
+
+The uninstall command will also drop the scisql_demo database.
 
 
 Reporting bugs and getting help:

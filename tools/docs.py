@@ -29,6 +29,7 @@ import glob
 import optparse
 import os
 import re
+import string
 import subprocess
 import sys
 import tempfile
@@ -325,9 +326,8 @@ def extract_docs_from_c(filename):
         for line in lines:
             m = re.match(r'\s*\*', line)
             if m != None:
-                stripped_lines.append(line[len(m.group(0)):])
-            else:
-                stripped_lines.append(line)
+                line = line[len(m.group(0)):]
+            stripped_lines.append(string.Template(line).safe_substitute(os.environ))
         xml = '\n'.join(stripped_lines)
         try:
             elt = etree.XML(xml)
@@ -354,7 +354,7 @@ def extract_docs_from_sql(filename):
         if xml.find("</udf>") == -1 and xml.find("</proc>") == -1:
             continue
         try:
-            elt = etree.XML(xml)
+            elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
             docs.append(ast(elt))
         except:
             print >>sys.stderr, "Failed to parse documentation block:\n\n%s\n\n" % xml
@@ -362,7 +362,9 @@ def extract_docs_from_sql(filename):
     return docs
 
 def extract_sections(filename):
-    elt = etree.parse(filename).getroot()
+    with open(filename, 'rb') as f:
+        xml = f.read()
+    elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
     if elt.tag != 'sections':
         raise RuntimeError('Root element of a section documentation file must be <section>!')
     return map(Section, _find_many(elt, 'section', attrib=['name', 'title']))
@@ -440,15 +442,15 @@ usage = """
     Display usage information.
 
 %prog
-%prog test
+%prog test_docs
 
     Make sure code samples in the documentation actually run.
 
-%prog gen_html
+%prog html_docs
 
-    Generate HTML documentation for SciSQL in doc/index.html.
+    Generate HTML documentation for sciSQL in doc/index.html.
 
-%prog gen_lsst
+%prog lsst_docs
 
     Generate documentation in LSST schema browser format and
     write it to standard out.
@@ -457,14 +459,14 @@ usage = """
 def main():
     parser = optparse.OptionParser(usage=usage)
     opts, args = parser.parse_args()
-    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test', 'gen_html', 'gen_lsst')):
+    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test_docs', 'html_docs', 'lsst_docs')):
         parser.error("Too many arguments or illegal command")
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     sections = extract_docs(root)
-    if len(args) == 0 or args[0] == 'test':
+    if len(args) == 0 or args[0] == 'test_docs':
         run_doc_examples(sections)
     else:
-        gen_docs(root, sections, html=(args[0] == 'gen_html'))
+        gen_docs(root, sections, html=(args[0] == 'html_docs'))
 
 if __name__ == '__main__':
     main()

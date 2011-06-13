@@ -22,11 +22,16 @@
 */
 
 /**
-<udf name="s2CPolyHtmRanges" return_type="MEDIUMBLOB" section="s2" internal="true">
+<udf name="${SCISQL_PREFIX}s2CPolyHtmRanges"
+     return_type="MEDIUMBLOB"
+     section="s2"
+     internal="true">
+
     <desc>
         Returns a binary-string representation of HTM ID ranges
         overlapping a spherical convex polygon. The polygon must
-        be specified in binary-string form (as produced by s2CPolyToBin()).
+        be specified in binary-string form (as produced by
+        ${SCISQL_PREFIX}s2CPolyToBin()).
     </desc>
     <args>
         <arg name="poly" type="BINARY">
@@ -69,6 +74,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "htm.h"
 
 #ifdef __cplusplus
@@ -76,25 +82,26 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool s2CPolyHtmRanges_init(UDF_INIT *initid,
-                                         UDF_ARGS *args,
-                                         char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2CPolyHtmRanges, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 3) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyHtmRanges() expects "
-                 "exactly 3 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2CPolyHtmRanges)
+                 " expects exactly 3 arguments");
         return 1;
     }
     if (args->arg_type[0] != STRING_RESULT) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyHtmRanges(): first "
-                 "argument must be a binary string");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2CPolyHtmRanges)
+                 ": first argument must be a binary string");
         return 1;
     }
     if (args->arg_type[1] != INT_RESULT || args->arg_type[2] != INT_RESULT) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "s2CPolyHtmRanges(): "
-                 "second and third arguments must be integers");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2CPolyHtmRanges)
+                 ": second and third arguments must be integers");
         return 1;
     }
     for (i = 0; i < 3; ++i) {
@@ -110,12 +117,13 @@ SCISQL_API my_bool s2CPolyHtmRanges_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API char * s2CPolyHtmRanges(UDF_INIT *initid,
-                                   UDF_ARGS *args,
-                                   char *result,
-                                   unsigned long *length,
-                                   char *is_null,
-                                   char *error SCISQL_UNUSED)
+SCISQL_API char * SCISQL_VERSIONED_FNAME(s2CPolyHtmRanges, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *result,
+    unsigned long *length,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     scisql_s2cpoly poly;
     scisql_ids *ids;
@@ -159,9 +167,16 @@ SCISQL_API char * s2CPolyHtmRanges(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2CPolyHtmRanges_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2CPolyHtmRanges, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2CPolyHtmRanges)
+SCISQL_UDF_DEINIT(s2CPolyHtmRanges)
+SCISQL_STRING_UDF(s2CPolyHtmRanges)
 
 
 #ifdef __cplusplus

@@ -30,7 +30,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>SCISQL Documentation</title>
+	<title>sciSQL ${SCISQL_VERSION} Documentation</title>
 	<link href="docs.css" type="text/css" rel="stylesheet" />
 	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="prettify/prettify.js"></script>
@@ -38,7 +38,7 @@
 </head>
 
 <body>
-<div id="header">sciSQL: Science Tools for MySQL</div>
+<div id="header">sciSQL ${SCISQL_VERSION}: Science Tools for MySQL</div>
 <div id="index">Index</div>
 <div id="title"></div>
 

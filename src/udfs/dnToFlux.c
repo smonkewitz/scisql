@@ -22,7 +22,10 @@
  */
 
 /**
-<udf name="dnToFlux" return_type="DOUBLE PRECISION" section="photometry">
+<udf name="${SCISQL_PREFIX}dnToFlux"
+     return_type="DOUBLE PRECISION"
+     section="photometry">
+
     <desc>
         Converts a raw flux in DN to a calibrated (AB) flux. The return
         value will be in units of erg/cm<sup>2</sup>/sec/Hz.
@@ -48,7 +51,7 @@
     </notes>
     <example>
         -- An example using the LSST schema:
-        SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
+        SELECT ${SCISQL_PREFIX}dnToFlux(src.psfFlux, ccd.fluxMag0)
             FROM Source AS src, Science_Ccd_Exposure ccd
             WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
             LIMIT 10;
@@ -60,6 +63,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "photometry.h"
 
 #ifdef __cplusplus
@@ -67,13 +71,14 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool dnToFlux_init(UDF_INIT *initid,
-                                 UDF_ARGS *args,
-                                 char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToFlux, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     if (args->arg_count != 2) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "dnToFlux() expects exactly 2 arguments");
+                 SCISQL_UDF_NAME(dnToFlux) " expects exactly 2 arguments");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;
@@ -85,10 +90,11 @@ SCISQL_API my_bool dnToFlux_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API double dnToFlux(UDF_INIT *initid SCISQL_UNUSED,
-                           UDF_ARGS *args,
-                           char *is_null,
-                           char *error SCISQL_UNUSED)
+SCISQL_API double SCISQL_VERSIONED_FNAME(dnToFlux, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     if (args->args[0] == 0 || args->args[1] == 0) {
         *is_null = 1;
@@ -97,6 +103,10 @@ SCISQL_API double dnToFlux(UDF_INIT *initid SCISQL_UNUSED,
     return scisql_dn2flux(*((double *) args->args[0]),
                           *((double *) args->args[1])); 
 }
+
+
+SCISQL_UDF_INIT(dnToFlux)
+SCISQL_REAL_UDF(dnToFlux)
 
 
 #ifdef __cplusplus
