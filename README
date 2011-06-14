@@ -1,14 +1,14 @@
 Science Tools for MySQL
 =======================
 
-    SciSQL provides science-specific tools and extensions for SQL. Currently,
+    sciSQL provides science-specific tools and extensions for SQL. Currently,
 the project contains user defined functions (UDFs) and stored procedures for
 MySQL in the areas of spherical geometry, statistics, and photometry. It is
 distributed under the terms of the GNU Lesser General Public License,
 version 3.
 
-    Note that the doc/index.html file in the SciSQL distribution contains
-all the instructions below, as well as documentation for all the SciSQL UDFs
+    Note that the doc/index.html file in the sciSQL distribution contains
+all the instructions below, as well as documentation for all the sciSQL UDFs
 and stored procedures.
 
 
@@ -28,28 +28,28 @@ In order to install the UDFs, you need write permission to the MySQL server
 plug-in directory as well as a MySQL account with admin priviledges.
 
 
-Databases reserved for SciSQL use:
+Databases reserved for sciSQL use:
 ----------------------------------
 
-The following database names are reserved for use by SciSQL:
+The following database names are reserved for use by sciSQL:
 
-- scisql                  Contains SciSQL stored procedures.
-- scisql_test             Used by SciSQL unit tests.
+- scisql                  Contains sciSQL stored procedures.
+- scisql_test             Used by sciSQL unit tests.
 - scisql_demo             Contains sample data that can be used to
-                          exercise the SciSQL UDFs.
+                          exercise the sciSQL UDFs.
 
 The scisql_demo databases is dropped and re-created during installation. If you
 are using it for other things, you must migrate its contents to a different
-database prior to installing SciSQL. If you do not, YOU WILL LOSE DATA.
+database prior to installing sciSQL. If you do not, YOU WILL LOSE DATA.
 
 Even though the scisql and scisql_test databases are never automatically
 dropped, their use is STRONGLY DISCOURAGED.
 
 
-SciSQL configuration:
+sciSQL configuration:
 ---------------------
 
-    Run ./configure from the top-level SciSQL directory. Passing --help will
+    Run ./configure from the top-level sciSQL directory. Passing --help will
 yield a list of configuration options. Here are the ones most likely to require
 tweaking:
 
@@ -68,10 +68,10 @@ build steps to connect to MySQL without constantly prompting for a password.
 
 Even though the .my.cnf file permissions are set such that only its creator
 is allowed read/write access, for security reasons it is still recommended to
-run `make distclean` once SciSQL has been installed. This will remove the
+run `make distclean` once sciSQL has been installed. This will remove the
 entire build directory and its contents.
 
-If you wish to build/install only the SciSQL client utilities and documentation,
+If you wish to build/install only the sciSQL client utilities and documentation,
 run configure with the --client-only option. In this case, a MySQL server or
 client install is not required, the only executable generated is scisql_index
 (a utility which generates HTM indexes for tables of circles or polygons stored
@@ -82,12 +82,12 @@ choice.
 Building and installation:
 --------------------------
 
-    SciSQL is built, installed, and uninstalled with the usual make,
+    sciSQL is built, installed, and uninstalled with the usual make,
 make install, and make uninstall commands.
 
-The install command will CREATE the SciSQL UDFs, stored procedures, and
+The install command will CREATE the sciSQL UDFs, stored procedures, and
 databases (including the scisql_demo database). It will also automatically
-run the SciSQL unit tests. You can re-run the tests anytime with `make test`.
+run the sciSQL unit tests. You can re-run the tests anytime with `make test`.
 
 You may wish to regenerate the HTML documentation if you've chosen a 
 non-default value for --scisql-prefix, as the HTML distributed with release
@@ -102,7 +102,7 @@ a hypothetical UDF named "bar" would be available as:
     foo_bar
     foo_bar_1_2_3
 
-The uninstall command will drop the versioned SciSQL UDFs and stored
+The uninstall command will drop the versioned sciSQL UDFs and stored
 procedures. It will also drop the unversioned UDFs/procedures, but only
 if the unversioned UDF/procedure was created by the version of
 sciSQL being uninstalled. As a consequence, it is possible to have
@@ -118,7 +118,7 @@ Reporting bugs and getting help:
 --------------------------------
 
     If you encounter test-case failures, or think you've identified a
-bug in the SciSQL code, please file a report here:
+bug in the sciSQL code, please file a report here:
 
 https://bugs.launchpad.net/scisql/+filebug
 

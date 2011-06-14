@@ -298,7 +298,7 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}grantPermissions${SCISQL_VSUFFIX} //
 -- <proc name="${SCISQL_PREFIX}grantPermissions" section="misc">
 --     <desc>
 --         Gives a user connecting from the specified host permission to call
---         SciSQL stored procedures and to create/use temporary tables in the
+--         sciSQL stored procedures and to create/use temporary tables in the
 --         scisql database.
 --     </desc>
 --     <args>

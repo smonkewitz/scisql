@@ -1,7 +1,7 @@
 -- Creates and populates the scisql_demo database, which:
---   * allows experimentation with the SciSQL spatial UDFs/stored procedures
+--   * allows experimentation with the sciSQL spatial UDFs/stored procedures
 --   * serves as the execution context when testing the sample queries in
---     the SciSQL documentation.
+--     the sciSQL documentation.
 
 DROP DATABASE IF EXISTS scisql_demo;
 CREATE DATABASE scisql_demo;
