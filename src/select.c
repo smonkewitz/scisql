@@ -467,30 +467,30 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                 /* create temp file */
                 fd = mkstemp(fname);
                 if (fd == -1) {
-                    fprintf(stderr, "scisql_percentile_state_add: mkstemp filed for %s, errno: %i\n",
-                            fname, errno); 
+                    fprintf(stderr, "scisql_percentile_state_add: mkstemp "
+                            "failed for %s, errno: %i\n", fname, errno); 
                     return 1;
                 }
                 /* guard against other processes using the file */
                 if (fchmod(fd, S_IRUSR | S_IWUSR) != 0) {
                     unlink(fname);
                     close(fd);
-                    fprintf(stderr, "scisql_percentile_state_add: chmod failed for %s, errno: %i\n",
-                            fname, errno); 
+                    fprintf(stderr, "scisql_percentile_state_add: chmod "
+                            "failed for %s, errno: %i\n", fname, errno); 
                     return 1;
                 }
                 /* unlink it immediately */
                 if (unlink(fname) != 0) {
                     close(fd);
-                    fprintf(stderr, "scisql_percentile_state_add: unlink failed for %s, errno: %i\n",
-                            fname, errno); 
+                    fprintf(stderr, "scisql_percentile_state_add: unlink "
+                            "failed for %s, errno: %i\n", fname, errno); 
                     return 1;
                 }
                 /* adjust file size */
                 if (ftruncate(fd, SCISQL_MMAP_FSIZE) != 0) {
                     close(fd);
-                    fprintf(stderr, "scisql_percentile_state_add: ftruncate failed for %s, errno: %d\n",
-                            fname, errno); 
+                    fprintf(stderr, "scisql_percentile_state_add: ftruncate "
+                            "failed for %s, errno: %d\n", fname, errno); 
                     return 1;
                 }
                 /* memory map it */
@@ -527,7 +527,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
 }
 
 
-SCISQL_LOCAL double scisql_percentile(scisql_percentile_state *p) {
+SCISQL_LOCAL double scisql_percentile_state_get(scisql_percentile_state *p) {
     size_t n, k;
     double val, frac, i, rem;
     double *array;
@@ -562,3 +562,4 @@ SCISQL_LOCAL double scisql_percentile(scisql_percentile_state *p) {
 #ifdef __cplusplus
 }
 #endif
+

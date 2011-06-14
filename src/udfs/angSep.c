@@ -22,7 +22,7 @@
 */
 
 /**
-<udf name="angSep" return_type="DOUBLE PRECISION" section="s2">
+<udf name="${SCISQL_PREFIX}angSep" return_type="DOUBLE PRECISION" section="s2">
     <desc>
         Returns the angular separation in degrees between two
         positions on the unit sphere.
@@ -82,9 +82,9 @@
         </note>
     </notes>
     <example>
-        SELECT angSep(0, 0, 0, 90);
-        SELECT angSep(1, 0, 0, 0, 0, 1);
-        SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
+        SELECT ${SCISQL_PREFIX}angSep(0, 0, 0, 90);
+        SELECT ${SCISQL_PREFIX}angSep(1, 0, 0, 0, 0, 1);
+        SELECT ${SCISQL_PREFIX}angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
     </example>
 </udf>
 */
@@ -94,6 +94,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -101,15 +102,16 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool angSep_init(UDF_INIT *initid,
-                               UDF_ARGS *args,
-                               char *message)
-{
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(angSep, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message
+) {
     size_t i;
     my_bool maybe_null = 0, const_item = 1;
     if (args->arg_count != 4 && args->arg_count != 6) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "angSep() expects 4 or 6 arguments");
+                 SCISQL_UDF_NAME(angSep) " expects 4 or 6 arguments");
         return 1;
     }
     for (i = 0; i < args->arg_count; ++i) {
@@ -128,11 +130,12 @@ SCISQL_API my_bool angSep_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API double angSep(UDF_INIT *initid SCISQL_UNUSED,
-                         UDF_ARGS *args,
-                         char *is_null,
-                         char *error SCISQL_UNUSED)
-{
+SCISQL_API double SCISQL_VERSIONED_FNAME(angSep, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED
+) {
     double **a = (double **) args->args;
     size_t i;
 
@@ -161,6 +164,10 @@ SCISQL_API double angSep(UDF_INIT *initid SCISQL_UNUSED,
        return scisql_v3_angsep(&v1, &v2);
     }
 }
+
+
+SCISQL_UDF_INIT(angSep)
+SCISQL_REAL_UDF(angSep)
 
 
 #ifdef __cplusplus

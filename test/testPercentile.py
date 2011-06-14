@@ -48,7 +48,7 @@ class PercentileTestCase(MySqlUdfTestCase):
                 values = [(v,) for v in xrange(n)]
                 random.shuffle(values)
                 t.insertMany(values)
-                stmt = "SELECT percentile(x, 25) FROM Percentile"
+                stmt = "SELECT %spercentile(x, 25) FROM Percentile" % self._prefix
                 rows = self.query(stmt)
                 quartile = math.floor(0.25 * (n - 1))
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
@@ -69,7 +69,7 @@ class PercentileTestCase(MySqlUdfTestCase):
                 values = [(grp, grp*25, v) for v in xrange(101)]
                 random.shuffle(values)
                 t.insertMany(values)
-            stmt = "SELECT percentile(x, percent) FROM Percentile GROUP BY grp"
+            stmt = "SELECT %spercentile(x, percent) FROM Percentile GROUP BY grp" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 3, stmt + " did not return 3 rows")
             self.assertAlmostEqual(rows[0][0], 0.0, 15)

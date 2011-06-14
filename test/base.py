@@ -25,7 +25,6 @@
 
 from __future__ import with_statement
 
-import getpass
 import math
 import os
 import unittest
@@ -82,6 +81,7 @@ class MySqlUdfTestCase(unittest.TestCase):
     """Base class for MySQL UDF test-cases.
     """
     def setUp(self):
+        self._prefix = os.environ['SCISQL_PREFIX']
         connkw = _parseMyCnf(os.environ['MYSQL_CNF'])
         self._conn = sql.connect(**connkw)
         try:

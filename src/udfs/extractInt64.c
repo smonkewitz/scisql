@@ -22,7 +22,10 @@
 */
 
 /**
-<udf name="extractInt64" return_type="BIGINT" section="misc" internal="true">
+<udf name="${SCISQL_PREFIX}extractInt64"
+     return_type="BIGINT"
+     section="misc" internal="true">
+
     <desc>
         Extracts a 64-bit integer stored in host byte order
         from a binary string.
@@ -52,7 +55,7 @@
 
 #include "mysql.h"
 
-#include "common.h"
+#include "udf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,24 +68,25 @@ typedef union {
 } _scisql_int64_bytes;
 
 
-SCISQL_API my_bool extractInt64_init(UDF_INIT *initid,
-                                     UDF_ARGS *args,
-                                     char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(extractInt64, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     if (args->arg_count != 2) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "extractInt64() expects 2 arguments");
+                 SCISQL_UDF_NAME(extractInt64) " expects 2 arguments");
         return 1;
     }
     initid->const_item = (args->args[0] == 0 || args->args[1] == 0) ? 0 : 1;
     if (args->arg_type[0] != STRING_RESULT) {
         snprintf(message, MYSQL_ERRMSG_SIZE, "First argument of "
-                 "extractInt64() must be a binary string");
+                 SCISQL_UDF_NAME(extractInt64) " must be a binary string");
         return 1;
     }
     if (args->arg_type[1] != INT_RESULT) {
         snprintf(message, MYSQL_ERRMSG_SIZE, "Second argument of "
-                 "extractInt64() must be an integer");
+                 SCISQL_UDF_NAME(extractInt64) " must be an integer");
         return 1;
     }
     initid->maybe_null = 1;
@@ -90,10 +94,11 @@ SCISQL_API my_bool extractInt64_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long extractInt64(UDF_INIT *initid SCISQL_UNUSED,
-                                  UDF_ARGS *args,
-                                  char *is_null,
-                                  char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(extractInt64, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     _scisql_int64_bytes ibytes;
     unsigned long len;
@@ -114,6 +119,10 @@ SCISQL_API long long extractInt64(UDF_INIT *initid SCISQL_UNUSED,
     memcpy(ibytes.bytes, args->args[0] + i*sizeof(int64_t), sizeof(int64_t));
     return (long long) ibytes.value;
 }
+
+
+SCISQL_UDF_INIT(extractInt64)
+SCISQL_INTEGER_UDF(extractInt64)
 
 
 #ifdef __cplusplus

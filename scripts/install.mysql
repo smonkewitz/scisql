@@ -1,67 +1,105 @@
 USE mysql;
 
 
-DROP FUNCTION IF EXISTS angSep;
-DROP FUNCTION IF EXISTS s2CircleHtmRanges;
-DROP FUNCTION IF EXISTS s2CPolyHtmRanges;
-DROP FUNCTION IF EXISTS s2CPolyToBin;
-DROP FUNCTION IF EXISTS s2HtmId;
-DROP FUNCTION IF EXISTS s2PtInBox;
-DROP FUNCTION IF EXISTS s2PtInCircle;
-DROP FUNCTION IF EXISTS s2PtInCPoly;
-DROP FUNCTION IF EXISTS s2PtInEllipse;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}angSep;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}angSep${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2CircleHtmRanges;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2CircleHtmRanges${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2CPolyHtmRanges;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2CPolyHtmRanges${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2CPolyToBin;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2CPolyToBin${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2HtmId;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2HtmId${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInBox;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInBox${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInCircle;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInCircle${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInCPoly;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInCPoly${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInEllipse;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}s2PtInEllipse${SCISQL_VSUFFIX};
 
-DROP FUNCTION IF EXISTS median;
-DROP FUNCTION IF EXISTS percentile;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}median;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}median${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}percentile;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}percentile${SCISQL_VSUFFIX};
 
-DROP FUNCTION IF EXISTS dnToAbMag;
-DROP FUNCTION IF EXISTS dnToAbMagSigma;
-DROP FUNCTION IF EXISTS dnToFlux;
-DROP FUNCTION IF EXISTS dnToFluxSigma;
-DROP FUNCTION IF EXISTS fluxToAbMag;
-DROP FUNCTION IF EXISTS fluxToAbMagSigma;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToAbMag;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToAbMag${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToAbMagSigma;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToAbMagSigma${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToFlux;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToFlux${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToFluxSigma;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}dnToFluxSigma${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}fluxToAbMag;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}fluxToAbMag${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}fluxToAbMagSigma;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}fluxToAbMagSigma${SCISQL_VSUFFIX};
 
-DROP FUNCTION IF EXISTS extractInt64;
-DROP FUNCTION IF EXISTS scisqlFail;
-DROP FUNCTION IF EXISTS scisqlVersion;
-
-
-CREATE FUNCTION angSep RETURNS REAL SONAME 'libscisql.so';
-CREATE FUNCTION s2CircleHtmRanges RETURNS STRING SONAME 'libscisql.so';
-CREATE FUNCTION s2CPolyHtmRanges RETURNS STRING SONAME 'libscisql.so';
-CREATE FUNCTION s2CPolyToBin RETURNS STRING SONAME 'libscisql.so';
-CREATE FUNCTION s2HtmId RETURNS INTEGER SONAME 'libscisql.so';
-CREATE FUNCTION s2PtInBox RETURNS INTEGER SONAME 'libscisql.so';
-CREATE FUNCTION s2PtInCircle RETURNS INTEGER SONAME 'libscisql.so';
-CREATE FUNCTION s2PtInCPoly RETURNS INTEGER SONAME 'libscisql.so';
-CREATE FUNCTION s2PtInEllipse RETURNS INTEGER SONAME 'libscisql.so';
-
-CREATE AGGREGATE FUNCTION median RETURNS REAL SONAME 'libscisql.so';
-CREATE AGGREGATE FUNCTION percentile RETURNS REAL SONAME 'libscisql.so';
-
-CREATE FUNCTION dnToAbMag RETURNS REAL SONAME 'libscisql.so';
-CREATE FUNCTION dnToAbMagSigma RETURNS REAL SONAME 'libscisql.so';
-CREATE FUNCTION dnToFlux RETURNS REAL SONAME 'libscisql.so';
-CREATE FUNCTION dnToFluxSigma RETURNS REAL SONAME 'libscisql.so';
-CREATE FUNCTION fluxToAbMag RETURNS REAL SONAME 'libscisql.so';
-CREATE FUNCTION fluxToAbMagSigma RETURNS REAL SONAME 'libscisql.so';
-
-CREATE FUNCTION extractInt64 RETURNS INTEGER SONAME 'libscisql.so';
-CREATE FUNCTION scisqlFail RETURNS INTEGER SONAME 'libscisql.so';
-CREATE FUNCTION scisqlVersion RETURNS STRING SONAME 'libscisql.so';
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}extractInt64;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}extractInt64${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}raiseError;
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}raiseError${SCISQL_VSUFFIX};
+DROP FUNCTION IF EXISTS ${SCISQL_PREFIX}getVersion;
 
 
--- Create stored procedures that turn HTM ID range BLOBs into
--- temporary tables
+CREATE FUNCTION ${SCISQL_PREFIX}angSep RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}angSep${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2CircleHtmRanges RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2CircleHtmRanges${SCISQL_VSUFFIX} RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2CPolyHtmRanges RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2CPolyHtmRanges${SCISQL_VSUFFIX} RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2CPolyToBin RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2CPolyToBin${SCISQL_VSUFFIX} RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2HtmId RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2HtmId${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInBox RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInBox${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInCircle RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInCircle${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInCPoly RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInCPoly${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInEllipse RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}s2PtInEllipse${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
 
-DROP DATABASE IF EXISTS scisql;
-CREATE DATABASE scisql;
+CREATE AGGREGATE FUNCTION ${SCISQL_PREFIX}median RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE AGGREGATE FUNCTION ${SCISQL_PREFIX}median${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE AGGREGATE FUNCTION ${SCISQL_PREFIX}percentile RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE AGGREGATE FUNCTION ${SCISQL_PREFIX}percentile${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+
+CREATE FUNCTION ${SCISQL_PREFIX}dnToAbMag RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToAbMag${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToAbMagSigma RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToAbMagSigma${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToFlux RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToFlux${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToFluxSigma RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}dnToFluxSigma${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}fluxToAbMag RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}fluxToAbMag${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}fluxToAbMagSigma RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}fluxToAbMagSigma${SCISQL_VSUFFIX} RETURNS REAL SONAME 'libscisql-${SCISQL_VERSION}.so';
+
+CREATE FUNCTION ${SCISQL_PREFIX}extractInt64 RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}extractInt64${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}raiseError RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}raiseError${SCISQL_VSUFFIX} RETURNS INTEGER SONAME 'libscisql-${SCISQL_VERSION}.so';
+CREATE FUNCTION ${SCISQL_PREFIX}getVersion RETURNS STRING SONAME 'libscisql-${SCISQL_VERSION}.so';
+
+
+-- Create stored procedures
+
+CREATE DATABASE IF NOT EXISTS scisql;
 
 USE scisql;
 
 DELIMITER //
 
--- <proc name="s2CircleRegion" section="s2">
+DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX} //
+
+-- <proc name="${SCISQL_PREFIX}s2CircleRegion" section="s2">
 --     <desc>
 --         Creates a temporary table `scisql.Region` containing HTM ID ranges
 --         for the HTM triangles overlapping the given circle. A maximum of 
@@ -89,12 +127,12 @@ DELIMITER //
 --     <notes>
 --         <note>
 --             The `scisql.Region` table is allowed to exist prior to calling
---             s2CircleRegion() - if it does, its contents are completely
+--             ${SCISQL_PREFIX}s2CircleRegion() - if it does, its contents are completely
 --             replaced.
 --         </note>
 --         <note>
 --             Before using this stored procedure, an adminstrator must GRANT
---             the required permissions (e.g. using scisqlGrant()).
+--             the required permissions (e.g. using ${SCISQL_PREFIX}grantPermissions()).
 --         </note>
 --         <note>
 --             If any input is NULL, NaN or +/-Inf, the procedure will fail.
@@ -109,14 +147,16 @@ DELIMITER //
 --         </note>
 --     </notes>
 --     <example>
---         CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+--         CALL scisql.${SCISQL_PREFIX}s2CircleRegion(0, 0, 0.5, 20);
 --         SELECT * FROM scisql.Region;
 --     </example>
 -- </proc>
-CREATE PROCEDURE s2CircleRegion(IN centerLon DOUBLE PRECISION,
-                                IN centerLat DOUBLE PRECISION,
-                                IN radius DOUBLE PRECISION,
-                                IN level INTEGER)
+CREATE PROCEDURE ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX}(
+    IN centerLon DOUBLE PRECISION,
+    IN centerLat DOUBLE PRECISION,
+    IN radius DOUBLE PRECISION,
+    IN level INTEGER
+)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -124,9 +164,10 @@ BEGIN
     DECLARE i INTEGER;
     DECLARE n INTEGER;
 
-    SET htmRanges = s2CircleHtmRanges(centerLon, centerLat, radius, level, 256);
+    SET htmRanges = ${SCISQL_PREFIX}s2CircleHtmRanges${SCISQL_VSUFFIX}(centerLon, centerLat, radius, level, 256);
     IF htmRanges IS NULL THEN
-        SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping circle');
+        SELECT ${SCISQL_PREFIX}raiseError${SCISQL_VSUFFIX}(
+            'Failed to compute ranges of HTM IDs overlapping circle');
         -- MySQL 5.5+ support the much saner:
         -- SIGNAL SQLSTATE VALUE '45000'
         --    SET MESSAGE_TEXT = 'Failed to compute ranges of HTM IDs overlapping circle';
@@ -136,13 +177,32 @@ BEGIN
     SET n = OCTET_LENGTH(htmRanges) / 8;
     SET i = 0;
     WHILE i < n DO
-        INSERT INTO Region VALUES (extractInt64(htmRanges, i), extractInt64(htmRanges, i + 1));
+        INSERT INTO Region VALUES (
+            ${SCISQL_PREFIX}extractInt64${SCISQL_VSUFFIX}(htmRanges, i),
+            ${SCISQL_PREFIX}extractInt64${SCISQL_VSUFFIX}(htmRanges, i + 1));
         SET i = i + 2;
     END WHILE;
 END //
 
+DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CircleRegion //
 
--- <proc name="s2CPolyRegion" section="s2">
+-- Unversioned shim
+CREATE PROCEDURE ${SCISQL_PREFIX}s2CircleRegion(
+    IN centerLon DOUBLE PRECISION,
+    IN centerLat DOUBLE PRECISION, 
+    IN radius DOUBLE PRECISION, 
+    IN level INTEGER
+)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    CALL ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX}(centerLon, centerLat, radius, level);
+END //
+
+
+DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX} //
+
+-- <proc name="${SCISQL_PREFIX}s2CPolyRegion" section="s2">
 --     <desc>
 --         Creates a temporary table `scisql.Region` containing HTM ID ranges
 --         for the HTM triangles overlapping the given spherical convex polygon.
@@ -165,19 +225,19 @@ END //
 --     <notes>
 --         <note>
 --             The `scisql.Region` table is allowed to exist prior to calling
---             s2CPolyRegion() - if it does, its contents are completely
+--             ${SCISQL_PREFIX}s2CPolyRegion() - if it does, its contents are completely
 --             replaced.
 --         </note>
 --         <note>
 --             Before using this stored procedure, an adminstrator must GRANT
---             the required permissions (e.g. using scisqlGrant()).
+--             the required permissions (e.g. using ${SCISQL_PREFIX}grantPermissions()).
 --         </note>
 --         <note>
 --             If any input is NULL, the procedure will fail.
 --         </note>
 --         <note>
 --             If poly is not a valid binary-string representation of a polygon
---             (e.g. as produced by s2CPolyToBin()), the procedure will fail.
+--             (e.g. as produced by ${SCISQL_PREFIX}s2CPolyToBin()), the procedure will fail.
 --         </note>
 --         <note>
 --             If level does not lie in the range [0, 24], the procedure will
@@ -185,12 +245,14 @@ END //
 --         </note>
 --     </notes>
 --     <example>
---         CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+--         CALL scisql.${SCISQL_PREFIX}s2CPolyRegion(${SCISQL_PREFIX}s2CPolyToBin(0,0, 1,0, 0,1), 20);
 --         SELECT * FROM scisql.Region;
 --     </example>
 -- </proc>
-CREATE PROCEDURE s2CPolyRegion(IN poly VARBINARY(255),
-                               IN level INTEGER)
+CREATE PROCEDURE ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX}(
+    IN poly VARBINARY(255),
+    IN level INTEGER
+)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -198,9 +260,10 @@ BEGIN
     DECLARE i INTEGER;
     DECLARE n INTEGER;
 
-    SET htmRanges = s2CPolyHtmRanges(poly, level, 256);
+    SET htmRanges = ${SCISQL_PREFIX}s2CPolyHtmRanges${SCISQL_VSUFFIX}(poly, level, 256);
     IF htmRanges IS NULL THEN
-        SELECT scisqlFail('Failed to compute ranges of HTM IDs overlapping polygon');
+        SELECT ${SCISQL_PREFIX}raiseError${SCISQL_VSUFFIX}(
+            'Failed to compute ranges of HTM IDs overlapping polygon');
         -- MySQL 5.5+ support the much saner:
         -- SIGNAL SQLSTATE VALUE '45000'
         --    SET MESSAGE_TEXT = 'Failed to compute ranges of HTM IDs overlapping circle';
@@ -210,13 +273,29 @@ BEGIN
     SET n = OCTET_LENGTH(htmRanges) / 8;
     SET i = 0;
     WHILE i < n DO
-        INSERT INTO Region VALUES (extractInt64(htmRanges, i), extractInt64(htmRanges, i + 1));
+        INSERT INTO Region VALUES (
+            ${SCISQL_PREFIX}extractInt64${SCISQL_VSUFFIX}(htmRanges, i),
+            ${SCISQL_PREFIX}extractInt64${SCISQL_VSUFFIX}(htmRanges, i + 1));
         SET i = i + 2;
     END WHILE;
 END //
 
+DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CPolyRegion //
+-- Unversioned shim
+CREATE PROCEDURE ${SCISQL_PREFIX}s2CPolyRegion(
+    IN poly VARBINARY(255),
+    IN level INTEGER
+)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    CALL ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX}(poly, level);
+END //
 
--- <proc name="scisqlGrant" section="misc">
+
+DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}grantPermissions${SCISQL_VSUFFIX} //
+
+-- <proc name="${SCISQL_PREFIX}grantPermissions" section="misc">
 --     <desc>
 --         Gives a user connecting from the specified host permission to call
 --         SciSQL stored procedures and to create/use temporary tables in the
@@ -237,11 +316,13 @@ END //
 --         </note>
 --     </notes>
 --     <example test="false">
---         CALL scisql.scisqlGrant('bob', 'localhost');
+--         CALL scisql.${SCISQL_PREFIX}grantPermissions('bob', 'localhost');
 --     </example>
 -- </proc>
-CREATE PROCEDURE scisqlGrant(IN user VARCHAR(255),
-                             IN host VARCHAR(255))
+CREATE PROCEDURE ${SCISQL_PREFIX}grantPermissions${SCISQL_VSUFFIX}(
+    IN user VARCHAR(255),
+    IN host VARCHAR(255)
+)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -250,6 +331,19 @@ BEGIN
     PREPARE stmt FROM @_s;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}grantPermissions //
+
+-- Unversioned shim
+CREATE PROCEDURE ${SCISQL_PREFIX}grantPermissions(
+    IN user VARCHAR(255),
+    IN host VARCHAR(255)
+)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+    CALL ${SCISQL_PREFIX}grantPermissions${SCISQL_VSUFFIX}(user, host);
 END //
 
 

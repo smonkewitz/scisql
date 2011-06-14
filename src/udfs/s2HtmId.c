@@ -22,7 +22,7 @@
 */
 
 /**
-<udf name="s2HtmId" return_type="BIGINT" section="s2">
+<udf name="${SCISQL_PREFIX}s2HtmId" return_type="BIGINT" section="s2">
     <desc>
         Returns the HTM ID of a point at the given
         subdivision level.
@@ -64,7 +64,7 @@
         </note>
     </notes>
     <example>
-        SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
+        SELECT objectId, ra_PS, decl_PS, ${SCISQL_PREFIX}s2HtmId(ra_PS, decl_PS, 20)
             FROM Object LIMIT 10;
     </example>
 </udf>
@@ -75,6 +75,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "htm.h"
 
 #ifdef __cplusplus
@@ -82,23 +83,24 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool s2HtmId_init(UDF_INIT *initid,
-                                UDF_ARGS *args,
-                                char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2HtmId, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 3) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "s2HtmId() expects exactly 3 arguments");
+                 SCISQL_UDF_NAME(s2HtmId) " expects exactly 3 arguments");
         return 1;
     }
     for (i = 0; i < 3; ++i) {
         if (i < 2) {
             args->arg_type[i] = REAL_RESULT;
         } else if (args->arg_type[i] != INT_RESULT) {
-            snprintf(message, MYSQL_ERRMSG_SIZE, "s2HtmId() subdivision "
-                     "level must be an integer");
+            snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2HtmId)
+                     " subdivision level must be an integer");
             return 1;
         }
         if (args->args[i] == 0) {
@@ -111,10 +113,11 @@ SCISQL_API my_bool s2HtmId_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2HtmId(UDF_INIT *initid SCISQL_UNUSED,
-                             UDF_ARGS *args,
-                             char *is_null,
-                             char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2HtmId, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     scisql_sc p;
     scisql_v3 v;
@@ -145,6 +148,10 @@ SCISQL_API long long s2HtmId(UDF_INIT *initid SCISQL_UNUSED,
     }
     return id;
 }
+
+
+SCISQL_UDF_INIT(s2HtmId)
+SCISQL_INTEGER_UDF(s2HtmId)
 
 
 #ifdef __cplusplus

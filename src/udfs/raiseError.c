@@ -22,7 +22,10 @@
 */
 
 /**
-<udf name="scisqlFail" return_type="BIGINT" section="misc" internal="true">
+<udf name="${SCISQL_PREFIX}raiseError"
+     return_type="BIGINT"
+     section="misc" internal="true">
+
     <desc>
         Fails with an optional error message.
         <p>
@@ -37,7 +40,7 @@
         <arg name="message" type="STRING">Error message.</arg>
     </args>
     <example test="false">
-        SELECT scisqlFail('Lorem ipsum dolor');
+        SELECT ${SCISQL_PREFIX}raiseError('Lorem ipsum dolor');
     </example>
 </udf>
 */
@@ -46,16 +49,17 @@
 
 #include "mysql.h"
 
-#include "common.h"
+#include "udf.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-SCISQL_API my_bool scisqlFail_init(UDF_INIT *initid SCISQL_UNUSED,
-                                   UDF_ARGS *args,
-                                   char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(raiseError, _init) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *message)
 {
     const char *m = "A scisql related error occurred";
     if (args->arg_count > 0 && args->arg_type[0] == STRING_RESULT &&
@@ -68,14 +72,19 @@ SCISQL_API my_bool scisqlFail_init(UDF_INIT *initid SCISQL_UNUSED,
 }
 
 
-SCISQL_API long long scisqlFail(UDF_INIT *initid SCISQL_UNUSED,
-                                UDF_ARGS *args SCISQL_UNUSED,
-                                char *is_null SCISQL_UNUSED,
-                                char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(raiseError, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args SCISQL_UNUSED,
+    char *is_null SCISQL_UNUSED,
+    char *error SCISQL_UNUSED)
 {
     // never reached
     return 0;
 }
+
+
+SCISQL_UDF_INIT(raiseError)
+SCISQL_INTEGER_UDF(raiseError)
 
 
 #ifdef __cplusplus

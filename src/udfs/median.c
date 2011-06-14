@@ -23,7 +23,11 @@
 */
 
 /**
-<udf name="median" return_type="DOUBLE PRECISION" section="statistics" aggregate="true">
+<udf name="${SCISQL_PREFIX}median"
+     return_type="DOUBLE PRECISION"
+     section="statistics"
+     aggregate="true">
+
     <desc>
         Returns the median of a GROUP of values.
     </desc>
@@ -64,7 +68,7 @@
         </note>
     </notes>
     <example>
-        SELECT objectId, median(psfFlux)
+        SELECT objectId, ${SCISQL_PREFIX}median(psfFlux)
             FROM Source
             WHERE objectId IS NOT NULL
             GROUP BY objectId;
@@ -76,6 +80,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "select.h"
 
 #ifdef __cplusplus
@@ -83,19 +88,21 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool median_init(UDF_INIT *initid,
-                               UDF_ARGS *args,
-                               char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(median, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     scisql_percentile_state *state;
     if (args->arg_count != 1) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "median() expects 1 argument");
+        snprintf(message, MYSQL_ERRMSG_SIZE,
+                 SCISQL_UDF_NAME(median) " expects 1 argument");
         return 1;
     }
     state = scisql_percentile_state_new();
     if (state == 0) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "median() failed to allocate "
-                 "memory for internal state");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(median)
+                 " failed to allocate memory for internal state");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;
@@ -106,26 +113,28 @@ SCISQL_API my_bool median_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API void median_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(median, _deinit) (UDF_INIT *initid) {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     scisql_percentile_state_free(state);
     initid->ptr = 0;
 }
 
 
-SCISQL_API void median_clear(UDF_INIT *initid,
-                             char *is_null SCISQL_UNUSED,
-                             char *error SCISQL_UNUSED)
+SCISQL_API void SCISQL_VERSIONED_FNAME(median, _clear) (
+    UDF_INIT *initid,
+    char *is_null SCISQL_UNUSED,
+    char *error SCISQL_UNUSED)
 {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     scisql_percentile_state_clear(state);
 }
 
 
-SCISQL_API void median_add(UDF_INIT *initid,
-                           UDF_ARGS *args,
-                           char *is_null SCISQL_UNUSED,
-                           char *error)
+SCISQL_API void SCISQL_VERSIONED_FNAME(median, _add) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null SCISQL_UNUSED,
+    char *error)
 {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     if (scisql_percentile_state_add(state, (double*) args->args[0]) != 0) {
@@ -134,28 +143,38 @@ SCISQL_API void median_add(UDF_INIT *initid,
 }
 
 
-SCISQL_API void median_reset(UDF_INIT *initid,
-                             UDF_ARGS *args,
-                             char *is_null,
-                             char *error)
+SCISQL_API void SCISQL_VERSIONED_FNAME(median, _reset) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error)
 {
-    median_clear(initid, is_null, error);
-    median_add(initid, args, is_null, error);
+    SCISQL_VERSIONED_FNAME(median, _clear) (initid, is_null, error);
+    SCISQL_VERSIONED_FNAME(median, _add) (initid, args, is_null, error);
 }
 
 
-SCISQL_API double median(UDF_INIT *initid,
-                         UDF_ARGS *args SCISQL_UNUSED,
-                         char *is_null,
-                         char *error)
+SCISQL_API double SCISQL_VERSIONED_FNAME(median, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args SCISQL_UNUSED,
+    char *is_null,
+    char *error)
 {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     if (state->n == 0 || *error != 0) {
         *is_null = 1;
         return 0.0;
     }
-    return scisql_percentile(state);
+    return scisql_percentile_state_get(state);
 }
+
+
+SCISQL_UDF_INIT(median)
+SCISQL_UDF_DEINIT(median)
+SCISQL_UDF_CLEAR(median)
+SCISQL_UDF_ADD(median)
+SCISQL_UDF_RESET(median)
+SCISQL_REAL_UDF(median)
 
 
 #ifdef __cplusplus

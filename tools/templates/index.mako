@@ -7,7 +7,7 @@
 <%def name="section_nav(section)">
 	% if len(section.udfs) > 0:
 		% if len(section.procs) > 0:
-		<h4>Functions</h4>
+		<h4>UDFs</h4>
 		% endif
 		<ul class="section_nav">
 		% for fun in section.udfs:
@@ -17,7 +17,7 @@
 	% endif
 	% if len(section.procs) > 0:
 		% if len(section.udfs) > 0:
-		<h4>Procedures</h4>
+		<h4>Stored Procedures</h4>
 		% endif
 		<ul class="section_nav">
 		% for proc in section.procs:
@@ -30,7 +30,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>SCISQL Documentation</title>
+	<title>sciSQL ${SCISQL_VERSION} Documentation</title>
 	<link href="docs.css" type="text/css" rel="stylesheet" />
 	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="prettify/prettify.js"></script>
@@ -38,7 +38,7 @@
 </head>
 
 <body>
-<div id="header">sciSQL: Science Tools for MySQL</div>
+<div id="header">sciSQL ${SCISQL_VERSION}: Science Tools for MySQL</div>
 <div id="index">Index</div>
 <div id="title"></div>
 
@@ -65,13 +65,13 @@
 	${section.content}
 
 	% if len(section.udfs) > 0:
-	<h2>Functions</h2>
+	<h2>User Defined Functions</h2>
 		% for udf in section.udfs:
 	${udf_docs(section, udf)}
 		% endfor
 	% endif
 	% if len(section.procs) > 0:
-	<h2>Procedures</h2>
+	<h2>Stored Procedures</h2>
 		% for proc in section.procs:
 	${proc_docs(section, proc)}
 		% endfor
@@ -92,16 +92,20 @@
 				var href = $(this).attr("href").substring(1);
 				var loc = href.split('-');
 				var section = loc[0];
-				$('#nav a.active').removeClass('active');
-				$(this).addClass('active');
-				var seclink = $('#nav a[href="#' + section + '"]');
-				$('#title').text(seclink.text());
+				if (! $(this).hasClass('active')) {
+					$('#nav a.active').removeClass('active');
+					$(this).addClass('active');
+				}
 				if (loc.length > 1) {
+					var seclink = $('#nav a[href="#' + section + '"]');
+					$('#title').text(seclink.text());
 					seclink.addClass('active');
+				} else {
+					$('#title').text($(this).text());
 				}
 				section = $('#section-' + section);
-				if (!section.is(':visible')) {
-					$('#content div.section:visible').hide();
+				if (section.filter(':visible').size() == 0) {
+					$('#content div.section').filter(':visible').hide();
 					section.fadeIn(300);
 				}
 			});
@@ -116,13 +120,19 @@
 			var i = l.indexOf('#');
 			var e = (i != -1) ? $('#nav a[href="' + l.substring(i) + '"]') : $('#nav a[href="#overview"]');
 			e.click();
+			// Opera doesn't scroll properly without this
+			$(document).scrollTop($('#content a[name="' + l.substring(i + 1) + '"]').offset().top);
 		};
-		_hashchange();
 		if ('onhashchange' in window) {
 			window.onhashchange = _hashchange;
 		} else {
 			setInterval(_hashchange, 100);
 		}
+		$('#nav').height($(window).height() - 75);
+		$(window).resize(function() {
+			$('#nav').height($(window).height() - 75);
+		});
+		_hashchange();
 	});
 --></script>
 </body>

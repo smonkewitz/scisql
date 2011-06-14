@@ -22,15 +22,20 @@
 */
 
 /**
-<udf name="fluxToAbMagSigma" return_type="DOUBLE PRECISION" section="photometry">
+<udf name="${SCISQL_PREFIX}fluxToAbMagSigma"
+     return_type="DOUBLE PRECISION"
+     section="photometry">
+
     <desc>
         Converts a cailbrated (AB) flux error to an AB magnitude error.
     </desc>
     <args>
-        <arg name="flux" type="DOUBLE PRECISION" units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
+        <arg name="flux" type="DOUBLE PRECISION"
+             units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
             Calibrated (AB) flux.
         </arg>
-        <arg name="fluxSigma" type="DOUBLE PRECISION" units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
+        <arg name="fluxSigma" type="DOUBLE PRECISION"
+             units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
             Calibrated (AB) flux error.
         </arg>
     </args>
@@ -46,7 +51,7 @@
         </note>
     </notes>
     <example>
-        SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
+        SELECT ${SCISQL_PREFIX}fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
             FROM Object
             WHERE rFlux_PS IS NOT NULL and rFlux_PS_Sigma IS NOT NULL
             LIMIT 10;
@@ -58,6 +63,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "photometry.h"
 
 #ifdef __cplusplus
@@ -65,13 +71,14 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool fluxToAbMagSigma_init(UDF_INIT *initid,
-                                         UDF_ARGS *args,
-                                         char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(fluxToAbMagSigma, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     if (args->arg_count != 2) {
-        snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "fluxToAbMagSigma() expects exactly 2 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(fluxToAbMagSigma)
+                 " expects exactly 2 arguments");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;
@@ -83,10 +90,11 @@ SCISQL_API my_bool fluxToAbMagSigma_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API double fluxToAbMagSigma(UDF_INIT *initid SCISQL_UNUSED,
-                                   UDF_ARGS *args,
-                                   char *is_null,
-                                   char *error SCISQL_UNUSED)
+SCISQL_API double SCISQL_VERSIONED_FNAME(fluxToAbMagSigma, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     if (args->args[0] == 0 || args->args[1] == 0) {
         *is_null = 1;
@@ -95,6 +103,10 @@ SCISQL_API double fluxToAbMagSigma(UDF_INIT *initid SCISQL_UNUSED,
     return scisql_flux2absigma(*((double *) args->args[0]),
                                *((double *) args->args[1]));
 }
+
+
+SCISQL_UDF_INIT(fluxToAbMagSigma)
+SCISQL_REAL_UDF(fluxToAbMagSigma)
 
 
 #ifdef __cplusplus

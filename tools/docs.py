@@ -29,6 +29,7 @@ import glob
 import optparse
 import os
 import re
+import string
 import subprocess
 import sys
 import tempfile
@@ -37,9 +38,13 @@ try:
     import xml.etree.cElementTree as etree
 except:
     import xml.etree.ElementTree as etree
-from mako.template import Template
-from mako.lookup import TemplateLookup
 
+_have_mako = True
+try:
+    from mako.template import Template
+    from mako.lookup import TemplateLookup
+except:
+    _have_mako = False
 
 # -- Helper functions ----
 
@@ -325,9 +330,8 @@ def extract_docs_from_c(filename):
         for line in lines:
             m = re.match(r'\s*\*', line)
             if m != None:
-                stripped_lines.append(line[len(m.group(0)):])
-            else:
-                stripped_lines.append(line)
+                line = line[len(m.group(0)):]
+            stripped_lines.append(string.Template(line).safe_substitute(os.environ))
         xml = '\n'.join(stripped_lines)
         try:
             elt = etree.XML(xml)
@@ -354,7 +358,7 @@ def extract_docs_from_sql(filename):
         if xml.find("</udf>") == -1 and xml.find("</proc>") == -1:
             continue
         try:
-            elt = etree.XML(xml)
+            elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
             docs.append(ast(elt))
         except:
             print >>sys.stderr, "Failed to parse documentation block:\n\n%s\n\n" % xml
@@ -362,7 +366,9 @@ def extract_docs_from_sql(filename):
     return docs
 
 def extract_sections(filename):
-    elt = etree.parse(filename).getroot()
+    with open(filename, 'rb') as f:
+        xml = f.read()
+    elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
     if elt.tag != 'sections':
         raise RuntimeError('Root element of a section documentation file must be <section>!')
     return map(Section, _find_many(elt, 'section', attrib=['name', 'title']))
@@ -389,6 +395,7 @@ def extract_docs(root):
 # -- Testing examples in documentation ----
 
 def _test(obj):
+    nfail = 0
     for ex in obj.examples:
         if not ex.test or ex.lang not in ('sql', 'bash'):
             continue
@@ -406,15 +413,18 @@ def _test(obj):
                     subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
             except:
                 print >>sys.stderr, "Failed to run documentation example:\n\n%s\n\n" % ex.source
+                nfail += 1
+    return nfail 
 
 def run_doc_examples(sections):
     """Runs all examples marked as testable in the SciSQL documentation.
     """
+    nfail = 0
     for sec in sections:
-        _test(sec)
+        nfail += _test(sec)
         for elt in itertools.chain(sec.udfs, sec.procs):
-            _test(elt)
-
+            nfail += _test(elt)
+    return nfail
 
 # -- Documentation generation ----
 
@@ -426,10 +436,13 @@ def gen_docs(root, sections, html=True):
     if html:
         template = lookup.get_template('index.mako')
         with open(os.path.join(root, 'doc', 'index.html'), 'wb') as f:
-            f.write(template.render(sections=sections))
+            f.write(template.render(sections=sections,
+                                    SCISQL_VERSION=os.environ['SCISQL_VERSION']))
     else:
         template = lookup.get_template('lsst_schema_browser.mako')
-        sys.stdout.write(template.render(sections=sections))
+        with open('metadata_scisql.sql', 'wb') as f:
+            f.write(template.render(sections=sections,
+                                    SCISQL_VERSION=os.environ['SCISQL_VERSION']))
 
 
 # -- Usage and command line processing
@@ -440,31 +453,35 @@ usage = """
     Display usage information.
 
 %prog
-%prog test
+%prog test_docs
 
     Make sure code samples in the documentation actually run.
 
-%prog gen_html
+%prog html_docs 
 
-    Generate HTML documentation for SciSQL in doc/index.html.
+    Generate HTML documentation for sciSQL in doc/index.html.
 
-%prog gen_lsst
+%prog lsst_docs
 
-    Generate documentation in LSST schema browser format and
-    write it to standard out.
+    Generate documentation in LSST schema browser format in
+    metadata_scisql.sql
 """
 
 def main():
     parser = optparse.OptionParser(usage=usage)
     opts, args = parser.parse_args()
-    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test', 'gen_html', 'gen_lsst')):
+    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test_docs', 'html_docs', 'lsst_docs')):
         parser.error("Too many arguments or illegal command")
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     sections = extract_docs(root)
-    if len(args) == 0 or args[0] == 'test':
-        run_doc_examples(sections)
+    if len(args) == 0 or args[0] == 'test_docs':
+        nfail = run_doc_examples(sections)
+        if nfail != 0:
+            sys.exit(1)
     else:
-        gen_docs(root, sections, html=(args[0] == 'gen_html'))
+        if not _have_mako:
+            parser.error("You must install mako 0.4.x to generate documentation")
+        gen_docs(root, sections, html=(args[0] == 'html_docs'))
 
 if __name__ == '__main__':
     main()

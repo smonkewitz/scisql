@@ -157,7 +157,7 @@ def process_mysql(self, node):
 
 #@Task.always_run
 class MySqlScript(Task.Task):
-    run_str = '${MYSQL} --defaults-file=${MYSQL_CNF} < ${SRC}'
+    run_str = '${bld.top_dir}/tools/substitute.py ${SRC} | ${MYSQL} --defaults-file=${MYSQL_CNF}'
     color = 'PINK'
     shell = True
     ext_in = '.mysql'
@@ -165,4 +165,6 @@ class MySqlScript(Task.Task):
     install_path = False
     after = ['vnum', 'inst']
     vars = ['MYSQL', 'MYSQL_CNF']
+
 MySqlScript = Task.always_run(MySqlScript)
+

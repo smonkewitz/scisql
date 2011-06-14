@@ -22,7 +22,7 @@
 */
 
 /**
-<udf name="s2PtInCircle" return_type="INTEGER" section="s2">
+<udf name="${SCISQL_PREFIX}s2PtInCircle" return_type="INTEGER" section="s2">
     <desc>
         Returns 1 if the point (lon, lat) lies inside the given
         spherical circle and 0 otherwise.
@@ -71,7 +71,7 @@
     <example>
         SELECT objectId, ra_PS, decl_PS
             FROM Object
-            WHERE s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
+            WHERE ${SCISQL_PREFIX}s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
     </example>
 </udf>
 */
@@ -81,6 +81,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -94,15 +95,16 @@ typedef struct {
 } _scisql_dist2_cache;
 
 
-SCISQL_API my_bool s2PtInCircle_init(UDF_INIT *initid,
-                                     UDF_ARGS *args,
-                                     char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInCircle, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 5) {
-        snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "s2PtInCircle() expects exactly 5 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInCircle)
+                 " expects exactly 5 arguments");
         return 1;
     }
     for (i = 0; i < 5; ++i) {
@@ -123,10 +125,11 @@ SCISQL_API my_bool s2PtInCircle_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2PtInCircle(UDF_INIT *initid,
-                                  UDF_ARGS *args,
-                                  char *is_null,
-                                  char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2PtInCircle, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     scisql_sc p, cen;
     double r, angle;
@@ -171,9 +174,16 @@ SCISQL_API long long s2PtInCircle(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2PtInCircle_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2PtInCircle, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2PtInCircle)
+SCISQL_UDF_DEINIT(s2PtInCircle)
+SCISQL_INTEGER_UDF(s2PtInCircle)
 
 
 #ifdef __cplusplus

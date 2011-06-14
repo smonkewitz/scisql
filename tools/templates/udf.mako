@@ -9,15 +9,15 @@
 	% for arglist in udf.arglists:
 		<table class="signature">
 		% if udf.aggregate:
-			<tr><td class="decl">AGGREGATE FUNCTION ${udf.name} (</td>
+			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION ${udf.name} (
 		% else:
-			<tr><td class="decl">FUNCTION ${udf.name} (</td>
+			<tr><td class="decl" colspan="5">FUNCTION ${udf.name} (
 		% endif
 		% if len(arglist.args) > 0:
+			</td></tr>
 			% for i, arg in enumerate(arglist.args):
-				% if i != 0:
-			<tr><td></td>
-				% endif
+			<tr>
+				<td class="argkind">&nbsp;</td>
 				<td class="argname">${arg.name}</td>
 				% if i != len(arglist.args) - 1 or arglist.varargs:
 				<td class="argtype">${arg.type},</td>
@@ -29,11 +29,11 @@
 			</tr>
 			% endfor
 			% if arglist.varargs:
-			<tr><td></td><td class="argname">...</td><td class="argtype"></td><td colspan="2"></td></tr>
+			<tr><td class="argkind">&nbsp;</td><td class="argname">...</td><td class="decl" colspan="3"></td></tr>
 			% endif
-			<tr><td class="decl">)</td><td class="return" colspan="2">RETURNS ${udf.return_type}</td><td colspan="2"></td></tr>
+			<tr><td class="decl" colspan="5">) RETURNS ${udf.return_type}</td></tr>
 		% else:
-				<td class="return" colspan="2">) RETURNS ${udf.return_type}</td></tr>
+				) RETURNS ${udf.return_type}</td></tr>
 		% endif
 		</table>
 	% endfor

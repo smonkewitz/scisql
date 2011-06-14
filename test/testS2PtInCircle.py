@@ -41,7 +41,7 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
         super(S2PtInCircleTestCase, self).setUp()
 
     def _s2PtInCircle(self, result, *args):
-        stmt = "SELECT s2PtInCircle(%s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
+        stmt = "SELECT %ss2PtInCircle(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
@@ -85,7 +85,8 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
             t.insert((1, 0.0, 0.0, 0.0, 0.0, 1.0))
             t.insert((0, 1.0, 1.0, 0.0, 0.0, 1.0))
             stmt = """SELECT COUNT(*) FROM S2PtInCircle
-                      WHERE s2PtInCircle(ra, decl, cenRa, cenDecl, 1.0) != inside"""
+                      WHERE inside != %ss2PtInCircle(
+                          ra, decl, cenRa, cenDecl, 1.0)""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))
@@ -105,7 +106,8 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
                     t.insert((0, ra, dec, ra_cen, dec_cen, radius))
             # Test without any constant arguments
             stmt = """SELECT COUNT(*) FROM S2PtInCircle
-                      WHERE s2PtInCircle(ra, decl, cenRa, cenDecl, radius) != inside"""
+                      WHERE inside != %ss2PtInCircle(
+                          ra, decl, cenRa, cenDecl, radius)""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))

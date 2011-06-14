@@ -3,12 +3,12 @@
 <section name="overview" title="Overview">
 	<div class="section-docs">
 	<p>
-        SciSQL provides science-specific tools and extensions for SQL. Currently, the project
+        sciSQL provides science-specific tools and extensions for SQL. Currently, the project
         contains user defined functions (UDFs) and stored procedures for MySQL in the areas
         of spherical geometry, statistics, and photometry. The project was motivated by the
         needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
         and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
-        <a href="http://www.energy.gov/">DOE</a>. SciSQL is distributed under the terms of the
+        <a href="http://www.energy.gov/">DOE</a>. sciSQL is distributed under the terms of the
         <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License v3</a>.
 	</p>
 	<ul>
@@ -17,7 +17,7 @@
 	        <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
 	</ul>
 	<p>
-	SciSQL is also distributed with a pair of Javascript libraries. These are:
+	sciSQL is also distributed with a pair of Javascript libraries. These are:
 	</p>
 	<ul>
 		<li>
@@ -37,20 +37,23 @@
 
 <section name="install" title="Building &amp; Installation">
 	<div class="section-docs">
-
+	<p>
+	Read on for instructions on how to configure, build, test, install and uninstall the
+        sciSQL software.
+        </p>
 	<h3>Prerequisites</h3>
 	<dl>
 		<dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
 		<dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
 		<dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
 		<dd>
-			This is a Python DB API 2.0 implementation for MySQL,
-			and is required when running the unit tests.
+			This is a Python DB API 2.0 implementation for MySQL, and is
+			required when running the unit tests and uninstalling sciSQL.
 		</dd>
-		<dt><a href="http://www.makotemplates.org/download.html">Mako</a></dt>
+		<dt><a href="http://www.makotemplates.org/download.html">Mako 0.4.x</a></dt>
 		<dd>
-			The Mako templating system is only required for developers,
-			and is used to build release documentation.
+			This Python templating library is required when
+			rebuilding release documentation.
 		</dd>
 	</dl>
 	<p>
@@ -58,28 +61,32 @@
 	plug-in directory, as well as a MySQL account with admin priviledges.
 	</p>
 
-	<h3 class="warning">Databases reserved for SciSQL use</h3>
+	<h3 class="warning">Databases reserved for sciSQL use</h3>
 	<p>
-	The following database names are reserved for use by SciSQL:
+	The following database names are reserved for use by sciSQL:
 	</p>
 	<dl>
 		<dt>scisql</dt>
-		<dd>Contains SciSQL stored procedures.</dd>
+		<dd>Contains sciSQL stored procedures.</dd>
 		<dt>scisql_test</dt>
-		<dd>Used by SciSQL unit tests.</dd>
+		<dd>Used by sciSQL unit tests.</dd>
 		<dt>scisql_demo</dt>
-		<dd>Contains sample data that can be used to exercise the SciSQL UDFs.</dd>
+		<dd>Contains sample data that can be used to exercise the sciSQL UDFs.</dd>
 	</dl>
 	<p>
-	The scisql and scisql_demo databases are dropped and re-created during
-	installation. If you are using these databases for other things,
-	you must migrate their contents to a different database prior to installing
-	SciSQL. If you do not, <strong>YOU WILL LOSE DATA</strong>.
+	The scisql_demo database is dropped and re-created during installation. If you
+	are using it for other things, you must migrate its contents to a different
+	database prior to installing sciSQL. If you do not,
+	<strong>YOU WILL LOSE DATA</strong>.
+	</p>
+	<p>
+	Even though the scisql and scisql_test databases are never automatically
+	dropped, their use is <strong>STRONGLY DISCOURAGED</strong>.
 	</p>
 
 	<h3>Configuration</h3>
 	<p>
-    	Run <tt>./configure</tt> from the top-level SciSQL directory. Passing <tt>--help</tt>
+    	Run <tt>./configure</tt> from the top-level sciSQL directory. Passing <tt>--help</tt>
 	will yield a list of configuration options. Here are the ones most likely to require
 	tweaking:
 	</p>
@@ -90,6 +97,12 @@
 		<dd>Set this to the name of a MySQL admin user</dd>
 		<dt><tt>--mysql-socket</tt></dt>
 		<dd>Set this to the name of the MySQL server UNIX socket file</dd>
+		<dt><tt>--scisql-prefix</tt></dt>
+		<dd>
+		This string will be used as a prefix for all sciSQL UDF and stored procedure
+		names. You can specify an empty string, which will result in unprefixed names.
+		The default is "scisql_".
+		</dd>
 	</dl>
 	<p>
 	You will be prompted for the MySQL admin user password during configuration.
@@ -104,7 +117,7 @@
 	entire build directory and its contents.
 	</p>
 	<p>
-	If you wish to build/install only the SciSQL client utilities and documentation,
+	If you wish to build/install only the sciSQL client utilities and documentation,
 	run configure with the --client-only option. In this case, a MySQL server or
 	client install is not required, the only executable generated is scisql_index
 	(a utility which generates HTM indexes for tables of circles or polygons stored
@@ -114,22 +127,45 @@
 
 	<h3>Build/Install</h3>
 	<p>
-	SciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
+	sciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
 	<tt>make install</tt>, and <tt>make uninstall</tt> commands.
 	</p>
 	<p>
-        The <tt>install</tt> command will CREATE the SciSQL UDFs, stored procedures, and
+        The <tt>install</tt> command will CREATE the sciSQL UDFs, stored procedures, and
         databases (including the scisql_demo database). It will also automatically
-        run the SciSQL unit tests. You can re-run the tests anytime with <tt>`make test`</tt>.
+        run the sciSQL unit tests. You can re-run the tests anytime with <tt>make test</tt>.
 	</p>
-        <p>
-        The uninstall command DROP the SciSQL UDFs, stored procedures, and databases.
-        </p>
+	<p>
+	You may wish to regenerate the HTML documentation if you've chosen a      
+	non-default value for <tt>--scisql-prefix</tt>, as the HTML distributed with release
+	tar-balls is built under the assumption that <tt>--scisql-prefix="scisql_"</tt>.
+	To do this, run <tt>make html_docs</tt>.
+	</p>
+	<p>
+	Finally, note that after installation each UDF will be available under two
+	names: one including a version number and one without. For example, assuming
+	that <tt>--scisql-prefix="foo_"</tt> and that the sciSQL version number is
+	<tt>1.2.3</tt>,	a hypothetical UDF named <tt>bar</tt> would be available as:
+	</p>
+	<ul><li>foo_bar</li><li>foo_bar_1_2_3</li></ul>
+	<p>
+	The <tt>uninstall</tt> command will drop the versioned sciSQL UDFs and stored
+	procedures. It will also drop the unversioned UDFs/procedures, but only
+	if the unversioned UDF/procedure was created by the version of
+	sciSQL being uninstalled. As a consequence, it is possible to have
+	multiple versions of sciSQL installed at the same time, and the behavior
+	of two versions can be compared from within a single MySQL instance.
+	An unversioned name will resolve to the most recently installed versioned
+	name.
+	</p>
+	<p>
+	The uninstall command will also drop the scisql_demo database.
+	</p>
 
         <h3>Reporting bugs and getting help</h3>
         <p>
         If you encounter test-case failures, or think you've identified a
-        bug in the SciSQL code, please file a report here:
+        bug in the sciSQL code, please file a report here:
         </p>
         <p><a href="https://bugs.launchpad.net/scisql/+filebug">https://bugs.launchpad.net/scisql/+filebug</a></p>
         <p>
@@ -161,7 +197,7 @@
 
 	<h3>HTM indexing</h3>
 	<p>
-		To accelerate these types of queries, SciSQL maps points/regions
+		To accelerate these types of queries, sciSQL maps points/regions
 		to the integer ID(s) of their containing/overlapping triangles in a
 		Hierarchical Triangular Mesh (HTM). This is a decomposition of the
 		unit sphere defined by A. Szalay, T. Budavari, G. Fekete at the
@@ -187,22 +223,24 @@
 
 	<h3>Supported region types</h3>
 	<p>
-		SciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
+		sciSQL supports 4 kinds of regions: longitude/latitude angle boxes,
 		spherical circles (defined by a center and opening angle), spherical
 		ellipses (the orthographic projection of a standard 2-d ellipse onto
 		the sphere, where the 2-d ellipse is on a plane tangent to the unit
 		sphere at the ellipse center), and spherical convex polygons (where
 		polygon edges are great circles). Note also that spherical convex
-		polygons have a binary representation, produced by s2CPolyToBin(),
-		allowing them to be stored as values in a BINARY table column.
+		polygons have a binary representation, produced by
+                ${SCISQL_PREFIX}s2CPolyToBin(), allowing them to be stored as values
+                in a BINARY table column.
 	</p>
 
 	<h3>Points-in-region queries</h3>
 	<p>
-		SciSQL contains several UDFs for checking whether a point lies inside
-		a region. These are: s2PtInBox(), s2PtInCircle(), s2PtInCPoly() and
-		s2PtInEllipse(). They return 1 if the input point is inside the input
-		region and 0 otherwise.
+		sciSQL contains several UDFs for checking whether a point lies inside
+		a region. These are: ${SCISQL_PREFIX}s2PtInBox(),
+		${SCISQL_PREFIX}s2PtInCircle(), ${SCISQL_PREFIX}s2PtInCPoly() and
+		${SCISQL_PREFIX}s2PtInEllipse(). They return 1 if the input point is
+		inside the input region and 0 otherwise.
 	</p>
 	<p>
 		Given these UDFs, a simple way to answer question 1 is illustrated by
@@ -211,12 +249,12 @@
 	<example>
 SELECT objectId
     FROM Object
-    WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</example>
+    WHERE ${SCISQL_PREFIX}s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</example>
 	<p>
 		This query returns all the objects within 0.01 degrees of
 		(RA, Dec) = (0, 0). It is inefficient for small search regions
-		because the s2PtInCircle() UDF must be called for every row in
-		the <tt>Object</tt> table.
+		because the ${SCISQL_PREFIX}s2PtInCircle() UDF must be called for
+		every row in the <tt>Object</tt> table.
 	</p>
 	<p>
 		Lets assume that <tt>Object</tt> contains an indexed BIGINT column
@@ -227,7 +265,7 @@ SELECT objectId
 	<example>
 ALTER TABLE Object DISABLE KEYS;
 UPDATE Object
-    SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+    SET htmId20 = ${SCISQL_PREFIX}s2HtmId(ra_PS, decl_PS, 20);
 ALTER TABLE Object ENABLE KEYS;</example>
 	<p>
 		The HTM subdivision level must be between 0 and 24. At subdivision
@@ -240,46 +278,47 @@ ALTER TABLE Object ENABLE KEYS;</example>
 		the query above can be made more efficient:
 	</p>
 	<example>
-CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
+CALL scisql.${SCISQL_PREFIX}s2CircleRegion(0, 0, 0.01, 20);
 
 SELECT o.objectId
     FROM Object AS o INNER JOIN scisql.Region AS r
          ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-    WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</example>
+    WHERE ${SCISQL_PREFIX}s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</example>
 	<p>
 		What's going on here? The first line in the example calls the
-		s2CircleRegion() stored procedure. This procedure creates a temporary
-		table called <tt>scisql.Region</tt> with two BIGINT NOT NULL columns
-		named htmMin and htmMax. It then stores the HTM IDs overlapping the
-		search region in <tt>scisql.Region</tt> (as ranges).
+		${SCISQL_PREFIX}s2CircleRegion() stored procedure. This procedure
+		creates a temporary table called <tt>scisql.Region</tt> with two
+		BIGINT NOT NULL columns named htmMin and htmMax. It then stores
+		the HTM IDs overlapping the search region in <tt>scisql.Region</tt>
+		(as ranges).
 	</p>
 	<p>
 		Next, the original query is augmented with a join against
 		<tt>scisql.Region</tt>. This limits the objects considered by
-		s2PtInCircle() to those within the HTM triangles overlapping the
-		search region; the index on htmId20 allows MySQL to retrieve these
-		objects very quickly when the search region is small. Note that if
-		the search region is large (meaning that a large fraction of the
-		table being searched is inside the search region), then the original 
-		query may actually be faster.
+		${SCISQL_PREFIX}s2PtInCircle() to those within the HTM triangles
+		overlapping the search region; the index on htmId20 allows MySQL to
+		retrieve these objects very quickly when the search region is small.
+		Note that if the search region is large (meaning that a large fraction
+		of the table being searched is inside the search region), then the
+		original query may actually be faster.
 	</p>
 	<p>
 		Here is another example, this time with a search region taken from
 		a table called <tt>Science_Ccd_Exposure</tt>. This table includes a 
-		a column named ccdPoly that contains polygonal approximations to the
-                regions of the sphere observed by CCD exposures.
+		a column named <tt>poly</tt> that contains polygonal approximations
+		to the regions of the sphere observed by CCD exposures.
 	</p>
 	<example>
-SELECT ccdPoly FROM Science_Ccd_Exposure
+SELECT poly FROM Science_Ccd_Exposure
     WHERE scienceCcdExposureId = 43856062009
     INTO @poly;
 
-CALL scisql.s2CPolyRegion(@poly, 20);
+CALL scisql.${SCISQL_PREFIX}s2CPolyRegion(@poly, 20);
 
 SELECT o.objectId
     FROM Object AS o INNER JOIN scisql.Region AS r
          ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-    WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</example>
+    WHERE ${SCISQL_PREFIX}s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</example>
 	<p>
 		The first statement stores the polygonal boundary of a particular CCD
 		exposure into the user variable <tt>@poly</tt>, the second computes
@@ -293,7 +332,7 @@ SELECT o.objectId
 	</p>
 	<example>
 SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
-    WHERE s2PtInCPoly(0, 0, ccdPoly) = 1;</example>
+    WHERE ${SCISQL_PREFIX}s2PtInCPoly(0, 0, poly) = 1;</example>
 	<p>
 		This query returns all the CCD exposures containing the point
 		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
@@ -312,6 +351,8 @@ CREATE TABLE Science_Ccd_Exposure_HtmId10 (
 		by dumping the primary key and polygon vertex colunms from 
 		<tt>Science_Ccd_Exposure</tt>:
 	</p>
+        <example lang="bash">
+rm -f /tmp/scisql_demo_ccds.tsv</example>
 	<example>
 SELECT scienceCcdExposureId,
        llcRa, llcDecl,
@@ -319,18 +360,18 @@ SELECT scienceCcdExposureId,
        urcRa, urcDecl,
        lrcRa, lrcDecl
     FROM Science_Ccd_Exposure
-    INTO OUTFILE '/tmp/ccds.tsv';</example>
+    INTO OUTFILE '/tmp/scisql_demo_ccds.tsv';</example>
 	<p>
-		Then, run the SciSQL region indexing utility:
+		Then, run the sciSQL region indexing utility:
 	</p>
 	<example lang="bash">
-${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/ccd_htmid10.tsv /tmp/ccds.tsv</example>
+$${MYSQL_DIR}/bin/scisql_index -l 10 /tmp/scisql_demo_htmid10.tsv /tmp/scisql_demo_ccds.tsv</example>
 	<p>
 		and load the results:
 	</p>
 	<example>
 TRUNCATE TABLE Science_Ccd_Exposure_HtmId10;
-LOAD DATA LOCAL INFILE '/tmp/ccd_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</example>
+LOAD DATA LOCAL INFILE '/tmp/scisql_demo_htmid10.tsv' INTO TABLE Science_Ccd_Exposure_HtmId10;</example>
 	<p>
 		The example regions-containing-point query can now be expressed
 		more efficiently as:
@@ -340,10 +381,10 @@ SELECT sce.scienceCcdExposureId
     FROM Science_Ccd_Exposure AS sce, (
              SELECT scienceCcdExposureId
              FROM Science_Ccd_Exposure_HtmId10
-             WHERE htmId10 = s2HtmId(0, 0, 10)
+             WHERE htmId10 = ${SCISQL_PREFIX}s2HtmId(0, 0, 10)
          ) AS h
     WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
-          s2PtInCPoly(0, 0, sce.ccdPoly) = 1;</example>
+          ${SCISQL_PREFIX}s2PtInCPoly(0, 0, sce.poly) = 1;</example>
 	</div>
 </section>
 

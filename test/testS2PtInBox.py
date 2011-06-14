@@ -34,7 +34,7 @@ class S2PtInBoxTestCase(MySqlUdfTestCase):
     since the implementation does not perform caching of any sort.
     """
     def _s2PtInBox(self, result, *args):
-        stmt = "SELECT s2PtInBox(%s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
+        stmt = "SELECT %ss2PtInBox(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))

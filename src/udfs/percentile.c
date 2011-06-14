@@ -22,7 +22,11 @@
 */
 
 /**
-<udf name="percentile" return_type="DOUBLE PRECISION" section="statistics" aggregate="true">
+<udf name="${SCISQL_PREFIX}percentile"
+     return_type="DOUBLE PRECISION"
+     section="statistics"
+     aggregate="true">
+
     <desc>
         Returns the desired percentile of a GROUP of values.
 
@@ -83,8 +87,8 @@
     </notes>
     <example>
         SELECT objectId,
-               percentile(psfFlux, 25) AS firstQuartile,
-               percentile(psfFlux, 75) AS thirdQuartile
+               ${SCISQL_PREFIX}percentile(psfFlux, 25) AS firstQuartile,
+               ${SCISQL_PREFIX}percentile(psfFlux, 75) AS thirdQuartile
             FROM Source
             WHERE objectId IS NOT NULL
             GROUP BY objectId
@@ -98,6 +102,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "select.h"
 
 #ifdef __cplusplus
@@ -105,20 +110,21 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool percentile_init(UDF_INIT* initid,
-                                   UDF_ARGS* args,
-                                   char* message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(percentile, _init) (
+    UDF_INIT* initid,
+    UDF_ARGS* args,
+    char* message)
 {
     scisql_percentile_state *state;
     if (args->arg_count != 2) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "percentile() expects 2 arguments");
+                 SCISQL_UDF_NAME(percentile) " expects 2 arguments");
         return 1;
     }
     state = scisql_percentile_state_new();
     if (state == 0) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "percentile() failed to "
-                 "allocate memory for internal state");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(percentile)
+                 " failed to allocate memory for internal state");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;
@@ -130,26 +136,28 @@ SCISQL_API my_bool percentile_init(UDF_INIT* initid,
 }
 
 
-SCISQL_API void percentile_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(percentile, _deinit) (UDF_INIT *initid) {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     scisql_percentile_state_free(state);
     initid->ptr = 0;
 }
 
 
-SCISQL_API void percentile_clear(UDF_INIT *initid,
-                                 char *is_null SCISQL_UNUSED,
-                                 char *error SCISQL_UNUSED)
+SCISQL_API void SCISQL_VERSIONED_FNAME(percentile, _clear) (
+    UDF_INIT *initid,
+    char *is_null SCISQL_UNUSED,
+    char *error SCISQL_UNUSED)
 {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     scisql_percentile_state_clear(state);
 }
 
 
-SCISQL_API void percentile_add(UDF_INIT *initid,
-                               UDF_ARGS *args,
-                               char *is_null,
-                               char *error)
+SCISQL_API void SCISQL_VERSIONED_FNAME(percentile, _add) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error)
 {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     if (*is_null == 1) {
@@ -173,28 +181,38 @@ SCISQL_API void percentile_add(UDF_INIT *initid,
 }
 
 
-SCISQL_API void percentile_reset(UDF_INIT *initid,
-                                 UDF_ARGS *args,
-                                 char *is_null,
-                                 char *error)
+SCISQL_API void SCISQL_VERSIONED_FNAME(percentile, _reset) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error)
 {
-    percentile_clear(initid, is_null, error);
-    percentile_add(initid, args, is_null, error);
+    SCISQL_VERSIONED_FNAME(percentile, _clear) (initid, is_null, error);
+    SCISQL_VERSIONED_FNAME(percentile, _add) (initid, args, is_null, error);
 }
 
 
-SCISQL_API double percentile(UDF_INIT *initid,
-                             UDF_ARGS *args SCISQL_UNUSED,
-                             char *is_null,
-                             char *error)
+SCISQL_API double SCISQL_VERSIONED_FNAME(percentile, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args SCISQL_UNUSED,
+    char *is_null,
+    char *error)
 {
     scisql_percentile_state *state = (scisql_percentile_state *) initid->ptr;
     if (state->n == 0 || *error != 0 || *is_null != 0) {
         *is_null = 1;
         return 0.0;
     }
-    return scisql_percentile(state);
+    return scisql_percentile_state_get(state);
 }
+
+
+SCISQL_UDF_INIT(percentile)
+SCISQL_UDF_DEINIT(percentile)
+SCISQL_UDF_CLEAR(percentile)
+SCISQL_UDF_ADD(percentile)
+SCISQL_UDF_RESET(percentile)
+SCISQL_REAL_UDF(percentile)
 
 
 #ifdef __cplusplus

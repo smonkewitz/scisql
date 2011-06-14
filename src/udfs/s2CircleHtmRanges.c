@@ -22,7 +22,11 @@
 */
 
 /**
-<udf name="s2CircleHtmRanges" return_type="MEDIUMBLOB" section="s2" internal="true">
+<udf name="${SCISQL_PREFIX}s2CircleHtmRanges"
+     return_type="MEDIUMBLOB"
+     section="s2"
+     internal="true">
+
     <desc>
         Returns a binary-string representation of HTM ID ranges
         overlapping a circle on the unit sphere. This string will be
@@ -90,6 +94,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "htm.h"
 
 #ifdef __cplusplus
@@ -97,23 +102,25 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool s2CircleHtmRanges_init(UDF_INIT *initid,
-                                          UDF_ARGS *args,
-                                          char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2CircleHtmRanges, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 5) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, "s2CircleHtmRanges() expects "
-                 "exactly 5 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2CircleHtmRanges)
+                 " expects exactly 5 arguments");
         return 1;
     }
     for (i = 0; i < 5; ++i) {
         if (i < 3) {
             args->arg_type[i] = REAL_RESULT;
         } else if (args->arg_type[i] != INT_RESULT) {
-            snprintf(message, MYSQL_ERRMSG_SIZE, "s2CircleHtmRanges(): "
-                     "fourth and fifth arguments must be integers");
+            snprintf(message, MYSQL_ERRMSG_SIZE,
+                     SCISQL_UDF_NAME(s2CircleHtmRanges)
+                     ": fourth and fifth arguments must be integers");
             return 1;
         }
         if (args->args[i] == 0) {
@@ -128,12 +135,13 @@ SCISQL_API my_bool s2CircleHtmRanges_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API char * s2CircleHtmRanges(UDF_INIT *initid,
-                                    UDF_ARGS *args,
-                                    char *result,
-                                    unsigned long *length,
-                                    char *is_null,
-                                    char *error SCISQL_UNUSED)
+SCISQL_API char * SCISQL_VERSIONED_FNAME(s2CircleHtmRanges, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *result,
+    unsigned long *length,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     scisql_sc cen;
     scisql_v3 v;
@@ -184,9 +192,16 @@ SCISQL_API char * s2CircleHtmRanges(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2CircleHtmRanges_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2CircleHtmRanges, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2CircleHtmRanges)
+SCISQL_UDF_DEINIT(s2CircleHtmRanges)
+SCISQL_STRING_UDF(s2CircleHtmRanges)
 
 
 #ifdef __cplusplus

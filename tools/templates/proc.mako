@@ -1,21 +1,20 @@
 <%def name="proc_docs(section, proc)">
 	% if proc.internal:
 	<div id="proc-${section.name}-${proc.name}" class="proc internal">
-		<h3><a name="${section.name}-${proc.name}"></a>[internal] ${proc.name}</h3>
+		<h3><a name="${section.name}-${proc.name}"></a>[internal] scisql.${proc.name}</h3>
 	% else:
 	<div id="proc-${section.name}-${proc.name}" class="proc">
-		<h3><a name="${section.name}-${proc.name}"></a>${proc.name}</h3>
+		<h3><a name="${section.name}-${proc.name}"></a>scisql.${proc.name}</h3>
 	% endif
 		<table class="signature">
 			<tr>
-				<td class="decl">PROCEDURE ${proc.name} (</td>
+				<td class="decl" colspan="5">PROCEDURE ${proc.name} (
 	% if len(proc.args) > 0:
+				</td>
+			</tr>
 		% for i, arg in enumerate(proc.args):
-			% if i != 0:
 			<tr>
-				<td></td>
-			% endif
-				<td class="argtype">${arg.kind}</td>
+				<td class="argkind">${arg.kind}</td>
 				<td class="argname">${arg.name}</td>
 			% if i != len(proc.args) - 1:
 				<td class="argtype">${arg.type},</td>
@@ -27,12 +26,10 @@
 			</tr>
 		% endfor
 			<tr>
-				<td class="decl">)</td>
-				<td class="return" colspan="3"></td>
-				<td colspan="2"></td>
+				<td class="decl" colspan="5">)</td>
 			</tr>
         % else:
-				<td class="return">)</td>
+				)</td>
 			</tr>
         % endif
 		</table>

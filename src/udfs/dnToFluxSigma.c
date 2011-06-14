@@ -22,7 +22,10 @@
 */
 
 /**
-<udf name="dnToFluxSigma" return_type="DOUBLE PRECISION" section="photometry">
+<udf name="${SCISQL_PREFIX}dnToFluxSigma"
+     return_type="DOUBLE PRECISION"
+     section="photometry">
+
     <desc>
         Converts a raw flux error to a calibrated (AB) flux error. The return
         value will be in units of erg/cm<sup>2</sup>/sec/Hz.
@@ -53,8 +56,8 @@
         </note>
     </notes>
     <example>
-        SELECT dnToAbMagSigma(src.psfFlux, src.psfFluxSigma,
-                              ccd.fluxMag0, ccd.fluxMag0Sigma)
+        SELECT ${SCISQL_PREFIX}dnToAbMagSigma(
+                src.psfFlux, src.psfFluxSigma, ccd.fluxMag0, ccd.fluxMag0Sigma)
             FROM Source AS src, Science_Ccd_Exposure ccd
             WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
             LIMIT 10;
@@ -66,6 +69,7 @@
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "photometry.h"
 
 #ifdef __cplusplus
@@ -73,15 +77,16 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool dnToFluxSigma_init(UDF_INIT *initid,
-                                      UDF_ARGS *args,
-                                      char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToFluxSigma, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 4) {
-        snprintf(message, MYSQL_ERRMSG_SIZE,
-                 "dnToFluxSigma() expects exactly 2 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(dnToFluxSigma)
+                 " expects exactly 2 arguments");
         return 1;
     }
     for (i = 0; i < 4; ++i) {
@@ -97,10 +102,11 @@ SCISQL_API my_bool dnToFluxSigma_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API double dnToFluxSigma(UDF_INIT *initid SCISQL_UNUSED,
-                                UDF_ARGS *args,
-                                char *is_null,
-                                char *error SCISQL_UNUSED)
+SCISQL_API double SCISQL_VERSIONED_FNAME(dnToFluxSigma, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid SCISQL_UNUSED,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     double **a = (double **) args->args;
     size_t i;
@@ -112,6 +118,10 @@ SCISQL_API double dnToFluxSigma(UDF_INIT *initid SCISQL_UNUSED,
     }
     return scisql_dn2fluxsigma(*a[0], *a[1], *a[2], *a[3]);
 }
+
+
+SCISQL_UDF_INIT(dnToFluxSigma)
+SCISQL_REAL_UDF(dnToFluxSigma)
 
 
 #ifdef __cplusplus
