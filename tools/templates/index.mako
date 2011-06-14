@@ -92,16 +92,20 @@
 				var href = $(this).attr("href").substring(1);
 				var loc = href.split('-');
 				var section = loc[0];
-				$('#nav a.active').removeClass('active');
-				$(this).addClass('active');
-				var seclink = $('#nav a[href="#' + section + '"]');
-				$('#title').text(seclink.text());
+				if (! $(this).hasClass('active')) {
+					$('#nav a.active').removeClass('active');
+					$(this).addClass('active');
+				}
 				if (loc.length > 1) {
+					var seclink = $('#nav a[href="#' + section + '"]');
+					$('#title').text(seclink.text());
 					seclink.addClass('active');
+				} else {
+					$('#title').text($(this).text());
 				}
 				section = $('#section-' + section);
-				if (!section.is(':visible')) {
-					$('#content div.section:visible').hide();
+				if (section.filter(':visible').size() == 0) {
+					$('#content div.section').filter(':visible').hide();
 					section.fadeIn(300);
 				}
 			});
@@ -116,8 +120,9 @@
 			var i = l.indexOf('#');
 			var e = (i != -1) ? $('#nav a[href="' + l.substring(i) + '"]') : $('#nav a[href="#overview"]');
 			e.click();
+			// Opera doesn't scroll properly without this
+			$(document).scrollTop($('#content a[name="' + l.substring(i + 1) + '"]').offset().top);
 		};
-		_hashchange();
 		if ('onhashchange' in window) {
 			window.onhashchange = _hashchange;
 		} else {
@@ -127,6 +132,7 @@
 		$(window).resize(function() {
 			$('#nav').height($(window).height() - 75);
 		});
+		_hashchange();
 	});
 --></script>
 </body>
