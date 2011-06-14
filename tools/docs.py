@@ -417,7 +417,7 @@ def _test(obj):
     return nfail 
 
 def run_doc_examples(sections):
-    """Runs all examples marked as testable in the SciSQL documentation.
+    """Runs all examples marked as testable in the sciSQL documentation.
     """
     nfail = 0
     for sec in sections:
@@ -429,7 +429,7 @@ def run_doc_examples(sections):
 # -- Documentation generation ----
 
 def gen_docs(root, sections, html=True):
-    """Generates documentation for SciSQL, either in HTML or as a set of
+    """Generates documentation for sciSQL, either in HTML or as a set of
     MySQL tables (for the LSST schema browser).
     """
     lookup = TemplateLookup(directories=[os.path.join(root, 'tools', 'templates')])

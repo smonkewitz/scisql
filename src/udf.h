@@ -74,7 +74,7 @@
         return SCISQL_VERSIONED_FNAME(name, _deinit) (initid); \
     }
 
-/*  Implements an unversioned INTEGER UDF in terms of the versioned one.
+/*  Implements an unversioned REAL UDF in terms of the versioned one.
  */
 #define SCISQL_REAL_UDF(name) \
     SCISQL_API double SCISQL_FNAME(name, SCISQL_NO_SUFFIX) ( \
@@ -87,7 +87,7 @@
             initid, args, is_null, error); \
     }
 
-/*  Implements an unversioned REAL UDF in terms of the versioned one.
+/*  Implements an unversioned INTEGER UDF in terms of the versioned one.
  */
 #define SCISQL_INTEGER_UDF(name) \
     SCISQL_API long long SCISQL_FNAME(name, SCISQL_NO_SUFFIX) ( \

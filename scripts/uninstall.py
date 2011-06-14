@@ -79,7 +79,8 @@ def dropUdf(cursor, udf, prefix, version, vsuffix, versioned=True):
     # being uninstalled
     cursor.execute('''SELECT COUNT(*) FROM mysql.func
                       WHERE name = "%s%s" AND
-                            dl = "libscisql-%s.so"''' % (prefix, udf, version))
+                            dl = "libscisql-%s%s.so"''' % 
+                   (prefix, udf, prefix, version))
     n = cursor.fetchall()[0][0]
     if n == 1:
         cursor.execute('DROP FUNCTION IF EXISTS %s%s' % (prefix, udf))

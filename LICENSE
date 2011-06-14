@@ -1,5 +1,5 @@
-The SciSQL software is licensed under the GNU Lesser General Public License,
-included in its entirety below. The SciSQL HTML documentation makes use of
+The sciSQL software is licensed under the GNU Lesser General Public License,
+included in its entirety below. The sciSQL HTML documentation makes use of
 (and is distributed with) two third party Javascript libraries:
 
   - Google prettify (http://code.google.com/p/google-code-prettify/), under
@@ -10,7 +10,7 @@ included in its entirety below. The SciSQL HTML documentation makes use of
 The Apache 2.0 and MIT licenses are also included in full below.
 
 
--- SciSQL --------------------------------------------------------------------
+-- sciSQL --------------------------------------------------------------------
 
 
                    GNU LESSER GENERAL PUBLIC LICENSE
