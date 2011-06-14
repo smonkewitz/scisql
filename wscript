@@ -154,7 +154,7 @@ def build(ctx):
         ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
                           cwd=doc_dir, relative_trick=True)
     if ctx.cmd == 'install' and not ctx.env.SCISQL_CLIENT_ONLY:
-        ctx.add_post_fun(create_post)
+        ctx.add_post_fun(install_sql)
         ctx.add_post_fun(test)
     elif ctx.cmd == 'uninstall' and not ctx.env.SCISQL_CLIENT_ONLY:
         ctx(rule='${SRC}',
@@ -162,20 +162,26 @@ def build(ctx):
             always=True)
 
 
-def create_post(ctx):
-    """Run create_udfs script in a separate build context, from a post-build function.
-    This ensures that the scisql shared library has already been installed.
+class InstallSqlContext(Build.InstallContext):
+    cmd = 'install_sql'
+    fun = 'install_sql'
+
+def install_sql(ctx):
+    """Run SQL installation scripts in a separate build context. The install command
+    calls this as a post function, which ensures that the scisql shared library has
+    already been installed.
     """
-    dir = os.path.join(ctx.path.get_bld().abspath(), '.mysql')
-    bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
-    bld.init_dirs()
-    bld.env = ctx.env
-    t1 = bld(source='scripts/install.mysql')
-    t2 = bld(source='scripts/demo.mysql')
-    t1.post()
-    t2.post()
-    t2.tasks[0].set_run_after(t1.tasks[0])
-    bld.compile()
+    if not ctx.env.SCISQL_CLIENT_ONLY:
+        dir = os.path.join(ctx.path.get_bld().abspath(), '.mysql')
+        bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
+        bld.init_dirs()
+        bld.env = ctx.env
+        t1 = bld(source='scripts/install.mysql')
+        t2 = bld(source='scripts/demo.mysql')
+        t1.post()
+        t2.post()
+        t2.tasks[0].set_run_after(t1.tasks[0])
+        bld.compile()
 
 
 class TestContext(Build.BuildContext):
