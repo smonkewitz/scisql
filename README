@@ -114,6 +114,45 @@ name.
 The uninstall command will also drop the scisql_demo database.
 
 
+Rebuilding sciSQL:
+------------------
+
+    If you've already installed sciSQL, say using a UDF/procedure name
+prefix of "foo_", and then decide you'd like to change the prefix to "bar_",
+do the following from the top-level sciSQL directory:
+
+    `make uninstall`
+        Uninstalls the UDFs and stored procedures named foo_*.
+    `make distclean`
+        Removes all build products and configuration files
+    `configure --scisql-prefix=bar_ ...`
+        Reconfigures sciSQL (sets new name prefix)
+    `make`
+	Rebuilds sciSQL.
+    `make install`
+        Reinstalls sciSQL.
+
+No MySQL restart is required. Note that multiple installations of the same
+version of sciSQL with different UDF/procedure name prefixes can coexist on
+a single MySQL instance.
+
+
+MySQL server restarts:
+----------------------
+
+    Installing different versions of sciSQL, or multiple copies of the same
+version with different UDF/procedure name prefixes, does not require a MySQL
+server restart.
+
+    Only sciSQL developers should need to perform restarts. They are
+required when changing the name of a UDF without changing the name of the
+shared library installed into the MySQL plugin directory. In this case,
+an attempt to install the updated shared library will sometimes result in
+MySQL reporting that it cannot find symbol names that are actually
+present. This is presumably due to MySQL server and/or OS level caching
+effects, and restarting MySQL resolves the problem.
+
+
 Reporting bugs and getting help:
 --------------------------------
 

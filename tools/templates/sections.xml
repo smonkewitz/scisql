@@ -162,6 +162,41 @@
 	The uninstall command will also drop the scisql_demo database.
 	</p>
 
+	<h3>Rebuilding sciSQL</h3>
+	<p>
+	If you've already installed sciSQL, say using a UDF/procedure name
+	prefix of "foo_", and then decide you'd like to change the prefix to "bar_",
+	do the following from the top-level sciSQL directory:
+	</p>
+	<dl>
+	<dt><tt>make uninstall</tt></dt><dd>Uninstalls the UDFs and stored procedures named <tt>foo_*</tt>.</dd>
+	<dt><tt>make distclean</tt></dt><dd>Removes all build products and configuration files.</dd>
+        <dt><tt>configure --scisql-prefix=bar_ ...</tt></dt><dd>Reconfigures sciSQL (sets new name prefix)</dd>
+	<dt><tt>make</tt></dt><dd>Rebuilds sciSQL.</dd>
+	<dt><tt>make install</tt></dt><dd>Reinstalls sciSQL.</dd>
+	</dl>
+	<p>
+	No MySQL restart is required. Note that multiple installations of the same
+	version of sciSQL with different UDF/procedure name prefixes can coexist on
+	a single MySQL instance.
+	</p>
+
+	<h3>MySQL server restarts</h3>
+	<p>
+	Installing different versions of sciSQL, or multiple copies of the same
+	version with different UDF/procedure name prefixes, does not require a MySQL
+	server restart.
+	</p>
+	<p>
+	Only sciSQL developers should need to perform restarts. They are
+	required when changing the name of a UDF without changing the name of the
+	shared library installed into the MySQL plugin directory. In this case,
+	an attempt to install the updated shared library will sometimes result in
+	MySQL reporting that it cannot find symbol names that are actually
+	present. This is presumably due to MySQL server and/or OS level caching
+	effects, and restarting MySQL resolves the problem.
+	</p>
+
         <h3>Reporting bugs and getting help</h3>
         <p>
         If you encounter test-case failures, or think you've identified a

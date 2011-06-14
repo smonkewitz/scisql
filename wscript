@@ -121,7 +121,7 @@ def build(ctx):
             source=ctx.path.ant_glob('src/*.c') +
                    ctx.path.ant_glob('src/udfs/*.c'),
             includes='src',
-            target='scisql-' + VERSION,
+            target='scisql-' + ctx.env.SCISQL_PREFIX + VERSION,
             name='scisql',
             use='MYSQL M',
             install_path=ctx.env.MYSQL_PLUGIN_DIR
