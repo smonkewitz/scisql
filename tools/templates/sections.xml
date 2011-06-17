@@ -9,7 +9,7 @@
         needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
         and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
         <a href="http://www.energy.gov/">DOE</a>. sciSQL is distributed under the terms of the
-        <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License v3</a>.
+	<a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License version 2.0</a>.
 	</p>
 	<ul>
 	        <li><a href="https://launchpad.net/scisql">Official site</a></li>
