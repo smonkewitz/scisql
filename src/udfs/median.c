@@ -14,6 +14,7 @@
     limitations under the License.
 
     Authors:
+        - Jacek Becla, SLAC
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
