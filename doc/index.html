@@ -42,20 +42,20 @@
 		
 		<h4>UDFs</h4>
 		<ul class="section_nav">
-			<li><a href="#s2-angSep" title="Returns the angular separation in degrees between two positions on the unit sphere.">angSep</a></li>
-			<li><a href="#s2-s2CPolyHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a spherical convex polygon.">s2CPolyHtmRanges</a></li>
-			<li><a href="#s2-s2CPolyToBin" title="Returns a binary-string representation of a spherical convex polygon.">s2CPolyToBin</a></li>
-			<li><a href="#s2-s2CircleHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a circle on the unit sphere.">s2CircleHtmRanges</a></li>
-			<li><a href="#s2-s2HtmId" title="Returns the HTM ID of a point at the given subdivision level.">s2HtmId</a></li>
-			<li><a href="#s2-s2PtInBox" title="Returns 1 if the point (lon, lat) lies inside the given longitude/latitude angle box, and 0 otherwise.">s2PtInBox</a></li>
-			<li><a href="#s2-s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">s2PtInCPoly</a></li>
-			<li><a href="#s2-s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">s2PtInCircle</a></li>
-			<li><a href="#s2-s2PtInEllipse" title="Returns 1 if the point (lon, lat) lies inside the given spherical ellipse and 0 otherwise.">s2PtInEllipse</a></li>
+			<li><a href="#s2-scisql_angSep" title="Returns the angular separation in degrees between two positions on the unit sphere.">scisql_angSep</a></li>
+			<li><a href="#s2-scisql_s2CPolyHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a spherical convex polygon.">scisql_s2CPolyHtmRanges</a></li>
+			<li><a href="#s2-scisql_s2CPolyToBin" title="Returns a binary-string representation of a spherical convex polygon.">scisql_s2CPolyToBin</a></li>
+			<li><a href="#s2-scisql_s2CircleHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a circle on the unit sphere.">scisql_s2CircleHtmRanges</a></li>
+			<li><a href="#s2-scisql_s2HtmId" title="Returns the HTM ID of a point at the given subdivision level.">scisql_s2HtmId</a></li>
+			<li><a href="#s2-scisql_s2PtInBox" title="Returns 1 if the point (lon, lat) lies inside the given longitude/latitude angle box, and 0 otherwise.">scisql_s2PtInBox</a></li>
+			<li><a href="#s2-scisql_s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">scisql_s2PtInCPoly</a></li>
+			<li><a href="#s2-scisql_s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">scisql_s2PtInCircle</a></li>
+			<li><a href="#s2-scisql_s2PtInEllipse" title="Returns 1 if the point (lon, lat) lies inside the given spherical ellipse and 0 otherwise.">scisql_s2PtInEllipse</a></li>
 		</ul>
 		<h4>Stored Procedures</h4>
 		<ul class="section_nav">
-			<li><a href="#s2-s2CPolyRegion" title="Creates a temporary table `scisql.">s2CPolyRegion</a></li>
-			<li><a href="#s2-s2CircleRegion" title="Creates a temporary table `scisql.">s2CircleRegion</a></li>
+			<li><a href="#s2-scisql_s2CPolyRegion" title="Creates a temporary table `scisql.">scisql_s2CPolyRegion</a></li>
+			<li><a href="#s2-scisql_s2CircleRegion" title="Creates a temporary table `scisql.">scisql_s2CircleRegion</a></li>
 		</ul>
 
 	</li>
@@ -65,12 +65,18 @@
 
 		
 		<ul class="section_nav">
-			<li><a href="#photometry-dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">dnToAbMag</a></li>
-			<li><a href="#photometry-dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">dnToAbMagSigma</a></li>
-			<li><a href="#photometry-dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">dnToFlux</a></li>
-			<li><a href="#photometry-dnToFluxSigma" title="Converts a raw flux error to a calibrated (AB) flux error.">dnToFluxSigma</a></li>
-			<li><a href="#photometry-fluxToAbMag" title="Converts a cailbrated (AB) flux to an AB magnitude.">fluxToAbMag</a></li>
-			<li><a href="#photometry-fluxToAbMagSigma" title="Converts a cailbrated (AB) flux error to an AB magnitude error.">fluxToAbMagSigma</a></li>
+			<li><a href="#photometry-scisql_abMagToDn" title="Converts an AB magnitude to a raw flux in DN.">scisql_abMagToDn</a></li>
+			<li><a href="#photometry-scisql_abMagToDnSigma" title="Converts an AB magnitude error to a raw flux error in DN.">scisql_abMagToDnSigma</a></li>
+			<li><a href="#photometry-scisql_abMagToFlux" title="Converts an AB magnitude to a flux (in erg/cm<sup>2</sup>/sec/Hz).">scisql_abMagToFlux</a></li>
+			<li><a href="#photometry-scisql_abMagToFluxSigma" title="Converts an AB magnitude error to calibrated flux error (in erg/cm<sup>2</sup>/sec/Hz)">scisql_abMagToFluxSigma</a></li>
+			<li><a href="#photometry-scisql_dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">scisql_dnToAbMag</a></li>
+			<li><a href="#photometry-scisql_dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">scisql_dnToAbMagSigma</a></li>
+			<li><a href="#photometry-scisql_dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">scisql_dnToFlux</a></li>
+			<li><a href="#photometry-scisql_dnToFluxSigma" title="Converts a raw flux error to a calibrated (AB) flux error.">scisql_dnToFluxSigma</a></li>
+			<li><a href="#photometry-scisql_fluxToAbMag" title="Converts a calibrated (AB) flux to an AB magnitude.">scisql_fluxToAbMag</a></li>
+			<li><a href="#photometry-scisql_fluxToAbMagSigma" title="Converts a calibrated (AB) flux error to an AB magnitude error.">scisql_fluxToAbMagSigma</a></li>
+			<li><a href="#photometry-scisql_fluxToDn" title="Converts a calibrated (AB) flux to a raw DN value.">scisql_fluxToDn</a></li>
+			<li><a href="#photometry-scisql_fluxToDnSigma" title="Converts a calibrated (AB) flux error to raw flux error in DN.">scisql_fluxToDnSigma</a></li>
 		</ul>
 
 	</li>
@@ -80,8 +86,8 @@
 
 		
 		<ul class="section_nav">
-			<li><a href="#statistics-median" title="Returns the median of a GROUP of values.">median</a></li>
-			<li><a href="#statistics-percentile" title="Returns the desired percentile of a GROUP of values.">percentile</a></li>
+			<li><a href="#statistics-scisql_median" title="Returns the median of a GROUP of values.">scisql_median</a></li>
+			<li><a href="#statistics-scisql_percentile" title="Returns the desired percentile of a GROUP of values.">scisql_percentile</a></li>
 		</ul>
 
 	</li>
@@ -92,13 +98,13 @@
 		
 		<h4>UDFs</h4>
 		<ul class="section_nav">
-			<li><a href="#misc-extractInt64" title="Extracts a 64-bit integer stored in host byte order from a binary string.">extractInt64</a></li>
-			<li><a href="#misc-getVersion" title="Returns the version of the sciSQL library in use.">getVersion</a></li>
-			<li><a href="#misc-raiseError" title="Fails with an optional error message.">raiseError</a></li>
+			<li><a href="#misc-scisql_extractInt64" title="Extracts a 64-bit integer stored in host byte order from a binary string.">scisql_extractInt64</a></li>
+			<li><a href="#misc-scisql_getVersion" title="Returns the version of the sciSQL library in use.">scisql_getVersion</a></li>
+			<li><a href="#misc-scisql_raiseError" title="Fails with an optional error message.">scisql_raiseError</a></li>
 		</ul>
 		<h4>Stored Procedures</h4>
 		<ul class="section_nav">
-			<li><a href="#misc-grantPermissions" title="Gives a user connecting from the specified host permission to call sciSQL stored procedures and to create/use temporary tables in the scisql database.">grantPermissions</a></li>
+			<li><a href="#misc-scisql_grantPermissions" title="Gives a user connecting from the specified host permission to call sciSQL stored procedures and to create/use temporary tables in the scisql database.">scisql_grantPermissions</a></li>
 		</ul>
 
 	</li>
@@ -385,16 +391,16 @@
 		sphere at the ellipse center), and spherical convex polygons (where
 		polygon edges are great circles). Note also that spherical convex
 		polygons have a binary representation, produced by
-                s2CPolyToBin(), allowing them to be stored as values
+                scisql_s2CPolyToBin(), allowing them to be stored as values
                 in a BINARY table column.
 	</p>
 
 	<h3>Points-in-region queries</h3>
 	<p>
 		sciSQL contains several UDFs for checking whether a point lies inside
-		a region. These are: s2PtInBox(),
-		s2PtInCircle(), s2PtInCPoly() and
-		s2PtInEllipse(). They return 1 if the input point is
+		a region. These are: scisql_s2PtInBox(),
+		scisql_s2PtInCircle(), scisql_s2PtInCPoly() and
+		scisql_s2PtInEllipse(). They return 1 if the input point is
 		inside the input region and 0 otherwise.
 	</p>
 	<p>
@@ -404,11 +410,11 @@
 	<pre class="prettyprint lang-sql linenums">
 SELECT objectId
     FROM Object
-    WHERE s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</pre>
+    WHERE scisql_s2PtInCircle(ra_PS, decl_PS, 0, 0, 0.01) = 1;</pre>
 	<p>
 		This query returns all the objects within 0.01 degrees of
 		(RA, Dec) = (0, 0). It is inefficient for small search regions
-		because the s2PtInCircle() UDF must be called for
+		because the scisql_s2PtInCircle() UDF must be called for
 		every row in the <tt>Object</tt> table.
 	</p>
 	<p>
@@ -420,7 +426,7 @@ SELECT objectId
 	<pre class="prettyprint lang-sql linenums">
 ALTER TABLE Object DISABLE KEYS;
 UPDATE Object
-    SET htmId20 = s2HtmId(ra_PS, decl_PS, 20);
+    SET htmId20 = scisql_s2HtmId(ra_PS, decl_PS, 20);
 ALTER TABLE Object ENABLE KEYS;</pre>
 	<p>
 		The HTM subdivision level must be between 0 and 24. At subdivision
@@ -433,15 +439,15 @@ ALTER TABLE Object ENABLE KEYS;</pre>
 		the query above can be made more efficient:
 	</p>
 	<pre class="prettyprint lang-sql linenums">
-CALL scisql.s2CircleRegion(0, 0, 0.01, 20);
+CALL scisql.scisql_s2CircleRegion(0, 0, 0.01, 20);
 
 SELECT o.objectId
     FROM Object AS o INNER JOIN scisql.Region AS r
          ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-    WHERE s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</pre>
+    WHERE scisql_s2PtInCircle(o.ra_PS, o.decl_PS, 0, 0, 0.01) = 1;</pre>
 	<p>
 		What's going on here? The first line in the example calls the
-		s2CircleRegion() stored procedure. This procedure
+		scisql_s2CircleRegion() stored procedure. This procedure
 		creates a temporary table called <tt>scisql.Region</tt> with two
 		BIGINT NOT NULL columns named htmMin and htmMax. It then stores
 		the HTM IDs overlapping the search region in <tt>scisql.Region</tt>
@@ -450,7 +456,7 @@ SELECT o.objectId
 	<p>
 		Next, the original query is augmented with a join against
 		<tt>scisql.Region</tt>. This limits the objects considered by
-		s2PtInCircle() to those within the HTM triangles
+		scisql_s2PtInCircle() to those within the HTM triangles
 		overlapping the search region; the index on htmId20 allows MySQL to
 		retrieve these objects very quickly when the search region is small.
 		Note that if the search region is large (meaning that a large fraction
@@ -468,12 +474,12 @@ SELECT poly FROM Science_Ccd_Exposure
     WHERE scienceCcdExposureId = 43856062009
     INTO @poly;
 
-CALL scisql.s2CPolyRegion(@poly, 20);
+CALL scisql.scisql_s2CPolyRegion(@poly, 20);
 
 SELECT o.objectId
     FROM Object AS o INNER JOIN scisql.Region AS r
          ON (o.htmId20 BETWEEN r.htmMin AND r.htmMax)
-    WHERE s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</pre>
+    WHERE scisql_s2PtInCPoly(o.ra_PS, o.decl_PS, @poly) = 1;</pre>
 	<p>
 		The first statement stores the polygonal boundary of a particular CCD
 		exposure into the user variable <tt>@poly</tt>, the second computes
@@ -487,7 +493,7 @@ SELECT o.objectId
 	</p>
 	<pre class="prettyprint lang-sql linenums">
 SELECT scienceCcdExposureId FROM Science_Ccd_Exposure
-    WHERE s2PtInCPoly(0, 0, poly) = 1;</pre>
+    WHERE scisql_s2PtInCPoly(0, 0, poly) = 1;</pre>
 	<p>
 		This query returns all the CCD exposures containing the point
 		(RA, Dec) = (0, 0). To accelerate it using HTM indexing, an
@@ -536,19 +542,19 @@ SELECT sce.scienceCcdExposureId
     FROM Science_Ccd_Exposure AS sce, (
              SELECT scienceCcdExposureId
              FROM Science_Ccd_Exposure_HtmId10
-             WHERE htmId10 = s2HtmId(0, 0, 10)
+             WHERE htmId10 = scisql_s2HtmId(0, 0, 10)
          ) AS h
     WHERE sce.scienceCcdExposureId = h.scienceCcdExposureId AND
-          s2PtInCPoly(0, 0, sce.poly) = 1;</pre>
+          scisql_s2PtInCPoly(0, 0, sce.poly) = 1;</pre>
 	</div>
 
 
 	<h2>User Defined Functions</h2>
 	
-	<div id="udf-s2-angSep" class="udf">
-		<h3><a name="s2-angSep"></a>angSep</h3>
+	<div id="udf-s2-scisql_angSep" class="udf">
+		<h3><a name="s2-scisql_angSep"></a>scisql_angSep</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION angSep (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_angSep (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -581,7 +587,7 @@ SELECT sce.scienceCcdExposureId
 			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION angSep (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_angSep (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -648,17 +654,17 @@ SELECT sce.scienceCcdExposureId
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT angSep(0, 0, 0, 90);
-SELECT angSep(1, 0, 0, 0, 0, 1);
-SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
+SELECT scisql_angSep(0, 0, 0, 90);
+SELECT scisql_angSep(1, 0, 0, 0, 0, 1);
+SELECT scisql_angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2CPolyHtmRanges" class="udf internal">
-		<h3><a name="s2-s2CPolyHtmRanges"></a>[internal] s2CPolyHtmRanges</h3>
+	<div id="udf-s2-scisql_s2CPolyHtmRanges" class="udf internal">
+		<h3><a name="s2-scisql_s2CPolyHtmRanges"></a>[internal] scisql_s2CPolyHtmRanges</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2CPolyHtmRanges (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2CPolyHtmRanges (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -687,7 +693,7 @@ SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 			Returns a binary-string representation of HTM ID ranges
         overlapping a spherical convex polygon. The polygon must
         be specified in binary-string form (as produced by
-        s2CPolyToBin()).
+        scisql_s2CPolyToBin()).
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
@@ -707,10 +713,10 @@ SELECT angSep(ra_PS, decl_PS, ra_SG, decl_SG) FROM Object LIMIT 10;
 	</div>
 
 	
-	<div id="udf-s2-s2CPolyToBin" class="udf">
-		<h3><a name="s2-s2CPolyToBin"></a>s2CPolyToBin</h3>
+	<div id="udf-s2-scisql_s2CPolyToBin" class="udf">
+		<h3><a name="s2-scisql_s2CPolyToBin"></a>scisql_s2CPolyToBin</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2CPolyToBin (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2CPolyToBin (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -783,7 +789,7 @@ INSERT INTO Poly VALUES (-10,  0,
                          NULL);
 
 UPDATE Poly
-    SET poly = s2CPolyToBin(
+    SET poly = scisql_s2CPolyToBin(
         ra1, dec1,
         ra2, dec2,
         ra3, dec3);
@@ -791,10 +797,10 @@ UPDATE Poly
 	</div>
 
 	
-	<div id="udf-s2-s2CircleHtmRanges" class="udf internal">
-		<h3><a name="s2-s2CircleHtmRanges"></a>[internal] s2CircleHtmRanges</h3>
+	<div id="udf-s2-scisql_s2CircleHtmRanges" class="udf internal">
+		<h3><a name="s2-scisql_s2CircleHtmRanges"></a>[internal] scisql_s2CircleHtmRanges</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2CircleHtmRanges (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2CircleHtmRanges (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -865,10 +871,10 @@ UPDATE Poly
 	</div>
 
 	
-	<div id="udf-s2-s2HtmId" class="udf">
-		<h3><a name="s2-s2HtmId"></a>s2HtmId</h3>
+	<div id="udf-s2-scisql_s2HtmId" class="udf">
+		<h3><a name="s2-scisql_s2HtmId"></a>scisql_s2HtmId</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2HtmId (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2HtmId (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -915,16 +921,16 @@ UPDATE Poly
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
+SELECT objectId, ra_PS, decl_PS, scisql_s2HtmId(ra_PS, decl_PS, 20)
     FROM Object LIMIT 10;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInBox" class="udf">
-		<h3><a name="s2-s2PtInBox"></a>s2PtInBox</h3>
+	<div id="udf-s2-scisql_s2PtInBox" class="udf">
+		<h3><a name="s2-scisql_s2PtInBox"></a>scisql_s2PtInBox</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2PtInBox (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInBox (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1007,15 +1013,15 @@ SELECT objectId, ra_PS, decl_PS, s2HtmId(ra_PS, decl_PS, 20)
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId, ra_PS, decl_PS
     FROM Object
-    WHERE s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
+    WHERE scisql_s2PtInBox(ra_PS, decl_PS, -10, 10, 10, 20) = 1;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInCPoly" class="udf">
-		<h3><a name="s2-s2PtInCPoly"></a>s2PtInCPoly</h3>
+	<div id="udf-s2-scisql_s2PtInCPoly" class="udf">
+		<h3><a name="s2-scisql_s2PtInCPoly"></a>scisql_s2PtInCPoly</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2PtInCPoly (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInCPoly (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1041,7 +1047,7 @@ SELECT objectId, ra_PS, decl_PS
 			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2PtInCPoly (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInCPoly (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1092,7 +1098,7 @@ SELECT objectId, ra_PS, decl_PS
 			Returns 1 if the point (lon, lat) lies inside the given
         spherical convex polygon and 0 otherwise. The polygon may
         be specified either as a VARBINARY byte string (as produced by
-        s2CPolyToBin()), or as a sequence of at least 3
+        scisql_s2CPolyToBin()), or as a sequence of at least 3
         and at most 20 vertex pairs.
 		</div>
 		<h5>Notes</h5>
@@ -1116,7 +1122,7 @@ SELECT objectId, ra_PS, decl_PS
 		<pre class="prettyprint lang-sql linenums">
 SELECT scienceCcdExposureId
     FROM Science_Ccd_Exposure
-    WHERE s2PtInCPoly(
+    WHERE scisql_s2PtInCPoly(
         0.0, 0.0,
         llcRa, llcDecl,
         ulcRa, ulcDecl,
@@ -1126,10 +1132,10 @@ SELECT scienceCcdExposureId
 	</div>
 
 	
-	<div id="udf-s2-s2PtInCircle" class="udf">
-		<h3><a name="s2-s2PtInCircle"></a>s2PtInCircle</h3>
+	<div id="udf-s2-scisql_s2PtInCircle" class="udf">
+		<h3><a name="s2-scisql_s2PtInCircle"></a>scisql_s2PtInCircle</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2PtInCircle (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInCircle (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1191,15 +1197,15 @@ SELECT scienceCcdExposureId
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId, ra_PS, decl_PS
     FROM Object
-    WHERE s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
+    WHERE scisql_s2PtInCircle(ra_PS, decl_PS, 0.0, 0.0, 1.0) = 1;
 </pre>
 	</div>
 
 	
-	<div id="udf-s2-s2PtInEllipse" class="udf">
-		<h3><a name="s2-s2PtInEllipse"></a>s2PtInEllipse</h3>
+	<div id="udf-s2-scisql_s2PtInEllipse" class="udf">
+		<h3><a name="s2-scisql_s2PtInEllipse"></a>scisql_s2PtInEllipse</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION s2PtInEllipse (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2PtInEllipse (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1277,17 +1283,17 @@ SELECT objectId, ra_PS, decl_PS
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId, ra_PS, decl_PS
     FROM Object
-    WHERE s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
+    WHERE scisql_s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
 </pre>
 	</div>
 
 	<h2>Stored Procedures</h2>
 	
-	<div id="proc-s2-s2CPolyRegion" class="proc">
-		<h3><a name="s2-s2CPolyRegion"></a>scisql.s2CPolyRegion</h3>
+	<div id="proc-s2-scisql_s2CPolyRegion" class="proc">
+		<h3><a name="s2-scisql_s2CPolyRegion"></a>scisql.scisql_s2CPolyRegion</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl" colspan="5">PROCEDURE s2CPolyRegion (
+				<td class="decl" colspan="5">PROCEDURE scisql.scisql_s2CPolyRegion (
 				</td>
 			</tr>
 			<tr>
@@ -1322,29 +1328,29 @@ SELECT objectId, ra_PS, decl_PS
 		<h5>Notes</h5>
 		<ul class="notes">
 			<li class="">The `scisql.Region` table is allowed to exist prior to calling
-             s2CPolyRegion() - if it does, its contents are completely
+             scisql_s2CPolyRegion() - if it does, its contents are completely
              replaced.</li>
 			<li class="">Before using this stored procedure, an adminstrator must GRANT
-             the required permissions (e.g. using grantPermissions()).</li>
+             the required permissions (e.g. using scisql_grantPermissions()).</li>
 			<li class="">If any input is NULL, the procedure will fail.</li>
 			<li class="">If poly is not a valid binary-string representation of a polygon
-             (e.g. as produced by s2CPolyToBin()), the procedure will fail.</li>
+             (e.g. as produced by scisql_s2CPolyToBin()), the procedure will fail.</li>
 			<li class="">If level does not lie in the range [0, 24], the procedure will
              fail.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-CALL scisql.s2CPolyRegion(s2CPolyToBin(0,0, 1,0, 0,1), 20);
+CALL scisql.scisql_s2CPolyRegion(scisql_s2CPolyToBin(0,0, 1,0, 0,1), 20);
 SELECT * FROM scisql.Region;
 </pre>
 	</div>
 
 	
-	<div id="proc-s2-s2CircleRegion" class="proc">
-		<h3><a name="s2-s2CircleRegion"></a>scisql.s2CircleRegion</h3>
+	<div id="proc-s2-scisql_s2CircleRegion" class="proc">
+		<h3><a name="s2-scisql_s2CircleRegion"></a>scisql.scisql_s2CircleRegion</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl" colspan="5">PROCEDURE s2CircleRegion (
+				<td class="decl" colspan="5">PROCEDURE scisql.scisql_s2CircleRegion (
 				</td>
 			</tr>
 			<tr>
@@ -1392,10 +1398,10 @@ SELECT * FROM scisql.Region;
 		<h5>Notes</h5>
 		<ul class="notes">
 			<li class="">The `scisql.Region` table is allowed to exist prior to calling
-             s2CircleRegion() - if it does, its contents are completely
+             scisql_s2CircleRegion() - if it does, its contents are completely
              replaced.</li>
 			<li class="">Before using this stored procedure, an adminstrator must GRANT
-             the required permissions (e.g. using grantPermissions()).</li>
+             the required permissions (e.g. using scisql_grantPermissions()).</li>
 			<li class="">If any input is NULL, NaN or +/-Inf, the procedure will fail.</li>
 			<li class="">If centerLat does not lie in the [-90, 90] degree range, the
              procedure will fail.</li>
@@ -1404,7 +1410,7 @@ SELECT * FROM scisql.Region;
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-CALL scisql.s2CircleRegion(0, 0, 0.5, 20);
+CALL scisql.scisql_s2CircleRegion(0, 0, 0.5, 20);
 SELECT * FROM scisql.Region;
 </pre>
 	</div>
@@ -1414,17 +1420,169 @@ SELECT * FROM scisql.Region;
 <div id="section-photometry" class="section">
 	
 	<div class="section-docs"><p>
-	At the moment, these UDFs are limited to converting from raw fluxes to
-	calibrated AB fluxes and magnitudes.
+	These UDFs provide conversions between raw fluxes, calibrated (AB) fluxes
+	and AB magnitudes.
 	</p></div>
 
 
 	<h2>User Defined Functions</h2>
 	
-	<div id="udf-photometry-dnToAbMag" class="udf">
-		<h3><a name="photometry-dnToAbMag"></a>dnToAbMag</h3>
+	<div id="udf-photometry-scisql_abMagToDn" class="udf">
+		<h3><a name="photometry-scisql_abMagToDn"></a>scisql_abMagToDn</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION dnToAbMag (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_abMagToDn (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">mag</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">AB magnitude to convert to a raw flux.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts an AB magnitude to a raw flux in DN.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_abMagToDn(20.5, 3.0e+12);
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_abMagToDnSigma" class="udf">
+		<h3><a name="photometry-scisql_abMagToDnSigma"></a>scisql_abMagToDnSigma</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_abMagToDnSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">mag</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">AB magnitude.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">magSigma</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">Standard deviation of mag.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxMag0Sigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Standard deviation of fluxMag0.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts an AB magnitude error to a raw flux error in DN.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_abMagToDnSigma(20.5, 0.01, 3.0e+12, 0.0);
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_abMagToFlux" class="udf">
+		<h3><a name="photometry-scisql_abMagToFlux"></a>scisql_abMagToFlux</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_abMagToFlux (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">mag</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">AB magnitude to convert to a calibrated flux.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts an AB magnitude to a flux (in erg/cm<sup>2</sup>/sec/Hz).
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The mag argument must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If the mag argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_abMagToFlux(20.5);
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_abMagToFluxSigma" class="udf">
+		<h3><a name="photometry-scisql_abMagToFluxSigma"></a>scisql_abMagToFluxSigma</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_abMagToFluxSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">mag</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">AB magnitude.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">magSigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">Standard deviation of mag.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts an AB magnitude error to calibrated flux error
+        (in erg/cm<sup>2</sup>/sec/Hz)
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_abMagToFluxSigma(20.5, 0.01);
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_dnToAbMag" class="udf">
+		<h3><a name="photometry-scisql_dnToAbMag"></a>scisql_dnToAbMag</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToAbMag (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1453,7 +1611,7 @@ SELECT * FROM scisql.Region;
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
+SELECT scisql_dnToAbMag(src.psfFlux, ccd.fluxMag0)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
     LIMIT 10;
@@ -1461,17 +1619,17 @@ SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
 	</div>
 
 	
-	<div id="udf-photometry-dnToAbMagSigma" class="udf">
-		<h3><a name="photometry-dnToAbMagSigma"></a>dnToAbMagSigma</h3>
+	<div id="udf-photometry-scisql_dnToAbMagSigma" class="udf">
+		<h3><a name="photometry-scisql_dnToAbMagSigma"></a>scisql_dnToAbMagSigma</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION dnToAbMagSigma (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToAbMagSigma (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
-				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
+				<td class="argdesc">Raw flux.</td>
 			</tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1507,7 +1665,7 @@ SELECT dnToAbMag(src.psfFlux, ccd.fluxMag0)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT dnToAbMagSigma(
+SELECT scisql_dnToAbMagSigma(
         src.psfFlux, src.psfFluxSigma, ccd.fluxMag0, ccd.fluxMag0Sigma)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
@@ -1516,17 +1674,17 @@ SELECT dnToAbMagSigma(
 	</div>
 
 	
-	<div id="udf-photometry-dnToFlux" class="udf">
-		<h3><a name="photometry-dnToFlux"></a>dnToFlux</h3>
+	<div id="udf-photometry-scisql_dnToFlux" class="udf">
+		<h3><a name="photometry-scisql_dnToFlux"></a>scisql_dnToFlux</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION dnToFlux (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToFlux (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
 				<td class="argname">dn</td>
 				<td class="argtype">DOUBLE PRECISION,</td>
 				<td class="argunits">DN</td>
-				<td class="argdesc">Raw flux to convert to an AB magnitude.</td>
+				<td class="argdesc">Raw flux to convert to a calibrated (AB) flux.</td>
 			</tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1550,7 +1708,7 @@ SELECT dnToAbMagSigma(
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
 -- An example using the LSST schema:
-SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
+SELECT scisql_dnToFlux(src.psfFlux, ccd.fluxMag0)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
     LIMIT 10;
@@ -1558,10 +1716,10 @@ SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
 	</div>
 
 	
-	<div id="udf-photometry-dnToFluxSigma" class="udf">
-		<h3><a name="photometry-dnToFluxSigma"></a>dnToFluxSigma</h3>
+	<div id="udf-photometry-scisql_dnToFluxSigma" class="udf">
+		<h3><a name="photometry-scisql_dnToFluxSigma"></a>scisql_dnToFluxSigma</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION dnToFluxSigma (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_dnToFluxSigma (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1605,7 +1763,7 @@ SELECT dnToFlux(src.psfFlux, ccd.fluxMag0)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT dnToAbMagSigma(
+SELECT scisql_dnToAbMagSigma(
         src.psfFlux, src.psfFluxSigma, ccd.fluxMag0, ccd.fluxMag0Sigma)
     FROM Source AS src, Science_Ccd_Exposure ccd
     WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
@@ -1614,10 +1772,10 @@ SELECT dnToAbMagSigma(
 	</div>
 
 	
-	<div id="udf-photometry-fluxToAbMag" class="udf">
-		<h3><a name="photometry-fluxToAbMag"></a>fluxToAbMag</h3>
+	<div id="udf-photometry-scisql_fluxToAbMag" class="udf">
+		<h3><a name="photometry-scisql_fluxToAbMag"></a>scisql_fluxToAbMag</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION fluxToAbMag (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_fluxToAbMag (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1629,7 +1787,7 @@ SELECT dnToAbMagSigma(
 			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
-			Converts a cailbrated (AB) flux to an AB magnitude.
+			Converts a calibrated (AB) flux to an AB magnitude.
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
@@ -1638,7 +1796,7 @@ SELECT dnToAbMagSigma(
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT fluxToAbMag(rFlux_PS)
+SELECT scisql_fluxToAbMag(rFlux_PS)
     FROM Object
     WHERE rFlux_PS IS NOT NULL
     LIMIT 10;
@@ -1646,10 +1804,10 @@ SELECT fluxToAbMag(rFlux_PS)
 	</div>
 
 	
-	<div id="udf-photometry-fluxToAbMagSigma" class="udf">
-		<h3><a name="photometry-fluxToAbMagSigma"></a>fluxToAbMagSigma</h3>
+	<div id="udf-photometry-scisql_fluxToAbMagSigma" class="udf">
+		<h3><a name="photometry-scisql_fluxToAbMagSigma"></a>scisql_fluxToAbMagSigma</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION fluxToAbMagSigma (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_fluxToAbMagSigma (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1663,12 +1821,12 @@ SELECT fluxToAbMag(rFlux_PS)
 				<td class="argname">fluxSigma</td>
 				<td class="argtype">DOUBLE PRECISION</td>
 				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
-				<td class="argdesc">Calibrated (AB) flux error.</td>
+				<td class="argdesc">Standard deviation of flux.</td>
 			</tr>
 			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
-			Converts a cailbrated (AB) flux error to an AB magnitude error.
+			Converts a calibrated (AB) flux error to an AB magnitude error.
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
@@ -1678,9 +1836,103 @@ SELECT fluxToAbMag(rFlux_PS)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
+SELECT scisql_fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
     FROM Object
     WHERE rFlux_PS IS NOT NULL and rFlux_PS_Sigma IS NOT NULL
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_fluxToDn" class="udf">
+		<h3><a name="photometry-scisql_fluxToDn"></a>scisql_fluxToDn</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_fluxToDn (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">flux</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
+				<td class="argdesc">Calibrated flux to convert to a raw DN value.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts a calibrated (AB) flux to a raw DN value.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">Both arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If either argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_fluxToDn(rFlux_PS, 3.0e+12)
+    FROM Object
+    WHERE rFlux_PS IS NOT NULL
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_fluxToDnSigma" class="udf">
+		<h3><a name="photometry-scisql_fluxToDnSigma"></a>scisql_fluxToDnSigma</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_fluxToDnSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">flux</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
+				<td class="argdesc">Calibrated (AB) flux.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxSigma</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">erg/cm<sup>2</sup>/sec/Hz</td>
+				<td class="argdesc">Standard deviation of flux.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxMag0</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Raw flux of a zero-magnitude object.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxMag0Sigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">DN</td>
+				<td class="argdesc">Standard deviation of fluxMag0.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts a calibrated (AB) flux error to raw flux error in DN.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_fluxToDnSigma(
+        rFlux_PS, rFlux_PS_Sigma, 3.0e+12, 0.0)
+    FROM Object
+    WHERE rFlux_PS IS NOT NULL
     LIMIT 10;
 </pre>
 	</div>
@@ -1697,10 +1949,10 @@ SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
 
 	<h2>User Defined Functions</h2>
 	
-	<div id="udf-statistics-median" class="udf">
-		<h3><a name="statistics-median"></a>median</h3>
+	<div id="udf-statistics-scisql_median" class="udf">
+		<h3><a name="statistics-scisql_median"></a>scisql_median</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION median (
+			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION scisql_median (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1736,7 +1988,7 @@ SELECT fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT objectId, median(psfFlux)
+SELECT objectId, scisql_median(psfFlux)
     FROM Source
     WHERE objectId IS NOT NULL
     GROUP BY objectId;
@@ -1744,10 +1996,10 @@ SELECT objectId, median(psfFlux)
 	</div>
 
 	
-	<div id="udf-statistics-percentile" class="udf">
-		<h3><a name="statistics-percentile"></a>percentile</h3>
+	<div id="udf-statistics-scisql_percentile" class="udf">
+		<h3><a name="statistics-scisql_percentile"></a>scisql_percentile</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION percentile (
+			<tr><td class="decl" colspan="5">AGGREGATE FUNCTION scisql_percentile (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1803,8 +2055,8 @@ SELECT objectId, median(psfFlux)
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
 SELECT objectId,
-       percentile(psfFlux, 25) AS firstQuartile,
-       percentile(psfFlux, 75) AS thirdQuartile
+       scisql_percentile(psfFlux, 25) AS firstQuartile,
+       scisql_percentile(psfFlux, 75) AS thirdQuartile
     FROM Source
     WHERE objectId IS NOT NULL
     GROUP BY objectId
@@ -1824,10 +2076,10 @@ SELECT objectId,
 
 	<h2>User Defined Functions</h2>
 	
-	<div id="udf-misc-extractInt64" class="udf internal">
-		<h3><a name="misc-extractInt64"></a>[internal] extractInt64</h3>
+	<div id="udf-misc-scisql_extractInt64" class="udf internal">
+		<h3><a name="misc-scisql_extractInt64"></a>[internal] scisql_extractInt64</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION extractInt64 (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_extractInt64 (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1857,10 +2109,10 @@ SELECT objectId,
 	</div>
 
 	
-	<div id="udf-misc-getVersion" class="udf">
-		<h3><a name="misc-getVersion"></a>getVersion</h3>
+	<div id="udf-misc-scisql_getVersion" class="udf">
+		<h3><a name="misc-scisql_getVersion"></a>scisql_getVersion</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION getVersion (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_getVersion (
 				) RETURNS CHAR</td></tr>
 		</table>
 		<div class="description">
@@ -1868,19 +2120,19 @@ SELECT objectId,
 		</div>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT getVersion();
+SELECT scisql_getVersion();
 </pre>
 	</div>
 
 	
-	<div id="udf-misc-raiseError" class="udf internal">
-		<h3><a name="misc-raiseError"></a>[internal] raiseError</h3>
+	<div id="udf-misc-scisql_raiseError" class="udf internal">
+		<h3><a name="misc-scisql_raiseError"></a>[internal] scisql_raiseError</h3>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION raiseError (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_raiseError (
 				) RETURNS BIGINT</td></tr>
 		</table>
 		<table class="signature">
-			<tr><td class="decl" colspan="5">FUNCTION raiseError (
+			<tr><td class="decl" colspan="5">FUNCTION scisql_raiseError (
 			</td></tr>
 			<tr>
 				<td class="argkind">&nbsp;</td>
@@ -1902,17 +2154,17 @@ SELECT getVersion();
 		</div>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-SELECT raiseError('Lorem ipsum dolor');
+SELECT scisql_raiseError('Lorem ipsum dolor');
 </pre>
 	</div>
 
 	<h2>Stored Procedures</h2>
 	
-	<div id="proc-misc-grantPermissions" class="proc">
-		<h3><a name="misc-grantPermissions"></a>scisql.grantPermissions</h3>
+	<div id="proc-misc-scisql_grantPermissions" class="proc">
+		<h3><a name="misc-scisql_grantPermissions"></a>scisql.scisql_grantPermissions</h3>
 		<table class="signature">
 			<tr>
-				<td class="decl" colspan="5">PROCEDURE grantPermissions (
+				<td class="decl" colspan="5">PROCEDURE scisql.scisql_grantPermissions (
 				</td>
 			</tr>
 			<tr>
@@ -1945,7 +2197,7 @@ SELECT raiseError('Lorem ipsum dolor');
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
-CALL scisql.grantPermissions('bob', 'localhost');
+CALL scisql.scisql_grantPermissions('bob', 'localhost');
 </pre>
 	</div>
 

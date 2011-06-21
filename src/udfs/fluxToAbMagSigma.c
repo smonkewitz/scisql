@@ -25,7 +25,7 @@
      section="photometry">
 
     <desc>
-        Converts a cailbrated (AB) flux error to an AB magnitude error.
+        Converts a calibrated (AB) flux error to an AB magnitude error.
     </desc>
     <args>
         <arg name="flux" type="DOUBLE PRECISION"
@@ -34,7 +34,7 @@
         </arg>
         <arg name="fluxSigma" type="DOUBLE PRECISION"
              units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
-            Calibrated (AB) flux error.
+            Standard deviation of flux.
         </arg>
     </args>
     <notes>

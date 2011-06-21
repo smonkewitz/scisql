@@ -20,32 +20,28 @@
 */
 
 /**
-<udf name="${SCISQL_PREFIX}fluxToAbMag"
+<udf name="${SCISQL_PREFIX}abMagToFlux"
      return_type="DOUBLE PRECISION"
      section="photometry">
 
     <desc>
-        Converts a calibrated (AB) flux to an AB magnitude.
+        Converts an AB magnitude to a flux (in erg/cm<sup>2</sup>/sec/Hz).
     </desc>
     <args>
-        <arg name="flux" type="DOUBLE PRECISION"
-             units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
-            Calibrated flux to convert to an AB magnitude.
+        <arg name="mag" type="DOUBLE PRECISION" units="mag">
+            AB magnitude to convert to a calibrated flux.
         </arg>
     </args>
     <notes>
         <note>
-            The flux argument must be convertible to type DOUBLE PRECISION.
+            The mag argument must be convertible to type DOUBLE PRECISION.
         </note>
         <note>
-            If the flux argument is NULL, NaN, or +/-Inf, NULL is returned.
+            If the mag argument is NULL, NaN, or +/-Inf, NULL is returned.
         </note>
     </notes>
     <example>
-        SELECT ${SCISQL_PREFIX}fluxToAbMag(rFlux_PS)
-            FROM Object
-            WHERE rFlux_PS IS NOT NULL
-            LIMIT 10;
+        SELECT ${SCISQL_PREFIX}abMagToFlux(20.5);
     </example>
 </udf>
 */
@@ -62,14 +58,14 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(fluxToAbMag, _init) (
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(abMagToFlux, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
 {
     if (args->arg_count != 1) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 SCISQL_UDF_NAME(fluxToAbMag) " expects exactly 1 argument");
+                 SCISQL_UDF_NAME(abMagToFlux) " expects exactly 1 argument");
         return 1;
     }
     args->arg_type[0] = REAL_RESULT;
@@ -80,7 +76,7 @@ SCISQL_API my_bool SCISQL_VERSIONED_FNAME(fluxToAbMag, _init) (
 }
 
 
-SCISQL_API double SCISQL_VERSIONED_FNAME(fluxToAbMag, SCISQL_NO_SUFFIX) (
+SCISQL_API double SCISQL_VERSIONED_FNAME(abMagToFlux, SCISQL_NO_SUFFIX) (
     UDF_INIT *initid SCISQL_UNUSED,
     UDF_ARGS *args,
     char *is_null,
@@ -90,12 +86,12 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(fluxToAbMag, SCISQL_NO_SUFFIX) (
         *is_null = 1;
         return 0.0;
     }
-    return scisql_flux2ab(*((double *) args->args[0]));
+    return scisql_ab2flux(*((double *) args->args[0]));
 }
 
 
-SCISQL_UDF_INIT(fluxToAbMag)
-SCISQL_REAL_UDF(fluxToAbMag)
+SCISQL_UDF_INIT(abMagToFlux)
+SCISQL_REAL_UDF(abMagToFlux)
 
 
 #ifdef __cplusplus

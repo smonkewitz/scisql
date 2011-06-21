@@ -8,7 +8,7 @@
 	% endif
 		<table class="signature">
 			<tr>
-				<td class="decl" colspan="5">PROCEDURE ${proc.name} (
+				<td class="decl" colspan="5">PROCEDURE scisql.${proc.name} (
 	% if len(proc.args) > 0:
 				</td>
 			</tr>
