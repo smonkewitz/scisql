@@ -30,7 +30,7 @@
     </desc>
     <args>
         <arg name="dn" type="DOUBLE PRECISION" units="DN">
-            Raw flux to convert to an AB magnitude.
+            Raw flux to convert to a calibrated (AB) flux.
         </arg>
         <arg name="fluxMag0" type="DOUBLE PRECISION" units="DN">
             Raw flux of a zero-magnitude object.

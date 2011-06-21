@@ -37,7 +37,25 @@ extern "C" {
 
 /* 2.5 / log(10) */
 #define SCISQL_5_OVER_2LOG10 1.085736204758129569
+/* log(10) / 2.5 */
+#define SCISQL_2LOG10_OVER_5 0.9210340371976182736
+/* pow(10, -48.6/2.5) */
 #define SCISQL_AB_FLUX_SCALE 3.630780547701013425e-20
+
+
+SCISQL_INLINE double scisql_hypot(double a, double b) {
+    double q;
+    if (fabs(a) < fabs(b)) {
+        double c = a;
+        a = b;
+        b = c;
+    }
+    if (a == 0.0) {
+        return 0.0;
+    }
+    q = b / a;
+    return fabs(a) * sqrt(1.0 + q*q);
+}
 
 /*  Converts a calibrated flux (erg/cm**2/sec/Hz) to an AB magnitude.
  */
@@ -64,9 +82,9 @@ SCISQL_INLINE double scisql_dn2fluxsigma(double dn,
                                          double fluxmag0,
                                          double fluxmag0sigma)
 {
-    double d = dn * fluxmag0sigma / fluxmag0;
-    return SCISQL_AB_FLUX_SCALE * sqrt((dnsigma*dnsigma + d*d) /
-                                       (fluxmag0*fluxmag0));
+    return SCISQL_AB_FLUX_SCALE *
+           scisql_hypot(dn * fluxmag0sigma, dnsigma * fluxmag0) /
+           (fluxmag0*fluxmag0);
 }
 
 /*  Converts a raw DN value to an AB magnitude.
@@ -85,6 +103,55 @@ SCISQL_INLINE double scisql_dn2absigma(double dn,
     return scisql_flux2absigma(
         scisql_dn2flux(dn, fluxmag0),
         scisql_dn2fluxsigma(dn, dnsigma, fluxmag0, fluxmag0sigma));
+}
+
+/*  Converts a calibrated flux (erg/cm**2/sec/Hz) to a raw DN value.
+ */
+SCISQL_INLINE double scisql_flux2dn(double flux, double fluxmag0) {
+    return flux * fluxmag0 / SCISQL_AB_FLUX_SCALE;
+}
+
+/*  Converts a calibrated flux error (erg/cm**2/sec/Hz) to a raw DN error.
+ */
+SCISQL_INLINE double scisql_flux2dnsigma(double flux,
+                                         double fluxsigma,
+                                         double fluxmag0,
+                                         double fluxmag0sigma) {
+    return scisql_hypot(flux * fluxmag0sigma, fluxmag0 * fluxsigma) /
+           SCISQL_AB_FLUX_SCALE;
+}
+
+/*  Converts an AB magnitude to a calibrated flux (erg/cm**2/sec/Hz).
+ */
+SCISQL_INLINE double scisql_ab2flux(double mag) {
+    return pow(10.0, -0.4*(mag + 48.6));
+}
+
+/*  Converts an AB magnitude error to a calibrated flux error 
+    (erg/cm**2/sec/Hz).
+ */
+SCISQL_INLINE double scisql_ab2fluxsigma(double mag, double magsigma) {
+    return magsigma * scisql_ab2flux(mag) * SCISQL_2LOG10_OVER_5;
+}
+
+/*  Converts an AB magnitude to a raw DN value.
+ */
+SCISQL_INLINE double scisql_ab2dn(double mag, double fluxmag0) {
+    return scisql_flux2dn(scisql_ab2flux(mag), fluxmag0);
+}
+
+/*  Converts an AB magnitude error to a raw DN error.
+ */
+SCISQL_INLINE double scisql_ab2dnsigma(double mag,
+                                       double magsigma,
+                                       double fluxmag0,
+                                       double fluxmag0sigma) {
+    double flux = scisql_ab2flux(mag);
+    return scisql_flux2dnsigma(
+        flux,
+        magsigma * flux * SCISQL_2LOG10_OVER_5,
+        fluxmag0,
+        fluxmag0sigma);
 }
 
 

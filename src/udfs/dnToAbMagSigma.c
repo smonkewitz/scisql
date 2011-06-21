@@ -29,7 +29,7 @@
     </desc>
     <args>
         <arg name="dn" type="DOUBLE PRECISION" units="DN">
-            Raw flux to convert to an AB magnitude.
+            Raw flux.
         </arg>
         <arg name="dnSigma" type="DOUBLE PRECISION" units="DN">
             Standard deviation of dn.
@@ -88,7 +88,7 @@ SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToAbMagSigma, _init) (
     }
     for (i = 0; i < 4; ++i) {
         args->arg_type[i] = REAL_RESULT;
-        if (args->args[i] != 0) {
+        if (args->args[i] == 0) {
             const_item = 0;
         } 
     }

@@ -20,20 +20,19 @@
 */
 
 /**
-<udf name="${SCISQL_PREFIX}dnToFluxSigma"
+<udf name="${SCISQL_PREFIX}abMagToDnSigma"
      return_type="DOUBLE PRECISION"
      section="photometry">
 
     <desc>
-        Converts a raw flux error to a calibrated (AB) flux error. The return
-        value will be in units of erg/cm<sup>2</sup>/sec/Hz.
+        Converts an AB magnitude error to a raw flux error in DN.
     </desc>
     <args>
-        <arg name="dn" type="DOUBLE PRECISION" units="DN">
-            Raw flux.
+        <arg name="mag" type="DOUBLE PRECISION" units="mag">
+            AB magnitude.
         </arg>
-        <arg name="dnSigma" type="DOUBLE PRECISION" units="DN">
-            Standard deviation of dn.
+        <arg name="magSigma" type="DOUBLE PRECISION" units="mag">
+            Standard deviation of mag.
         </arg>
         <arg name="fluxMag0" type="DOUBLE PRECISION" units="DN">
             Raw flux of a zero-magnitude object.
@@ -49,16 +48,9 @@
         <note>
             If any argument is NULL, NaN, or +/-Inf, NULL is returned.
         </note>
-        <note>
-            If fluxMag0 is zero, NULL is returned.
-        </note>
     </notes>
     <example>
-        SELECT ${SCISQL_PREFIX}dnToAbMagSigma(
-                src.psfFlux, src.psfFluxSigma, ccd.fluxMag0, ccd.fluxMag0Sigma)
-            FROM Source AS src, Science_Ccd_Exposure ccd
-            WHERE src.scienceCcdExposureId = ccd.scienceCcdExposureId
-            LIMIT 10;
+        SELECT ${SCISQL_PREFIX}abMagToDnSigma(20.5, 0.01, 3.0e+12, 0.0);
     </example>
 </udf>
 */
@@ -75,7 +67,7 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToFluxSigma, _init) (
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(abMagToDnSigma, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
@@ -83,13 +75,13 @@ SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToFluxSigma, _init) (
     size_t i;
     my_bool const_item = 1;
     if (args->arg_count != 4) {
-        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(dnToFluxSigma)
-                 " expects exactly 2 arguments");
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(abMagToDnSigma)
+                 " expects exactly 4 arguments");
         return 1;
     }
     for (i = 0; i < 4; ++i) {
         args->arg_type[i] = REAL_RESULT;
-        if (args->args[i] == 0) {
+        if (args->args[i] != 0) {
             const_item = 0;
         } 
     }
@@ -100,7 +92,7 @@ SCISQL_API my_bool SCISQL_VERSIONED_FNAME(dnToFluxSigma, _init) (
 }
 
 
-SCISQL_API double SCISQL_VERSIONED_FNAME(dnToFluxSigma, SCISQL_NO_SUFFIX) (
+SCISQL_API double SCISQL_VERSIONED_FNAME(abMagToDnSigma, SCISQL_NO_SUFFIX) (
     UDF_INIT *initid SCISQL_UNUSED,
     UDF_ARGS *args,
     char *is_null,
@@ -114,12 +106,12 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(dnToFluxSigma, SCISQL_NO_SUFFIX) (
             return 0.0;
         }
     }
-    return scisql_dn2fluxsigma(*a[0], *a[1], *a[2], *a[3]);
+    return scisql_ab2dnsigma(*a[0], *a[1], *a[2], *a[3]);
 }
 
 
-SCISQL_UDF_INIT(dnToFluxSigma)
-SCISQL_REAL_UDF(dnToFluxSigma)
+SCISQL_UDF_INIT(abMagToDnSigma)
+SCISQL_REAL_UDF(abMagToDnSigma)
 
 
 #ifdef __cplusplus

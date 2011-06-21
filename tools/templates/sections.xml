@@ -426,8 +426,8 @@ SELECT sce.scienceCcdExposureId
 
 <section name="photometry" title="Photometry">
 	<div class="section-docs"><p>
-	At the moment, these UDFs are limited to converting from raw fluxes to
-	calibrated AB fluxes and magnitudes.
+	These UDFs provide conversions between raw fluxes, calibrated (AB) fluxes
+	and AB magnitudes.
 	</p></div>
 </section>
 
