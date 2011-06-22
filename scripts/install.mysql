@@ -350,11 +350,15 @@ CREATE PROCEDURE ${SCISQL_PREFIX}grantPermissions${SCISQL_VSUFFIX}(
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
-    SET @_s = CONCAT("GRANT SELECT,INSERT,DROP,CREATE TEMPORARY TABLES,EXECUTE ON scisql.* TO '",
+    SET @_s = CONCAT("GRANT CREATE TEMPORARY TABLES, EXECUTE ON scisql.* TO '",
                      user, "'@'", host, "'");
     PREPARE stmt FROM @_s;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+
+    -- can't do through GRANT, the table Region does not exist
+    INSERT INTO mysql.tables_priv(Host, Db, User, Table_name, Grantor, Timestamp, Table_priv) VALUES(host, 'scisql', user, 'Region', user(), now(), 'Select,Insert,Drop');
+    FLUSH PRIVILEGES;
 END //
 
 DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}grantPermissions //
