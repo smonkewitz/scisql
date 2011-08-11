@@ -1,33 +1,28 @@
 #! /usr/bin/env python
-
+# encoding: utf-8
 #
 # Copyright (C) 2011 Serge Monkewitz
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License v3 as published
-# by the Free Software Foundation, or any later version.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Authors:
 #     - Serge Monkewitz, IPAC/Caltech
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the angSep() UDF.
-#
 
 from __future__ import with_statement
+
 import random
 import sys
 import unittest
@@ -40,9 +35,10 @@ class AngSepTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(AngSepTestCase, self).setUp()
 
     def _angSep(self, result, *args):
-        stmt = "SELECT angSep(%s, %s, %s, %s)" % tuple(map(dbparam, args))
+        stmt = "SELECT %sangSep(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         if result is None:
@@ -83,7 +79,8 @@ class AngSepTestCase(MySqlUdfTestCase):
                      random.uniform(0.0, 360.0),
                      random.uniform(-90.0, 90.0)) for i in xrange(100)]
             t.insertMany(rows)
-            stmt = "SELECT i, angSep(ra1, decl1, ra2, decl2) FROM AngSep ORDER BY i"
+            stmt = """SELECT i, %sangSep(ra1, decl1, ra2, decl2) FROM AngSep
+                      ORDER BY i""" % self._prefix
             for res in self.query(stmt):
                 self.assertAlmostEqual(res[1], angSep(*rows[res[0]][1:]), 11,
                     "angSep(" + ",".join(map(repr, rows[res[0]][1:])) +

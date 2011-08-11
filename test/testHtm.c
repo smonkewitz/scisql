@@ -1,19 +1,17 @@
 /*
     Copyright (C) 2011 Serge Monkewitz
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License v3 as published
-    by the Free Software Foundation, or any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     Authors:
         - Serge Monkewitz, IPAC/Caltech
@@ -97,6 +95,18 @@ static const scisql_v3p test_points[NTEST_POINTS] = {
     { {        C0,       -C1,       -C0 }, 0 }, /* center of S30 */
     { {        C1,       -C0,       -C0 }, 0 }, /* center of S32 */
 };
+
+/* Returns 1 if v (assumed to come from test_points) is a midpoint of
+   two axis vectors (+/- x,y,z). These midpoints can legitimately end
+   up in any of 3 children of the root triangles due to numerical
+   inaccuracies. The actual child may be different depending on
+   the compiler and optimization level being used. */
+static int is_midpoint(const scisql_v3 *v) {
+   int i0 = v->x == 0.0;
+   int i1 = v->y == 0.0;
+   int i2 = v->z == 0.0;
+   return i0 + i1 + i2 == 1; 
+}
 
 enum {
     S0 = (SCISQL_HTM_S0 + 8), S00 = (SCISQL_HTM_S0 + 8)*4, S01, S02, S03,
@@ -260,8 +270,11 @@ static void testPoints() {
         SCISQL_ASSERT(ret == 0, "scisql_v3p_htmsort() failed");
         for (i = 0; i < NTEST_POINTS; ++i) {
             int64_t id = scisql_v3_htmid(&pts[i].v, level);
-            SCISQL_ASSERT(id == ids[i], "scisql_v3p_htmsort() does not "
-                          "agree with scisql_v3_htmid()");
+            if (id != ids[i]) {
+                SCISQL_ASSERT(level > 0 && is_midpoint(&pts[i].v),
+                              "scisql_v3p_htmsort() does not agree "
+                              "with scisql_v3_htmid()");
+            }
         }
         for (i = 0; i < NTEST_POINTS; ++i) {
             int64_t eid = results[level][i].id;
@@ -277,27 +290,22 @@ static void testPoints() {
                 SCISQL_ASSERT(ret == 0, "scisql_v3p_htmsort() failed");
                 for (k = 0; k < i; ++k) {
                     int64_t id = scisql_v3_htmid(&pts[k].v, level);
-                    SCISQL_ASSERT(id == ids[k], "scisql_v3p_htmsort() does not "
-                                  "agree with scisql_v3_htmid()");
+                    if (id != ids[k]) {
+                        SCISQL_ASSERT(level > 0 && is_midpoint(&pts[k].v),
+                                      "scisql_v3p_htmsort() does not agree "
+                                      "with scisql_v3_htmid()");
+                    }
                 }
             }
         }
     }
-    /* Tests at subdivision levels 2 to MAX */
+    /* Tests at subdivision levels 2 to SCISQL_HTM_MAX_LEVEL */
     for (i = CENTERS; i < NTEST_POINTS; ++i) {
         ids[i] = level1_results[i].id;
     }
-    for (level = 2; level < 8; ++level) {
-        for (i = CENTERS; i < NTEST_POINTS; ++i) {
-            int64_t id = scisql_v3_htmid(&test_points[i].v, level);
-            int64_t eid = ids[i] * 4 + 3;
-            SCISQL_ASSERT(id == eid, "scisql_v3_htmid() did not produce "
-                          "expected result (L%d, pt %d)", level, (int)i);
-            ids[i] = eid;
-        }
-    }
-    for (level = 8; level <= SCISQL_HTM_MAX_LEVEL; ++level) {
-        for (i = CENTERS; i < CENTERS + 8; ++i) {
+    for (level = 2; level <= SCISQL_HTM_MAX_LEVEL; ++level) {
+        size_t n = (level < 8) ? NTEST_POINTS : CENTERS + 8;
+        for (i = CENTERS; i < n; ++i) {
             int64_t id = scisql_v3_htmid(&test_points[i].v, level);
             int64_t eid = ids[i] * 4 + 3;
             SCISQL_ASSERT(id == eid, "scisql_v3_htmid() did not produce "
@@ -307,6 +315,7 @@ static void testPoints() {
     }
 }
 
+
 /*  Tests that scisql_v3_htmid and scisql_v3p_htmsort agree for large
     arrays of random points.
  */
@@ -315,7 +324,7 @@ static void testRandomPoints() {
     int64_t *ids;
     size_t i;
     int level, ret;
-    const size_t n = 100000;
+    const size_t n = 10000;
     unsigned short seed[3] = { 11, 21, 31 };
 
     pts = malloc(sizeof(scisql_v3p) * n);
@@ -341,6 +350,7 @@ static void testRandomPoints() {
     free(pts);
 }
 
+
 /*  Tests HTM indexing of spherical circles.
  */
 static void testCircles() {
@@ -350,17 +360,17 @@ static void testCircles() {
     int i, j, level;
 
     /* Failure tests */
-    SCISQL_ASSERT(scisql_s2circle_htmids(0, 0, 0.0, 0) == 0,
+    SCISQL_ASSERT(scisql_s2circle_htmids(0, 0, 0.0, 0, SIZE_MAX) == 0,
                   "scisql_s2circle_htmids() should have failed");
-    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, -1) == 0,
+    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, -1, SIZE_MAX) == 0,
                   "scisql_s2circle_htmids() should have failed");
-    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, SCISQL_HTM_MAX_LEVEL + 1) == 0,
+    SCISQL_ASSERT(scisql_s2circle_htmids(0, v, 0.0, SCISQL_HTM_MAX_LEVEL + 1, SIZE_MAX) == 0,
                   "scisql_s2circle_htmids() should have failed");
 
     for (level = 0; level < 2; ++level) {
         for (i = 0; i < NTEST_POINTS; ++i) {
             int nr = results[level][i].nranges;
-            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level);
+            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level, SIZE_MAX);
             SCISQL_ASSERT(ids != 0, "scisql_s2circle_htmids() failed");
             SCISQL_ASSERT(ids->n == (size_t) nr,
                           "scisql_s2circle_htmids() did not return the "
@@ -372,18 +382,232 @@ static void testCircles() {
             }
         }
     }
-    /* TODO */
+    /* Tests at subdivision levels 2 to SCISQL_HTM_MAX_LEVEL */
+    radius = 1.0;
+    for (level = 2; level < 8; ++level, radius *= 0.5) {
+        int n = (level < 8) ? NTEST_POINTS : CENTERS + 8;
+        for (i = CENTERS; i < n; ++i) {
+            int64_t id = scisql_v3_htmid(&test_points[i].v, level);
+            ids = scisql_s2circle_htmids(ids, &test_points[i].v, radius, level, SIZE_MAX);
+            SCISQL_ASSERT(ids != 0, "scisql_s2circle_htmids() failed");
+            SCISQL_ASSERT(ids->n == 1,
+                          "scisql_s2circle_htmids() did not return the "
+                          "expected number of ranges");
+            SCISQL_ASSERT(id == ids->ranges[0] && id == ids->ranges[1],
+                          "scisql_s2circle_htmids() did not return the "
+                          "expected ranges");
+        }
+    }
+    free(ids);
 }
 
-static void testPolygons() {
+
+/*  Utility function to build an N-gon inscribed in the given circle.
+ */
+static int ngon(scisql_s2cpoly *poly,
+                int n,
+                const scisql_v3 *center,
+                double radius)
+{
+    scisql_v3 verts[SCISQL_MAX_VERTS];
+    scisql_v3 north, east, v;
+    double sr, cr;
+    int i;
+
+    if (n < 3 || n > SCISQL_MAX_VERTS || center == 0 || radius <= 0.0) {
+        return 1;
+    }
+
+    north.x = - center->x * center->z;
+    north.y = - center->y * center->z;
+    north.z = center->x * center->x + center->y * center->y;
+    if (north.x == 0.0 && north.y == 0.0 && north.z == 0.0) {
+        north.x = -1.0; north.y = 0.0; north.z = 0.0;
+        east.x = 0.0; east.y = 1.0; east.z = 0.0;
+    } else {
+        scisql_v3_rcross(&east, &north, center);
+        scisql_v3_normalize(&north, &north);
+        scisql_v3_normalize(&east, &east);
+    }
+    sr = sin(radius * SCISQL_RAD_PER_DEG);
+    cr = cos(radius * SCISQL_RAD_PER_DEG);
+    for (i = 0; i < n; ++i) {
+        double ang, sa, ca;
+        ang = (SCISQL_RAD_PER_DEG * 360.0 * i) / n;
+        sa = sin(ang);
+        ca = cos(ang);
+        v.x = ca * north.x + sa * east.x;
+        v.y = ca * north.y + sa * east.y;
+        v.z = ca * north.z + sa * east.z;
+        verts[i].x = cr * center->x + sr * v.x;
+        verts[i].y = cr * center->y + sr * v.y;
+        verts[i].z = cr * center->z + sr * v.z;
+        scisql_v3_normalize(&verts[i], &verts[i]);
+    }
+    return scisql_s2cpoly_init(poly, verts, n);
 }
+
+
+/*  Tests HTM indexing of spherical convex polygons.
+ */
+static void testPolygons() {
+    scisql_v3 sliver[3];
+    scisql_sc p;
+    scisql_s2cpoly poly;
+    scisql_ids *ids = 0;
+    double radius = 10.0;
+    int i, j, level;
+
+    memset(&poly, 0, sizeof(poly));
+
+    /* Failure tests */
+    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, 0, 0, SIZE_MAX) == 0,
+                  "scisql_s2cpoly_htmids() should have failed");
+    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, &poly, -1, SIZE_MAX) == 0,
+                  "scisql_s2cpoly_htmids() should have failed");
+    SCISQL_ASSERT(scisql_s2cpoly_htmids(0, &poly, SCISQL_HTM_MAX_LEVEL + 1, SIZE_MAX) == 0,
+                  "scisql_s2cpoly_htmids() should have failed");
+
+    for (level = 0; level < 2; ++level) {
+        for (i = 0; i < NTEST_POINTS; ++i) {
+            int nr = results[level][i].nranges;
+            int ret = ngon(&poly, 4, &test_points[i].v, radius);
+            SCISQL_ASSERT(ret == 0, "ngon() failed");
+            ids = scisql_s2cpoly_htmids(ids, &poly, level, SIZE_MAX);
+            SCISQL_ASSERT(ids != 0, "scisql_s2cpoly_htmids() failed");
+            SCISQL_ASSERT(ids->n == (size_t) nr,
+                          "scisql_s2cpoly_htmids() did not return the "
+                          "expected number of ranges");
+            for (j = 0; j < 2 * nr; ++j) {
+                SCISQL_ASSERT(results[level][i].ranges[j] == ids->ranges[j],
+                              "scisql_s2cpoly_htmids() did not return the "
+                              "expected ranges");
+            }
+        }
+    }
+    /* Tests at subdivision levels 2 to SCISQL_HTM_MAX_LEVEL */
+    radius = 1.0;
+    for (level = 2; level < 8; ++level, radius *= 0.5) {
+        int n = (level < 8) ? NTEST_POINTS : CENTERS + 8;
+        for (i = CENTERS; i < n; ++i) {
+            int64_t id = scisql_v3_htmid(&test_points[i].v, level);
+            int ret = ngon(&poly, 4, &test_points[i].v, radius);
+            SCISQL_ASSERT(ret == 0, "ngon() failed");
+            ids = scisql_s2cpoly_htmids(ids, &poly, level, SIZE_MAX);
+            SCISQL_ASSERT(ids != 0, "scisql_s2cpoly_htmids() failed");
+            SCISQL_ASSERT(ids->n == 1,
+                          "scisql_s2cpoly_htmids() did not return the "
+                          "expected number of ranges");
+            SCISQL_ASSERT(id == ids->ranges[0] && id == ids->ranges[1],
+                          "scisql_s2cpoly_htmids() did not return the "
+                          "expected ranges");
+        }
+    }
+    scisql_sc_init(&p, 1.0, -1.0);
+    scisql_sctov3(&sliver[0], &p);
+    scisql_sc_init(&p, 359.0, 4.0);
+    scisql_sctov3(&sliver[1], &p);
+    scisql_sc_init(&p, 358.0, 3.0);
+    scisql_sctov3(&sliver[2], &p);
+    scisql_s2cpoly_init(&poly, sliver, 3);
+    ids = scisql_s2cpoly_htmids(ids, &poly, 0, SIZE_MAX);
+    SCISQL_ASSERT(ids->n == 3,
+                  "scisql_s2cpoly_htmids() did not return the "
+                  "expected number of ranges");
+    SCISQL_ASSERT(ids->ranges[0] == S0 && ids->ranges[1] == S0 &&
+                  ids->ranges[2] == N0 && ids->ranges[3] == N0 &&
+                  ids->ranges[4] == N3 && ids->ranges[5] == N3,
+                  "scisql_s2cpoly_htmids() did not return the "
+                  "expected ranges");
+    ids = scisql_s2cpoly_htmids(ids, &poly, 1, SIZE_MAX);
+    SCISQL_ASSERT(ids->n == 3,
+                  "scisql_s2cpoly_htmids() did not return the "
+                  "expected number of ranges");
+    SCISQL_ASSERT(ids->ranges[0] == S00 && ids->ranges[1] == S00 &&
+                  ids->ranges[2] == N00 && ids->ranges[3] == N00 &&
+                  ids->ranges[4] == N32 && ids->ranges[5] == N32,
+                  "scisql_s2cpoly_htmids() did not return the "
+                  "expected ranges");
+    free(ids);
+}
+
+
+/*  Checks that ID range list a is a subset of b.
+ */
+static void checkSubset(scisql_ids const *a, scisql_ids const *b) {
+    size_t i, j;
+    for (i = 0, j = 0; i < a->n && j < b->n;) {
+        if (a->ranges[2*i] > b->ranges[2*j + 1]) {
+            ++j;
+            continue;
+        }
+        SCISQL_ASSERT(a->ranges[2*i] >= b->ranges[2*j],
+                      "fine range list is not a subset of coarse range list");
+        SCISQL_ASSERT(a->ranges[2*i + 1] <= b->ranges[2*j + 1],
+                      "fine range list is not a subset of coarse range list");
+        ++i;
+    }
+    SCISQL_ASSERT(i == a->n,
+                  "fine range list is not a subset of coarse range list");
+    SCISQL_ASSERT(j == b->n - 1,
+                  "coarse range list includes unnecessary ranges");
+}
+
+
+/*  Tests adaptive coarsening of effective subdivision level with circles.
+ */
+static void testAdaptiveCircle() {
+    static const double radii[3] = { 0.001, 0.1, 10.0 };
+    scisql_v3 center = test_points[18].v;
+    scisql_ids *coarse = 0;
+    scisql_ids *fine = 0;
+    int i, level;
+    for (i = 0; i < 3; ++i) {
+        for (level = 0; level <= SCISQL_HTM_MAX_LEVEL; ++level) {
+            fine = scisql_s2circle_htmids(fine, &center, radii[i], level, SIZE_MAX);
+            SCISQL_ASSERT(fine != 0, "scisql_s2cpoly_htmids() failed");
+            coarse = scisql_s2circle_htmids(coarse, &center, radii[i], level, 16);
+            SCISQL_ASSERT(coarse != 0, "scisql_s2cpoly_htmids() failed");
+            checkSubset(fine, coarse); 
+       }
+    }
+    free(coarse);
+    free(fine);
+}
+
+
+/*  Tests adaptive coarsening of effective subdivision level with polygons.
+ */
+static void testAdaptivePoly() {
+    static const double radii[3] = { 0.001, 0.1, 1.0 };
+    scisql_s2cpoly poly;
+    scisql_v3 center = test_points[18].v;
+    scisql_ids *coarse = 0;
+    scisql_ids *fine = 0;
+    int i, level;
+    for (i = 0; i < 3; ++i) {
+        int ret = ngon(&poly, 4, &center, radii[i]);
+        SCISQL_ASSERT(ret == 0, "ngon() failed");
+        for (level = 0; level <= SCISQL_HTM_MAX_LEVEL; ++level) {
+            fine = scisql_s2cpoly_htmids(fine, &poly, level, SIZE_MAX);
+            SCISQL_ASSERT(fine != 0, "scisql_s2cpoly_htmids() failed");
+            coarse = scisql_s2cpoly_htmids(coarse, &poly, level, 16);
+            SCISQL_ASSERT(coarse != 0, "scisql_s2cpoly_htmids() failed");
+            checkSubset(fine, coarse);
+       }
+    }
+    free(coarse);
+    free(fine);
+}
+
 
 int main(int argc SCISQL_UNUSED, char **argv SCISQL_UNUSED) {
-    testCircles();
     testPoints();
     testRandomPoints();
     testCircles();
     testPolygons();
+    testAdaptiveCircle();
+    testAdaptivePoly();
     return 0;
 }
 

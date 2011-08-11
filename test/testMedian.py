@@ -1,33 +1,28 @@
 #! /usr/bin/env python
-
+# encoding: utf-8
 #
 # Copyright (C) 2011 Serge Monkewitz
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License v3 as published
-# by the Free Software Foundation, or any later version.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Authors:
 #     - Serge Monkewitz, IPAC/Caltech
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the median() UDF.
-#
 
 from __future__ import with_statement
+
 import random
 import sys
 import unittest
@@ -40,6 +35,7 @@ class MedianTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(MedianTestCase, self).setUp()
 
     def testDistinct(self):
         """Test small and large sequences of distinct values.
@@ -49,7 +45,7 @@ class MedianTestCase(MySqlUdfTestCase):
                 values = [(v,) for v in xrange(n)]
                 random.shuffle(values)
                 t.insertMany(values)
-                stmt = "SELECT median(x) FROM Median"
+                stmt = "SELECT %smedian(x) FROM Median" % self._prefix
                 rows = self.query(stmt)
                 median = 0.5 * (n - 1)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
@@ -66,7 +62,7 @@ class MedianTestCase(MySqlUdfTestCase):
         for n in (100, 10000):
             with self.tempTable("Median", ("x DOUBLE PRECISION",)) as t:
                 t.insertMany([(1,)]*n)
-                stmt = "SELECT median(x) FROM Median"
+                stmt = "SELECT %smedian(x) FROM Median" % self._prefix
                 rows = self.query(stmt)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
                 self.assertAlmostEqual(rows[0][0], 1.0, 15,

@@ -1,29 +1,28 @@
 /*
     Copyright (C) 2011 Serge Monkewitz
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License v3 as published
-    by the Free Software Foundation, or any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     Authors:
-        Serge Monkewitz, IPAC/Caltech
+        - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
 
     ----------------------------------------------------------------
 
     This file contains the implementation of functions declared in "select.h".
- */
+*/
+
 #include "select.h"
 
 #include <stdlib.h>
@@ -33,6 +32,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <math.h>
+#include <stdio.h>
+#include <errno.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -177,7 +178,7 @@ static __inline size_t _median5(const double *array) {
         -   n > 0
  */
 static size_t _medianOfMedians(double *array, size_t n) {
-    size_t i, j, m;
+    size_t i, j, m=0;
     while (1) {
         if (n <= 5) {
             switch (n) {
@@ -465,22 +466,30 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                 /* create temp file */
                 fd = mkstemp(fname);
                 if (fd == -1) {
+                    fprintf(stderr, "scisql_percentile_state_add: mkstemp "
+                            "failed for %s, errno: %i\n", fname, errno); 
                     return 1;
                 }
                 /* guard against other processes using the file */
                 if (fchmod(fd, S_IRUSR | S_IWUSR) != 0) {
                     unlink(fname);
                     close(fd);
+                    fprintf(stderr, "scisql_percentile_state_add: chmod "
+                            "failed for %s, errno: %i\n", fname, errno); 
                     return 1;
                 }
                 /* unlink it immediately */
                 if (unlink(fname) != 0) {
                     close(fd);
+                    fprintf(stderr, "scisql_percentile_state_add: unlink "
+                            "failed for %s, errno: %i\n", fname, errno); 
                     return 1;
                 }
                 /* adjust file size */
                 if (ftruncate(fd, SCISQL_MMAP_FSIZE) != 0) {
                     close(fd);
+                    fprintf(stderr, "scisql_percentile_state_add: ftruncate "
+                            "failed for %s, errno: %d\n", fname, errno); 
                     return 1;
                 }
                 /* memory map it */
@@ -498,6 +507,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                     if (buf == MAP_FAILED) {
 #endif
                         close(fd);
+                        fprintf(stderr, "mmap failed for %s\n", fname); 
                         return 1;
 #if MAP_HUGETLB
                     }
@@ -516,7 +526,7 @@ SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
 }
 
 
-SCISQL_LOCAL double scisql_percentile(scisql_percentile_state *p) {
+SCISQL_LOCAL double scisql_percentile_state_get(scisql_percentile_state *p) {
     size_t n, k;
     double val, frac, i, rem;
     double *array;
@@ -551,3 +561,4 @@ SCISQL_LOCAL double scisql_percentile(scisql_percentile_state *p) {
 #ifdef __cplusplus
 }
 #endif
+

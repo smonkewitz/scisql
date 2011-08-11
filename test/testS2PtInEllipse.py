@@ -1,31 +1,27 @@
 #! /usr/bin/env python
-
+# encoding: utf-8
 #
 # Copyright (C) 2011 Serge Monkewitz
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License v3 as published
-# by the Free Software Foundation, or any later version.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Authors:
 #     - Serge Monkewitz, IPAC/Caltech
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
-# ----------------------------------------------------------------
-#
-# Tests for the s2PtInEllipse() UDF.
-#
+
+from __future__ import with_statement
 
 import math
 import random
@@ -34,16 +30,6 @@ import unittest
 
 from base import *
 
-
-def angSep(ra1, dec1, ra2, dec2):
-    sdt = math.sin(math.radians(ra1 - ra2) * 0.5)
-    sdp = math.sin(math.radians(dec1 - dec2) * 0.5)
-    cc = math.cos(math.radians(dec1)) * math.cos(math.radians(dec2))
-    s = math.sqrt(sdp * sdp + cc * sdt * sdt)
-    if s > 1.0:
-        return 180.0
-    else:
-        return 2.0 * math.degrees(math.asin(s))
 
 def s2PtInEllipse(ra, dec, ra_cen, dec_cen, smaa, smia, ang):
     ra = math.radians(ra)
@@ -83,9 +69,10 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
+        super(S2PtInEllipseTestCase, self).setUp()
 
     def _s2PtInEllipse(self, result, *args):
-        stmt = "SELECT s2PtInEllipse(%s, %s, %s, %s, %s, %s, %s)" % tuple(map(dbparam, args))
+        stmt = "SELECT %ss2PtInEllipse(%s)" % (self._prefix, ",".join(map(dbparam, args)))
         rows = self.query(stmt)
         self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
         self.assertEqual(rows[0][0], result, stmt + " did not return " + repr(result))
@@ -148,9 +135,8 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
                 elif r == False:
                     t.insert((0, ra, dec, ra_cen, dec_cen, smaa, smia, ang))
             stmt = """SELECT COUNT(*) FROM S2PtInEllipse
-                      WHERE s2PtInEllipse(ra, decl,
-                                          cenRa, cenDecl,
-                                          smaa, smia, posAng) != inside"""
+                      WHERE inside != %ss2PtInEllipse(
+                          ra, decl, cenRa, cenDecl, smaa, smia, posAng)""" % self._prefix
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))

@@ -1,86 +1,110 @@
 /*
     Copyright (C) 2011 Serge Monkewitz
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License v3 as published
-    by the Free Software Foundation, or any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     Authors:
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="${SCISQL_PREFIX}s2PtInCPoly" return_type="INTEGER" section="s2">
+    <desc>
+        Returns 1 if the point (lon, lat) lies inside the given
+        spherical convex polygon and 0 otherwise. The polygon may
+        be specified either as a VARBINARY byte string (as produced by
+        ${SCISQL_PREFIX}s2CPolyToBin()), or as a sequence of at least 3
+        and at most 20 vertex pairs.
+    </desc>
+    <args>
+        <arg name="lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of point to test.
+        </arg>
+        <arg name="lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of point to test.
+        </arg>
+        <arg name="poly" type="VARBINARY">
+            Binary-string representation of polygon.
+        </arg>
+    </args>
+    <args varargs="true">
+        <arg name="lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of point to test.
+        </arg>
+        <arg name="lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of point to test.
+        </arg>
+        <arg name="v1Lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of first polygon vertex.
+        </arg>
+        <arg name="v1Lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of first polygon vertex.
+        </arg>
+        <arg name="v2Lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of second polygon vertex.
+        </arg>   
+        <arg name="v2Lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of second polygon vertex.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any parameter is NULL, 0 is returned.
+        </note>
+        <note>
+            If any coordinate is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).
+        </note>
+        <note>
+            If any latitude angle lies outside of [-90, 90] degrees,
+            this is an error and NULL is returned.
+        </note>
+        <note>
+            Polygon vertices can be specified in either clockwise or
+            counter-clockwise order. However, vertices are assumed to be
+            hemispherical, to define edges that do not intersect except at
+            vertices, and to define edges that form a convex polygon.
+        </note>
+        <note>
+            Coordinate values must be convertible to type DOUBLE PRECISION. If
+            their actual types are BIGINT or DECIMAL, then the conversion can
+            result in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.
+        </note>
+    </notes>
+    <example>
+        SELECT scienceCcdExposureId
+            FROM Science_Ccd_Exposure
+            WHERE ${SCISQL_PREFIX}s2PtInCPoly(
+                0.0, 0.0,
+                llcRa, llcDecl,
+                ulcRa, ulcDecl,
+                urcRa, urcDecl,
+                lrcRa, lrcDecl) = 1;
+    </example>
+</udf>
+*/
 
-    s2PtInCPoly(DOUBLE PRECISION lon,
-                DOUBLE PRECISION lat,
-                VARBINARY polyString)
-
-    s2PtInCPoly(DOUBLE PRECISION lon,
-                DOUBLE PRECISION lat,
-                DOUBLE PRECISION v1Lon,
-                DOUBLE PRECISION v1Lat,
-                DOUBLE PRECISION v2Lon,
-                DOUBLE PRECISION v2Lat,
-                ...
-                DOUBLE PRECISION vNLon,
-                DOUBLE PRECISION vNLat)
-
-
-    A MySQL UDF returning 1 if the point (lon, lat) lies inside the
-    the given spherical convex polygon, and 0 otherwise. The polygon may
-    be specified either as a VARBINARY byte string (as produced by
-    s2CPolyToBin()), or as a sequence of at least 3 and at most 16
-    vertex pairs.
-
-    Example:
-    --------
-
-    SELECT scienceCcdExposureId
-        FROM Science_Ccd_Exposure
-        WHERE s2PtInCPoly(0.0, 0.0, ccdBoundary) = 1;
-
-    Inputs:
-    -------
-
-    All arguments except polyString must be convertible to type
-    DOUBLE PRECISION and are assumed to be in units of degrees. Note that:
-
-    - If any parameter is NULL, 0 is returned.
-
-    - If any coordinate is NaN or +/-Inf, this is an error and
-      NULL is returned (IEEE specials are not currently supported by MySQL).
-
-    - If any latitude angle lies outside of [-90, 90] degrees,
-      this is an error and NULL is returned.
-
-    - Polygon vertices can be specified in either clockwise or
-      counter-clockwise order. However, vertices are assumed to be
-      hemispherical, to define edges that do not intersect except at
-      vertices, and to define edges that form a convex polygon.
-
-    - As previously mentioned, input coordinates are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as the inputs are values
-      of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -97,9 +121,10 @@ typedef struct {
 } _scisql_ptpoly_state;
 
 
-SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
-                                    UDF_ARGS *args,
-                                    char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInCPoly, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     size_t i;
     my_bool const_item = 1, const_pos = 1, const_poly = 1;
@@ -108,15 +133,16 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
         if (args->arg_count < 8 ||
             args->arg_count > 2 + 2 * SCISQL_MAX_VERTS ||
             (args->arg_count & 1) != 0) {
-            snprintf(message, MYSQL_ERRMSG_SIZE, "s2PtInCPoly() expects "
-                     "between 4 and %d spherical coordinate pairs",
+            snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInCPoly)
+                     " expects between 4 and %d spherical coordinate pairs",
                      SCISQL_MAX_VERTS + 1);
             return 1;
         }
     } else if (args->arg_type[2] != STRING_RESULT) {
-        strncpy(message, "s2PtInCPoly() expects a spherical coordinate pair "
-                "and a polygon byte string", MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInCPoly) 
+                 " expects a spherical coordinate pair and a polygon"
+                 " byte-string");
+        return 1;
     }
     for (i = 0; i < 2; ++i) {
         args->arg_type[i] = REAL_RESULT;
@@ -151,10 +177,11 @@ SCISQL_API my_bool s2PtInCPoly_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2PtInCPoly(UDF_INIT *initid,
-                                 UDF_ARGS *args,
-                                 char *is_null,
-                                 char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2PtInCPoly, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     _scisql_ptpoly_state s;
     _scisql_ptpoly_state *state;
@@ -216,9 +243,16 @@ SCISQL_API long long s2PtInCPoly(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2PtInCPoly_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2PtInCPoly, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2PtInCPoly)
+SCISQL_UDF_DEINIT(s2PtInCPoly)
+SCISQL_INTEGER_UDF(s2PtInCPoly)
 
 
 #ifdef __cplusplus

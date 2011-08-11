@@ -1,83 +1,95 @@
 /*
     Copyright (C) 2011 Serge Monkewitz
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License v3 as published
-    by the Free Software Foundation, or any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     Authors:
         - Serge Monkewitz, IPAC/Caltech
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
-    ================================================================
+*/
 
+/**
+<udf name="${SCISQL_PREFIX}s2PtInEllipse" return_type="INTEGER" section="s2">
+    <desc>
+        Returns 1 if the point (lon, lat) lies inside the given
+        spherical ellipse and 0 otherwise.
+    </desc>
+    <args>
+        <arg name="lon" type="DOUBLE PRECISION" units="deg">
+            Longitude angle of point to test.
+        </arg>
+        <arg name="lat" type="DOUBLE PRECISION" units="deg">
+            Latitude angle of point to test.
+        </arg>
+        <arg name="centerLon" type="DOUBLE PRECISION" units="deg">
+            Ellipse center longitude angle.
+        </arg>
+        <arg name="centerLat" type="DOUBLE PRECISION" units="deg">
+            Ellipse center latitude angle.
+        </arg>
+        <arg name="semiMajorAxisAngle" type="DOUBLE PRECISION" units="arcsec">
+            Semi-major axis length.
+        </arg>
+        <arg name="semiMinorAxisAngle" type="DOUBLE PRECISION" units="arcsec">
+            Semi-minor axis length.
+        </arg>
+        <arg name="positionAngle" type="DOUBLE PRECISION" units="deg">
+            Ellipse position angle, east of north.
+        </arg>
+    </args>
+    <notes>
+        <note>
+            If any parameter is NULL, 0 is returned.
+        </note>
+        <note>
+            If any parameter is NaN or +/-Inf, this is an error and NULL is
+            returned (IEEE specials are not currently supported by MySQL).
+        </note>
+        <note>
+            If lat or centerLat lies outside of [-90, 90] degrees, this is an
+            error and NULL is returned.
+        </note>
+        <note>
+            If semiMinorAxisAngle is negative or greater than
+            semiMajorAxisAngle, this is an error and NULL is returned.
+        </note>
+        <note>
+            If semiMajorAxisAngle is greater than 36,000 arcsec (10 deg),
+            this is an error and NULL is returned.
+        </note>
+        <note>
+            All inputs must be convertible to type DOUBLE PRECISION. If their
+            actual types are BIGINT or DECIMAL, then the conversion can result
+            in loss of precision and hence an inaccurate result. Loss of
+            precision will not occur so long as the inputs are values of type
+            DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT or TINYINT.
+        </note>
+    </notes>
+    <example>
+        SELECT objectId, ra_PS, decl_PS
+            FROM Object
+            WHERE ${SCISQL_PREFIX}s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
+    </example>
+</udf>
+*/
 
-    s2PtInEllipse(DOUBLE PRECISION lon,
-                  DOUBLE PRECISION lat,
-                  DOUBLE PRECISION centerLon,
-                  DOUBLE PRECISION centerLat,
-                  DOUBLE PRECISION semiMajorAxisAngle,
-                  DOUBLE PRECISION semiMinorAxisAngle,
-                  DOUBLE PRECISION positionAngle)
-
-    A MySQL UDF returning 1 if the point (lon, lat) lies inside the
-    the given spherical ellipse, and 0 otherwise.
-
-    Example:
-    --------
-
-    SELECT objectId, ra_PS, decl_PS
-        FROM Object
-        WHERE s2PtInEllipse(ra_PS, decl_PS, 0, 0, 10, 5, 90) = 1;
-
-    Inputs:
-    -------
-
-    - lon:                  longitude of position to test (deg)
-    - lat:                  latitude of position to test (deg)
-    - lonCenter:            longitude of ellipse center (deg)
-    - latCenter:            latitude of ellipse center (deg)
-    - semiMajorAxisAngle:   semi-major axis length (arcsec)
-    - semiMinorAxisAngle:   semi-minor axis length (arcsec)
-    - positionAngle:        ellipse position angle, east of north (deg)
-
-    All arguments must be convertible to type DOUBLE PRECISION. Note that:
-
-    - If any parameter is NULL, 0 is returned.
-
-    - If any parameter is NaN or +/-Inf, this is an error and
-      NULL is returned (IEEE specials are not currently supported by MySQL).
-
-    - If lat or centerLat lie outside of [-90, 90] degrees,
-      this is an error and NULL is returned.
-
-    - If semiMinorAxisAngle is negative or greater than semiMajorAxisAngle,
-      this is an error and NULL is returned.
-
-    - If semiMajorAxisAngle is greater than 36,000 arcsec (10 deg), this
-      is an error and NULL is returned.
-
-    - As previously mentioned, input values are coerced to be of type
-      DOUBLE PRECISION. If the inputs are of type BIGINT or DECIMAL, then the
-      coercion can result in loss of precision and hence an inaccurate result.
-      Loss of precision will not occur so long as the inputs are values
-      of type DOUBLE PRECISION, FLOAT, REAL, INTEGER, SMALLINT, or TINYINT.
- */
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 #include "mysql.h"
 
+#include "udf.h"
 #include "geometry.h"
 
 #ifdef __cplusplus
@@ -98,16 +110,16 @@ typedef struct {
 } _scisql_s2ellipse;
 
 
-SCISQL_API my_bool s2PtInEllipse_init(UDF_INIT *initid,
-                                      UDF_ARGS *args,
-                                      char *message)
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInEllipse, _init) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *message)
 {
     int i;
     my_bool const_item = 1, const_ellipse = 1;
     if (args->arg_count != 7) {
-        strncpy(message, "s2PtInEllipse() expects exactly 7 arguments",
-                MYSQL_ERRMSG_SIZE - 1);
-        message[MYSQL_ERRMSG_SIZE - 1] = '\0';
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInEllipse)
+                 " expects exactly 7 arguments");
         return 1;
     }
     for (i = 0; i < 7; ++i) {
@@ -130,10 +142,11 @@ SCISQL_API my_bool s2PtInEllipse_init(UDF_INIT *initid,
 }
 
 
-SCISQL_API long long s2PtInEllipse(UDF_INIT *initid,
-                                   UDF_ARGS *args,
-                                   char *is_null,
-                                   char *error SCISQL_UNUSED)
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2PtInEllipse, SCISQL_NO_SUFFIX) (
+    UDF_INIT *initid,
+    UDF_ARGS *args,
+    char *is_null,
+    char *error SCISQL_UNUSED)
 {
     _scisql_s2ellipse ellipse;
     scisql_sc p, cen;
@@ -200,9 +213,16 @@ SCISQL_API long long s2PtInEllipse(UDF_INIT *initid,
 }
 
 
-SCISQL_API void s2PtInEllipse_deinit(UDF_INIT *initid) {
+SCISQL_API void SCISQL_VERSIONED_FNAME(s2PtInEllipse, _deinit) (
+    UDF_INIT *initid)
+{
     free(initid->ptr);
 }
+
+
+SCISQL_UDF_INIT(s2PtInEllipse)
+SCISQL_UDF_DEINIT(s2PtInEllipse)
+SCISQL_INTEGER_UDF(s2PtInEllipse)
 
 
 #ifdef __cplusplus

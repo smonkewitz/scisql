@@ -1,19 +1,17 @@
 /*
     Copyright (C) 2011 Serge Monkewitz
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License v3 as published
-    by the Free Software Foundation, or any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     Authors:
         - Serge Monkewitz, IPAC/Caltech
@@ -30,7 +28,8 @@
 
     http://voservices.net/spherical/
     http://adsabs.harvard.edu/abs/2010PASP..122.1375B
- */
+*/
+
 #include "htm.h"
 
 #include <stdlib.h>
@@ -116,7 +115,6 @@ typedef struct {
 /*  A root to leaf path in a depth-first traversal of an HTM tree.
  */
 typedef struct {
-  int level;            /* max subdivision level */
   scisql_htmroot root;  /* ordinal of root triangle (0-7) */
   _scisql_htmnode node[SCISQL_HTM_MAX_LEVEL + 1];
 } _scisql_htmpath;
@@ -320,17 +318,18 @@ static scisql_v3p * _scisql_htm_partition(const scisql_v3 *plane,
     traversal, the input position list is partitioned into the list of
     points inside the current HTM node and those outside - the full
     depth-first traverals of the HTM tree therefore yields a list of
-    positions sorted on their HTM index. This can be faster than computing
+    positions sorted on their HTM indexes. This can be faster than computing
     HTM indexes one at a time when inputs are clustered spatially, since the
     boundary representation of a given HTM triangle is computed at most once.
  */
 static void _scisql_htmpath_sort(_scisql_htmpath *path,
                                  scisql_v3p *begin,
                                  scisql_v3p *end,
-                                 int64_t *ids)
+                                 int64_t *ids,
+                                 int level)
 {
     _scisql_htmnode * const root = path->node;
-    _scisql_htmnode * const leaf = root + path->level;
+    _scisql_htmnode * const leaf = root + level;
     _scisql_htmnode *curnode = path->node;
     scisql_v3p *beg = begin;
 
@@ -466,22 +465,154 @@ static _scisql_htmcov _scisql_s2circle_htmcov(const _scisql_htmnode *node,
                                  node->edge[1]) <= dist2;
     int i2 = scisql_v3_edgedist2(center, node->vert[2], node->vert[0],
                                  node->edge[2]) <= dist2;
-    if (i0 == i1 && i1 == i2) {
-        if (i0 == 1) {
-            /* min distance to every edge is <= circle radius */
-            return SCISQL_INSIDE;
-        } else {
-            /* min distance to every edge is > circle radius - circle
-               is either inside triangle or disjoint from it */
-            if (scisql_v3_dot(center, node->edge[0]) >= 0.0 &&
-                scisql_v3_dot(center, node->edge[1]) >= 0.0 &&
-                scisql_v3_dot(center, node->edge[2]) >= 0.0) {
-                return SCISQL_CONTAINS;
+    if (i0 != i1 || i1 != i2) {
+        return SCISQL_INTERSECT;
+    }
+    if (i0 == 1) {
+        /* min distance to every edge is <= circle radius */
+        return SCISQL_INSIDE;
+    }
+    /* min distance to every edge is > circle radius - circle
+       is either inside triangle or disjoint from it */
+    if (scisql_v3_dot(center, node->edge[0]) >= 0.0 &&
+        scisql_v3_dot(center, node->edge[1]) >= 0.0 &&
+        scisql_v3_dot(center, node->edge[2]) >= 0.0) {
+        return SCISQL_CONTAINS;
+    }
+    return SCISQL_DISJOINT;
+}
+
+static const double SCISQL_INF = 1.0 / 0.0;
+static const double SCISQL_NEG_INF = -1.0 / 0.0;
+
+/*  Tests whether poly intersects the edge (v1, v2) with plane normal n.
+
+    The idea is that a solution v = (x,y,z) must satisfy:
+
+        v . n = 0, v != 0
+        v . (n ^ v1) >= 0
+        v . (v2 ^ n) >= 0
+        v . e_i >= 0
+
+    where e_i are the edge plane normals for the polygon, and (n ^ v1), (v2 ^ n) are
+    plane normals that bound the lune defined by n, v1, and v2. Write this as:
+
+        v . n = 0
+        v . c_i >= 0
+
+    Now assume nz > 0 (at least one of nx, ny, nz must be non-zero, and negative values
+    are dealt with in similar fashion). Use the equality to obtain
+
+        z = - (x * nx + y * ny) / nz
+
+    then substitute into the inequalities to obtain:
+
+        x * (c_ix * nz - c_iz * nx) + y * (c_iy * nz - c_iz * ny) >= 0
+
+    which we write
+
+        x * a_i + y * b_i >= 0
+
+    If a solution v exists, then Kv is also a solution (for positive scalar K),
+    so we can fix y = 1 and look for solutions to
+
+        x * a_i + b_i >= 0
+
+    If there are none, fix y = -1 and look for solutions to:
+
+        x * a_i - b_i >= 0
+
+    If again there are none, then y = 0, and the problem reduces to checking whether
+
+        x * a_i >= 0
+
+    has any solutions (this is the case when the non-zero a_i have the same sign).
+ */
+static int _scisql_isect_test(const scisql_v3 *v1,
+                              const scisql_v3 *v2,
+                              const scisql_v3 *n,
+                              const scisql_s2cpoly *poly)
+{
+    double ab[2*(SCISQL_MAX_VERTS + 2)];
+    scisql_v3 c0;
+    scisql_v3 c1;
+    double min_1, max_1, min_m1, max_m1;
+    size_t i, neg, pos;
+
+    scisql_v3_cross(&c0, n, v1);
+    scisql_v3_cross(&c1, v2, n);
+    if (n->z != 0.0) {
+        double s = (n->z > 0.0) ? 1.0 : -1.0;
+        ab[0] = s * (c0.x * n->z - c0.z * n->x);
+        ab[1] = s * (c0.y * n->z - c0.z * n->y);
+        ab[2] = s * (c1.x * n->z - c1.z * n->x);
+        ab[3] = s * (c1.y * n->z - c1.z * n->y);
+        for (i = 0; i < poly->n; ++i) {
+            ab[2*i + 4] = s * (poly->edges[i].x * n->z - poly->edges[i].z * n->x);
+            ab[2*i + 5] = s * (poly->edges[i].y * n->z - poly->edges[i].z * n->y);
+        }
+    } else if (n->y != 0.0) {
+        double s = (n->y > 0.0) ? 1.0 : -1.0;
+        ab[0] = s * (c0.x * n->y - c0.y * n->x);
+        ab[1] = s * (c0.z * n->y);
+        ab[2] = s * (c1.x * n->y - c1.y * n->x);
+        ab[3] = s * (c1.z * n->y);
+        for (i = 0; i < poly->n; ++i) {
+            ab[2*i + 4] = s * (poly->edges[i].x * n->y - poly->edges[i].y * n->x);
+            ab[2*i + 5] = s * (poly->edges[i].z * n->y);
+        }
+    } else if (n->x != 0.0) {
+        double s = (n->x > 0.0) ? 1.0 : -1.0;
+        ab[0] = s * (c0.y * n->x);
+        ab[1] = s * (c0.z * n->x);
+        ab[2] = s * (c1.y * n->x);
+        ab[3] = s * (c1.z * n->x);
+        for (i = 0; i < poly->n; ++i) {
+            ab[2*i + 4] = s * (poly->edges[i].y * n->x);
+            ab[2*i + 5] = s * (poly->edges[i].z * n->x);
+        }
+    } else {
+        return 0;
+    }
+    /* search for solutions to a*x +/- b >= 0, with constraint coeffs stored in
+       ab */
+    min_1 = min_m1 = SCISQL_NEG_INF;
+    max_1 = max_m1 = SCISQL_INF;
+    for (i = 0, neg = 0, pos = 0; i < poly->n + 2; ++i) {
+        double a = ab[2*i];
+        double b = ab[2*i + 1];
+        if (a == 0.0) {
+            if (b < 0.0) {
+                min_1 = SCISQL_INF;
+                max_1 = SCISQL_NEG_INF;
+            } else if (b > 0.0) {
+                min_m1 = SCISQL_INF;
+                max_m1 = SCISQL_NEG_INF;
             }
-            return SCISQL_DISJOINT;
+        } else if (a < 0.0) {
+            ++neg;
+            double d = -b / a;
+            if (d < max_1) {
+                max_1 = d;
+            }
+            if (-d < max_m1) {
+                max_m1 = -d;
+            }
+        } else {
+            ++pos;
+            double d = -b / a;
+            if (d > min_1) {
+                min_1 = d;
+            }
+            if (-d > min_m1) {
+                min_m1 = -d;
+            }
         }
     }
-    return SCISQL_INTERSECT;
+    if (min_1 <= max_1 || min_m1 <= max_m1) {
+        return 1;
+    }
+    return (neg == 0 || pos == 0);
 }
 
 /*  Returns the coverage code describing the spatial relationship between the
@@ -494,20 +625,28 @@ static _scisql_htmcov _scisql_s2cpoly_htmcov(const _scisql_htmnode *node,
     int i1 = scisql_s2cpoly_cv3(poly, node->vert[1]);
     int i2 = scisql_s2cpoly_cv3(poly, node->vert[2]);
 
-    if (i0 == i1 && i1 == i2) {
-        /* If all triangle vertices are inside poly, then triangle is inside
-           by convexity. If all vertices are outside, then poly is either
-           disjoint from the triangle, or completely inside it. */
-        if (i0 == 0) {
-            return SCISQL_INSIDE;
-        } else if (scisql_v3_dot(&poly->vsum, node->edge[0]) >= 0.0 &&
-                  scisql_v3_dot(&poly->vsum, node->edge[1]) >= 0.0 &&
-                  scisql_v3_dot(&poly->vsum, node->edge[2]) >= 0.0) {
-            return SCISQL_CONTAINS;
-        }
-        return SCISQL_DISJOINT;
+    if (i0 != i1 || i1 != i2) {
+        return SCISQL_INTERSECT;
     }
-    return SCISQL_INTERSECT;
+    /* If all triangle vertices are inside poly, then triangle is inside
+       by convexity. */
+    if (i0 == 1) {
+        return SCISQL_INSIDE;
+    }
+    if (_scisql_isect_test(node->vert[0], node->vert[1], node->edge[0], poly) != 0 ||
+        _scisql_isect_test(node->vert[1], node->vert[2], node->edge[1], poly) != 0 ||
+        _scisql_isect_test(node->vert[2], node->vert[0], node->edge[2], poly) != 0) {
+        return SCISQL_INTERSECT;
+    }
+    /* All triangle vertices are outside poly and there are no edge/edge
+       intersections. Polygon is either inside triangle or disjoint from
+       it */
+    if (scisql_v3_dot(&poly->vsum, node->edge[0]) >= 0.0 &&
+        scisql_v3_dot(&poly->vsum, node->edge[1]) >= 0.0 &&
+        scisql_v3_dot(&poly->vsum, node->edge[2]) >= 0.0) {
+        return SCISQL_CONTAINS;
+    }
+    return SCISQL_DISJOINT;
 }
 
 /*  Returns the HTM root triangle for a point.
@@ -595,40 +734,90 @@ static void _scisql_htm_rootsort(size_t roots[SCISQL_HTM_NROOTS + 1],
     roots[SCISQL_HTM_NROOTS] = n;
 }
 
+/*  Reduces the effective subdivision level of an HTM id range list by n levels
+    and merges adjacent ranges. This typically reduces the number of ranges in
+    the list, but also makes it a poorer approximation of the underlying
+    geometry. Note that with sufficiently large n, any range list can be shrunk
+    down to at most 4 ranges.
+
+    In detail: a range [I1, I2] is mapped to [I1 & ~mask, I2 | mask], where
+    mask = (1 << 2*n) - 1.
+ */
+static void _scisql_simplify_ids(scisql_ids *ids, int n) {
+    size_t i, j, nr;
+    int64_t mask;
+    if (n <= 0 || ids == 0 || ids->n == 0) {
+        return;
+    }
+    mask = (((int64_t) 1) << 2*n) - 1;
+    for (i = 0, j = 0, nr = ids->n; i < nr; ++i, ++j) {
+        int64_t idmin = ids->ranges[2*i] & ~mask;
+        int64_t idmax = ids->ranges[2*i + 1] | mask;
+        for (; i < nr - 1; ++i) {
+            int64_t next = ids->ranges[2*i + 2] & ~mask;
+            if (next > idmax + 1) {
+                break;
+            }
+            idmax = ids->ranges[2*i + 3] | mask;
+        }
+        ids->ranges[2*j] = idmin;
+        ids->ranges[2*j + 1] = idmax;
+    }
+    ids->n = j;
+}
+
 
 /* ---- API ---- */
 
 SCISQL_LOCAL int64_t scisql_v3_htmid(const scisql_v3 *point, int level) {
-    _scisql_htmpath path;
-    _scisql_htmnode *curnode;
-    _scisql_htmnode *leaf;
+    scisql_v3 v0, v1, v2;
+    scisql_v3 sv0, sv1, sv2;
+    scisql_v3 e;
+    int64_t id;
+    int curlevel;
+    scisql_htmroot r;
 
     if (point == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return -1;
     }
-    path.level = level;
-    _scisql_htmpath_root(&path, _scisql_v3_htmroot(point));
-    curnode = path.node;
-    leaf = path.node + level;
-    for (; curnode < leaf; ++curnode) {
-        _scisql_htmnode_prep0(curnode);
-        if (scisql_v3_dot(point, &curnode->mid_edge[1]) >= 0.0) {
-            _scisql_htmnode_make0(curnode);
+    r = _scisql_v3_htmroot(point);
+    v0 = *_scisql_htm_root_vert[r*3];
+    v1 = *_scisql_htm_root_vert[r*3 + 1];
+    v2 = *_scisql_htm_root_vert[r*3 + 2];
+    id = r + 8;
+    for (curlevel = 0; curlevel < level; ++curlevel) {
+        _scisql_htm_vertex(&sv1, &v2, &v0);
+        _scisql_htm_vertex(&sv2, &v0, &v1);
+        scisql_v3_rcross(&e, &sv2, &sv1);
+        if (scisql_v3_dot(&e, point) >= 0) {
+            v1 = sv2;
+            v2 = sv1;
+            id = id << 2;
             continue;
         }
-        _scisql_htmnode_prep1(curnode);
-        if (scisql_v3_dot(point, &curnode->mid_edge[2]) >= 0.0) {
-            _scisql_htmnode_make1(curnode);
+        _scisql_htm_vertex(&sv0, &v1, &v2);
+        scisql_v3_rcross(&e, &sv0, &sv2);
+        if (scisql_v3_dot(&e, point) >= 0) {
+            v0 = v1;
+            v1 = sv0;
+            v2 = sv2;
+            id = (id << 2) + 1;
             continue;
         }
-        _scisql_htmnode_prep2(curnode);
-        if (scisql_v3_dot(point, &curnode->mid_edge[0]) >= 0.0) {
-            _scisql_htmnode_make2(curnode);
-            continue;
+        scisql_v3_rcross(&e, &sv1, &sv0);
+        if (scisql_v3_dot(&e, point) >= 0) {
+            v0 = v2;
+            v1 = sv1;
+            v2 = sv0;
+            id = (id << 2) + 2;
+        } else {
+            v0 = sv0;
+            v1 = sv1;
+            v2 = sv2;
+            id = (id << 2) + 3;
         }
-        _scisql_htmnode_make3(curnode);
     }
-    return curnode->id;
+    return id;
 }
 
 
@@ -647,13 +836,12 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
     if (points == 0 || ids == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return 1;
     }
-    path.level = level;
     _scisql_htm_rootsort(roots, points, (unsigned char *) ids, n);
     for (r = SCISQL_HTM_S0; r <= SCISQL_HTM_N3; ++r) {
         if (roots[r] < roots[r + 1]) {
             _scisql_htmpath_root(&path, r);
             _scisql_htmpath_sort(&path, points + roots[r],
-                                 points + roots[r + 1], ids + roots[r]);
+                                 points + roots[r + 1], ids + roots[r], level);
         }
     }
     return 0;
@@ -663,11 +851,13 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
 SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                                                  const scisql_v3 *center,
                                                  double radius,
-                                                 int level)
+                                                 int level,
+                                                 size_t maxranges)
 {
     _scisql_htmpath path;
     double dist2;
     scisql_htmroot root;
+    int efflevel;
 
     if (center == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return 0;
@@ -691,7 +881,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
         return _scisql_ids_add(ids, min_id, max_id);
     }
 
-    path.level = level;
+    efflevel = level;
     /* compute square of secant distance corresponding to radius */
     dist2 = sin(radius * 0.5 * SCISQL_RAD_PER_DEG);
     dist2 = 4.0 * dist2 * dist2;
@@ -715,7 +905,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                     }
                     /* fall-through */
                 case SCISQL_INTERSECT:
-                    if (curlevel < level) {
+                    if (curlevel < efflevel) {
                         /* continue subdividing */
                         _scisql_htmnode_prep0(curnode);
                         _scisql_htmnode_make0(curnode);
@@ -723,14 +913,10 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                         ++curlevel;
                         continue;
                     }
-                    /* reached a leaf, append leaf HTM ID to results */
-                    ids = _scisql_ids_add(ids, curnode->id, curnode->id);
-                    if (ids == 0) {
-                        return ids;
-                    }
-                    break;
+                    /* fall-through */
                 case SCISQL_INSIDE:
-                    /* add ids of all children of triangle to results */
+                    /* reached a leaf or fully covered HTM triangle,
+                       append HTM ID range to results */
                     {
                         int64_t id = curnode->id << (level - curlevel) * 2;
                         int64_t n = ((int64_t) 1) << (level - curlevel) * 2;
@@ -739,8 +925,18 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
                     if (ids == 0) {
                         return ids;
                     }
+                    while (ids->n > maxranges && efflevel != 0) {
+                        /* too many ranges: reduce effective subdivision level */
+                        --efflevel;
+                        if (curlevel > efflevel) {
+                           curnode = curnode - (curlevel - efflevel);
+                           curlevel = efflevel; 
+                        }
+                        _scisql_simplify_ids(ids, level - efflevel);
+                    }
                     break;
                 default:
+                    /* HTM triangle does not intersect circle */
                     break;
             }
             /* ascend towards the root */
@@ -773,10 +969,12 @@ SCISQL_LOCAL scisql_ids * scisql_s2circle_htmids(scisql_ids *ids,
 
 SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
                                                 const scisql_s2cpoly *poly,
-                                                int level)
+                                                int level,
+                                                size_t maxranges)
 {
     _scisql_htmpath path;
     scisql_htmroot root;
+    int efflevel;
 
     if (poly == 0 || level < 0 || level > SCISQL_HTM_MAX_LEVEL) {
         return 0;
@@ -790,7 +988,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
         ids->n = 0;
     }
 
-    path.level = level;
+    efflevel = level;
 
     for (root = SCISQL_HTM_S0; root <= SCISQL_HTM_N3; ++root) {
         _scisql_htmnode *curnode = path.node;
@@ -811,7 +1009,7 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
                     }
                     /* fall-through */
                 case SCISQL_INTERSECT:
-                    if (curlevel < level) {
+                    if (curlevel < efflevel) {
                         /* continue subdividing */
                         _scisql_htmnode_prep0(curnode);
                         _scisql_htmnode_make0(curnode);
@@ -819,14 +1017,10 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
                         ++curlevel;
                         continue;
                     }
-                    /* reached a leaf, append leaf HTM ID to results */
-                    ids = _scisql_ids_add(ids, curnode->id, curnode->id);
-                    if (ids == 0) {
-                        return ids;
-                    }
-                    break;
+                    /* fall-through */
                 case SCISQL_INSIDE:
-                    /* add ids of all children of triangle to results */
+                    /* reached a leaf or fully covered HTM triangle,
+                       append HTM ID range to results */
                     {
                         int64_t id = curnode->id << (level - curlevel) * 2;
                         int64_t n = ((int64_t) 1) << (level - curlevel) * 2;
@@ -835,8 +1029,18 @@ SCISQL_LOCAL scisql_ids * scisql_s2cpoly_htmids(scisql_ids * ids,
                     if (ids == 0) {
                         return ids;
                     }
+                    while (ids->n > maxranges && efflevel != 0) {
+                        /* too many ranges: reduce effetive subdivision level */
+                        --efflevel;
+                        if (curlevel > efflevel) {
+                           curnode = curnode - (curlevel - efflevel);
+                           curlevel = efflevel;
+                        }
+                        _scisql_simplify_ids(ids, level - efflevel);
+                    }
                     break;
                 default:
+                    /* HTM triangle does not intersect polygon */
                     break;
             }
             /* ascend towards the root */

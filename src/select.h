@@ -1,19 +1,17 @@
 /*
     Copyright (C) 2011 Serge Monkewitz
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License v3 as published
-    by the Free Software Foundation, or any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     Authors:
         - Serge Monkewitz, IPAC/Caltech
@@ -23,7 +21,8 @@
     ----------------------------------------------------------------
 
     Functions for selecting values from an array of doubles.
-  */
+*/
+
 #ifndef SCISQL_SELECT_H
 #define SCISQL_SELECT_H
 
@@ -80,7 +79,7 @@ SCISQL_LOCAL double scisql_min(const double *array, size_t n);
 
 /* ---- Median/percentile ---- */
 
-#define SCISQL_MMAP_FSIZE   (((size_t) 1) << 31)
+#define SCISQL_MMAP_FSIZE   (((size_t) 1) << 30)
 #define SCISQL_MALLOC_SLOTS 8192
 #define SCISQL_MAX_NELEMS   (SCISQL_MMAP_FSIZE / sizeof(double))
 
@@ -92,7 +91,7 @@ SCISQL_LOCAL double scisql_min(const double *array, size_t n);
     values.  If more are added, a memory mapped file in /tmp is used
     instead.
 
-    At the moment, a maximum of 2^28, or ~270 million values can be
+    At the moment, a maximum of 2^27, or ~134 million values can be
     handled (SCISQL_MAX_NELEMS).
 */
 typedef struct {
@@ -123,9 +122,9 @@ SCISQL_LOCAL void scisql_percentile_state_clear(scisql_percentile_state *p);
 SCISQL_LOCAL int scisql_percentile_state_add(scisql_percentile_state *p,
                                              double *value);
 
-/*  Computes the percentile of the values tracked by p.
+/*  Computes and returns the percentile of the values tracked by p.
  */
-SCISQL_LOCAL double scisql_percentile(scisql_percentile_state *p);
+SCISQL_LOCAL double scisql_percentile_state_get(scisql_percentile_state *p);
 
 
 #ifdef __cplusplus

@@ -1,30 +1,28 @@
 #! /usr/bin/env python
-
+# encoding: utf-8
 #
 # Copyright (C) 2011 Serge Monkewitz
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License v3 as published
-# by the Free Software Foundation, or any later version.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# A copy of the LGPLv3 is available at <http://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Authors:
 #     - Serge Monkewitz, IPAC/Caltech
 #
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
+
 from __future__ import with_statement
 
-import getpass
 import math
 import os
 import unittest
@@ -80,15 +78,15 @@ def _parseMyCnf(my_cnf):
 class MySqlUdfTestCase(unittest.TestCase):
     """Base class for MySQL UDF test-cases.
     """
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
+        self._prefix = os.environ['SCISQL_PREFIX']
         connkw = _parseMyCnf(os.environ['MYSQL_CNF'])
         self._conn = sql.connect(**connkw)
         try:
             self._cursor = self._conn.cursor()
             try:
-                self._cursor.execute("CREATE DATABASE IF NOT EXISTS test_scisql")
-                self._cursor.execute("USE test_scisql")
+                self._cursor.execute("CREATE DATABASE IF NOT EXISTS scisql_test")
+                self._cursor.execute("USE scisql_test")
             except:
                 self._cursor.close()
                 raise
@@ -96,10 +94,11 @@ class MySqlUdfTestCase(unittest.TestCase):
             self._conn.close()
             raise
 
-    @classmethod
-    def tearDownClass(self):
+    def tearDown(self):
         self._cursor.close()
         self._conn.close()
+        del self._cursor
+        del self._conn
 
     def query(self, stmt):
         self._cursor.execute(stmt)
