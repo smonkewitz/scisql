@@ -45,7 +45,10 @@
             If any argument is NULL, NaN, or +/-Inf, NULL is returned.
         </note>
         <note>
-            If the flux argument is zero, NULL is returned.
+            If the flux argument is negative or zero, NULL is returned.
+        </note>
+        <note>
+            If the fluxSigma argument is negative, NULL is returned.
         </note>
     </notes>
     <example>
@@ -94,12 +97,20 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(fluxToAbMagSigma, SCISQL_NO_SUFFIX) (
     char *is_null,
     char *error SCISQL_UNUSED)
 {
-    if (args->args[0] == 0 || args->args[1] == 0) {
+    double **a = (double **) args->args;
+    double absigma;
+    if (a[0] == 0 || a[1] == 0 ||
+        SCISQL_ISSPECIAL(*a[0]) || SCISQL_ISSPECIAL(*a[1]) ||
+        *a[0] <= 0.0 || *a[1] < 0.0) {
         *is_null = 1;
         return 0.0;
     }
-    return scisql_flux2absigma(*((double *) args->args[0]),
-                               *((double *) args->args[1]));
+    absigma = scisql_flux2absigma(*a[0], *a[1]);
+    if (SCISQL_ISSPECIAL(absigma)) {
+        *is_null = 1;
+        return 0.0;
+    }
+    return absigma;
 }
 
 

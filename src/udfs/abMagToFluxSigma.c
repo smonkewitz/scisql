@@ -25,8 +25,8 @@
      section="photometry">
 
     <desc>
-        Converts an AB magnitude error to calibrated flux error
-        (in erg/cm<sup>2</sup>/sec/Hz)
+        Converts an AB magnitude error to a calibrated flux error.
+        The return value is in erg/cm<sup>2</sup>/sec/Hz.
     </desc>
     <args>
         <arg name="mag" type="DOUBLE PRECISION" units="mag">
@@ -42,6 +42,9 @@
         </note>
         <note>
             If any argument is NULL, NaN, or +/-Inf, NULL is returned.
+        </note>
+        <note>
+            If magSigma is negative, NULL is returned.
         </note>
     </notes>
     <example>
@@ -87,12 +90,20 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(abMagToFluxSigma, SCISQL_NO_SUFFIX) (
     char *is_null,
     char *error SCISQL_UNUSED)
 {
-    if (args->args[0] == 0 || args->args[1] == 0) {
+    double **a = (double **) args->args;
+    double fluxsigma;
+    if (a[0] == 0 || a[1] == 0 ||
+        SCISQL_ISSPECIAL(*a[0]) || SCISQL_ISSPECIAL(*a[1]) ||
+        *a[1] < 0.0) {
         *is_null = 1;
         return 0.0;
     }
-    return scisql_ab2fluxsigma(*((double *) args->args[0]),
-                               *((double *) args->args[1]));
+    fluxsigma = scisql_ab2fluxsigma(*a[0], *a[1]);
+    if (SCISQL_ISSPECIAL(fluxsigma)) {
+        *is_null = 1;
+        return 0.0;
+    }
+    return fluxsigma;
 }
 
 

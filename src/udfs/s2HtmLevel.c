@@ -20,90 +20,83 @@
 */
 
 /**
-<udf name="${SCISQL_PREFIX}fluxToAbMag"
-     return_type="DOUBLE PRECISION"
-     section="photometry">
-
+<udf name="${SCISQL_PREFIX}s2HtmLevel" return_type="INTEGER" section="s2">
     <desc>
-        Converts a calibrated (AB) flux to an AB magnitude.
+        Returns the subdivision level of the given HTM ID.
     </desc>
     <args>
-        <arg name="flux" type="DOUBLE PRECISION"
-             units="erg/cm&lt;sup&gt;2&lt;/sup&gt;/sec/Hz">
-            Calibrated flux to convert to an AB magnitude.
+        <arg name="id" type="BIGINT">
+            HTM ID.
         </arg>
     </args>
     <notes>
         <note>
-            The flux argument must be convertible to type DOUBLE PRECISION.
-        </note>
-        <note>
-            If the flux argument is negative, zero, NULL, NaN, or +/-Inf,
-            NULL is returned.
+            If id is NULL or an invalid HTM ID, NULL is returned.
         </note>
     </notes>
     <example>
-        SELECT ${SCISQL_PREFIX}fluxToAbMag(rFlux_PS)
-            FROM Object
-            WHERE rFlux_PS IS NOT NULL
-            LIMIT 10;
+        SELECT ${SCISQL_PREFIX}s2HtmLevel(32);
     </example>
 </udf>
 */
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "mysql.h"
 
 #include "udf.h"
-#include "photometry.h"
+#include "htm.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(fluxToAbMag, _init) (
+SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2HtmLevel, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
 {
     if (args->arg_count != 1) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
-                 SCISQL_UDF_NAME(fluxToAbMag) " expects exactly 1 argument");
+                 SCISQL_UDF_NAME(s2HtmId) " expects exactly 1 argument");
         return 1;
     }
-    args->arg_type[0] = REAL_RESULT;
+    if (args->arg_type[0] != INT_RESULT) {
+        snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2HtmLevel)
+                 " HTM ID must be an integer");
+    }
     initid->maybe_null = 1;
     initid->const_item = (args->args[0] != 0);
-    initid->decimals = 31;
     return 0;
 }
 
 
-SCISQL_API double SCISQL_VERSIONED_FNAME(fluxToAbMag, SCISQL_NO_SUFFIX) (
+SCISQL_API long long SCISQL_VERSIONED_FNAME(s2HtmLevel, SCISQL_NO_SUFFIX) (
     UDF_INIT *initid SCISQL_UNUSED,
     UDF_ARGS *args,
     char *is_null,
     char *error SCISQL_UNUSED)
 {
-    double **a = (double **) args->args;
-    double ab;
-    if (a[0] == 0 || SCISQL_ISSPECIAL(*a[0]) || *a[0] <= 0.0) {
+    int64_t id;
+    int level;
+    if (args->args[0] == 0) {
         *is_null = 1;
-        return 0.0;
+        return 0;
     }
-    ab = scisql_flux2ab(*a[0]);
-    if (SCISQL_ISSPECIAL(ab)) {
+    id = (int64_t) (*(long long *) args->args[0]);
+    level = scisql_htm_level(id);
+    if (level < 0) {
         *is_null = 1;
-        return 0.0;
+        return 0;
     }
-    return ab;
+    return level;
 }
 
 
-SCISQL_UDF_INIT(fluxToAbMag)
-SCISQL_REAL_UDF(fluxToAbMag)
+SCISQL_UDF_INIT(s2HtmLevel)
+SCISQL_INTEGER_UDF(s2HtmLevel)
 
 
 #ifdef __cplusplus
