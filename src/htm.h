@@ -82,6 +82,16 @@ typedef struct {
     void * payload;
 } scisql_v3p SCISQL_ALIGNED(16);
 
+/*  A structures describing the geometry of an HTM triangle (aka a trixel).
+ */
+typedef struct {
+    scisql_v3 verts[3]; /* triangle vertices */
+    scisql_v3 center;   /* triangle center */
+    double radius;      /* bounding circle radius */
+    int64_t id;         /* HTM id */
+    int level;          /* HTM level */
+} scisql_htmtri;
+
 /*  Computes an HTM ID for a position.
 
     Returns -1 if v is 0 or level is not in [0, SCISQL_HTM_MAX_LEVEL].
@@ -98,6 +108,18 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
                                     int64_t *ids,
                                     size_t n,
                                     int level);
+
+/*  Returns the HTM subdivision level of the given id,
+    or -1 if the id is invalid.
+ */
+SCISQL_LOCAL int scisql_htm_level(int64_t id);
+
+/*  Computes and stores the attributes of the HTM triangle with the given id.
+
+    Returns 0 on success and a non-zero value if tri is 0 or id is
+    not a valid HTM id.
+ */
+SCISQL_LOCAL int scisql_htmtri_init(scisql_htmtri *tri, int64_t id);
 
 /*  Computes a list of HTM ID ranges corresponding to the HTM triangles
     overlapping the given circle.

@@ -25,7 +25,8 @@
      section="photometry">
 
     <desc>
-        Converts an AB magnitude to a flux (in erg/cm<sup>2</sup>/sec/Hz).
+        Converts an AB magnitude to a calibrated flux.
+        The return value is in erg/cm<sup>2</sup>/sec/Hz.
     </desc>
     <args>
         <arg name="mag" type="DOUBLE PRECISION" units="mag">
@@ -82,11 +83,18 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(abMagToFlux, SCISQL_NO_SUFFIX) (
     char *is_null,
     char *error SCISQL_UNUSED)
 {
-    if (args->args[0] == 0) {
+    double **a = (double **) args->args;
+    double flux;
+    if (a[0] == 0 || SCISQL_ISSPECIAL(*a[0])) {
         *is_null = 1;
         return 0.0;
     }
-    return scisql_ab2flux(*((double *) args->args[0]));
+    flux = scisql_ab2flux(*a[0]);
+    if (SCISQL_ISSPECIAL(flux)) {
+        *is_null = 1;
+        return 0.0;
+    }
+    return flux;
 }
 
 

@@ -50,7 +50,10 @@
             If any argument is NULL, NaN, or +/-Inf, NULL is returned.
         </note>
         <note>
-            If fluxMag0 is zero, NULL is returned.
+            If either dnSigma or fluxMag0Sigma is negative, NULL is returned.
+        </note>
+        <note>
+            If fluxMag0 is negative or zero, NULL is returned.
         </note>
     </notes>
     <example>
@@ -107,14 +110,24 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(dnToFluxSigma, SCISQL_NO_SUFFIX) (
     char *error SCISQL_UNUSED)
 {
     double **a = (double **) args->args;
+    double fluxsigma;
     size_t i;
     for (i = 0; i < 4; ++i) {
-        if (args->args[i] == 0) {
+        if (a[i] == 0 || SCISQL_ISSPECIAL(*a[i])) {
             *is_null = 1;
             return 0.0;
         }
     }
-    return scisql_dn2fluxsigma(*a[0], *a[1], *a[2], *a[3]);
+    if (*a[1] < 0.0 || *a[2] <= 0.0 || *a[3] < 0.0) {
+        *is_null = 1;
+        return 0.0;
+    }
+    fluxsigma = scisql_dn2fluxsigma(*a[0], *a[1], *a[2], *a[3]);
+    if (SCISQL_ISSPECIAL(fluxsigma)) {
+        *is_null = 1;
+        return 0.0;
+    }
+    return fluxsigma;
 }
 
 

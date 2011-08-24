@@ -766,6 +766,21 @@ static void _scisql_simplify_ids(scisql_ids *ids, int n) {
     ids->n = j;
 }
 
+/*  Counts the number of 1 bits in a 64 bit integer.
+ */
+SCISQL_INLINE int _scisql_popcount(uint64_t x) {
+    const uint64_t c1 = UINT64_C(0x5555555555555555); /*  -1/3   */
+    const uint64_t c2 = UINT64_C(0x3333333333333333); /*  -1/5   */
+    const uint64_t c4 = UINT64_C(0x0f0f0f0f0f0f0f0f); /*  -1/17  */
+    const uint64_t f = UINT64_C(0x0101010101010101); /*  -1/255 */
+
+    x = x - ((x >> 1)  & c1);
+    x = (x & c2) + ((x >> 2)  & c2);
+    x = (x + (x >> 4)) & c4;
+    x = (x * f) >> 56;
+    return (int) x;
+}
+
 
 /* ---- API ---- */
 
@@ -844,6 +859,88 @@ SCISQL_LOCAL int scisql_v3p_htmsort(scisql_v3p *points,
                                  points + roots[r + 1], ids + roots[r], level);
         }
     }
+    return 0;
+}
+
+
+SCISQL_LOCAL int scisql_htm_level(int64_t id) {
+    if (id < 8) {
+        return -1;
+    }
+    uint64_t x = (uint64_t) id;
+    int l;
+    x |= (x >> 1);
+    x |= (x >> 2);
+    x |= (x >> 4);
+    x |= (x >> 8);
+    x |= (x >> 16);
+    x |= (x >> 32);
+    l = _scisql_popcount(x) - 4;
+    /* check that l is even, in range, and that the 4 MSBs of id
+       give a valid root ID (8-15) */
+    if ((l & 1) != 0 ||
+        ((id >> l) & 0x8) == 0 ||
+        l > SCISQL_HTM_MAX_LEVEL*2) {
+        return -1;
+    }
+    return l / 2;
+}
+
+
+SCISQL_LOCAL int scisql_htmtri_init(scisql_htmtri *tri, int64_t id) {
+    scisql_v3 v0, v1, v2;
+    scisql_v3 sv0, sv1, sv2;
+    int shift, level;
+    scisql_htmroot r;
+
+    if (tri == 0) {
+        return -1;
+    }
+    level = scisql_htm_level(id);
+    if (level < 0) {
+        return -1;
+    }
+    tri->id = id;
+    tri->level = level;
+    shift = 2*level;
+    r = (id >> shift) & 0x7;
+    v0 = *_scisql_htm_root_vert[r*3];
+    v1 = *_scisql_htm_root_vert[r*3 + 1];
+    v2 = *_scisql_htm_root_vert[r*3 + 2];
+    for (shift -= 2; shift >= 0; shift -= 2) {
+        int child = (id >> shift) & 0x3;
+        _scisql_htm_vertex(&sv1, &v2, &v0);
+        _scisql_htm_vertex(&sv2, &v0, &v1);
+        _scisql_htm_vertex(&sv0, &v1, &v2);
+        switch (child) {
+            case 0:
+                v1 = sv2;
+                v2 = sv1;
+                break;
+            case 1:
+                v0 = v1;
+                v1 = sv0;
+                v2 = sv2;
+                break;
+            case 2:
+                v0 = v2;
+                v1 = sv1;
+                v2 = sv0;
+                break;
+            case 3:
+                v0 = sv0;
+                v1 = sv1;
+                v2 = sv2;
+                break;
+        }
+    }
+    tri->verts[0] = v0;
+    tri->verts[1] = v1;
+    tri->verts[2] = v2;
+    scisql_v3_add(&sv0, &v0, &v1);
+    scisql_v3_add(&sv0, &sv0, &v2);
+    scisql_v3_normalize(&tri->center, &sv0);
+    tri->radius = scisql_v3_angsep(&sv0, &v0);
     return 0;
 }
 
