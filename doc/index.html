@@ -7,7 +7,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>sciSQL 0.1 Documentation</title>
+	<title>sciSQL 0.2 Documentation</title>
 	<link href="docs.css" type="text/css" rel="stylesheet" />
 	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="prettify/prettify.js"></script>
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-<div id="header">sciSQL 0.1: Science Tools for MySQL</div>
+<div id="header">sciSQL 0.2: Science Tools for MySQL</div>
 <div id="index">Index</div>
 <div id="title"></div>
 
@@ -47,6 +47,7 @@
 			<li><a href="#s2-scisql_s2CPolyToBin" title="Returns a binary-string representation of a spherical convex polygon.">scisql_s2CPolyToBin</a></li>
 			<li><a href="#s2-scisql_s2CircleHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a circle on the unit sphere.">scisql_s2CircleHtmRanges</a></li>
 			<li><a href="#s2-scisql_s2HtmId" title="Returns the HTM ID of a point at the given subdivision level.">scisql_s2HtmId</a></li>
+			<li><a href="#s2-scisql_s2HtmLevel" title="Returns the subdivision level of the given HTM ID.">scisql_s2HtmLevel</a></li>
 			<li><a href="#s2-scisql_s2PtInBox" title="Returns 1 if the point (lon, lat) lies inside the given longitude/latitude angle box, and 0 otherwise.">scisql_s2PtInBox</a></li>
 			<li><a href="#s2-scisql_s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">scisql_s2PtInCPoly</a></li>
 			<li><a href="#s2-scisql_s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">scisql_s2PtInCircle</a></li>
@@ -67,8 +68,8 @@
 		<ul class="section_nav">
 			<li><a href="#photometry-scisql_abMagToDn" title="Converts an AB magnitude to a raw flux in DN.">scisql_abMagToDn</a></li>
 			<li><a href="#photometry-scisql_abMagToDnSigma" title="Converts an AB magnitude error to a raw flux error in DN.">scisql_abMagToDnSigma</a></li>
-			<li><a href="#photometry-scisql_abMagToFlux" title="Converts an AB magnitude to a flux (in erg/cm<sup>2</sup>/sec/Hz).">scisql_abMagToFlux</a></li>
-			<li><a href="#photometry-scisql_abMagToFluxSigma" title="Converts an AB magnitude error to calibrated flux error (in erg/cm<sup>2</sup>/sec/Hz)">scisql_abMagToFluxSigma</a></li>
+			<li><a href="#photometry-scisql_abMagToFlux" title="Converts an AB magnitude to a calibrated flux.">scisql_abMagToFlux</a></li>
+			<li><a href="#photometry-scisql_abMagToFluxSigma" title="Converts an AB magnitude error to a calibrated flux error.">scisql_abMagToFluxSigma</a></li>
 			<li><a href="#photometry-scisql_dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">scisql_dnToAbMag</a></li>
 			<li><a href="#photometry-scisql_dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">scisql_dnToAbMagSigma</a></li>
 			<li><a href="#photometry-scisql_dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">scisql_dnToFlux</a></li>
@@ -927,6 +928,34 @@ SELECT objectId, ra_PS, decl_PS, scisql_s2HtmId(ra_PS, decl_PS, 20)
 	</div>
 
 	
+	<div id="udf-s2-scisql_s2HtmLevel" class="udf">
+		<h3><a name="s2-scisql_s2HtmLevel"></a>scisql_s2HtmLevel</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_s2HtmLevel (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">id</td>
+				<td class="argtype">BIGINT</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM ID.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS INTEGER</td></tr>
+		</table>
+		<div class="description">
+			Returns the subdivision level of the given HTM ID.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">If id is NULL or an invalid HTM ID, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_s2HtmLevel(32);
+</pre>
+	</div>
+
+	
 	<div id="udf-s2-scisql_s2PtInBox" class="udf">
 		<h3><a name="s2-scisql_s2PtInBox"></a>scisql_s2PtInBox</h3>
 		<table class="signature">
@@ -1455,6 +1484,7 @@ SELECT * FROM scisql.Region;
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1505,6 +1535,9 @@ SELECT scisql_abMagToDn(20.5, 3.0e+12);
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If either magSigma or fluxMag0Sigma is negative, NULL is
+            returned.</li>
+			<li class="">If fluxMag0 is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1528,7 +1561,8 @@ SELECT scisql_abMagToDnSigma(20.5, 0.01, 3.0e+12, 0.0);
 			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
-			Converts an AB magnitude to a flux (in erg/cm<sup>2</sup>/sec/Hz).
+			Converts an AB magnitude to a calibrated flux.
+        The return value is in erg/cm<sup>2</sup>/sec/Hz.
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
@@ -1564,13 +1598,14 @@ SELECT scisql_abMagToFlux(20.5);
 			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
 		</table>
 		<div class="description">
-			Converts an AB magnitude error to calibrated flux error
-        (in erg/cm<sup>2</sup>/sec/Hz)
+			Converts an AB magnitude error to a calibrated flux error.
+        The return value is in erg/cm<sup>2</sup>/sec/Hz.
 		</div>
 		<h5>Notes</h5>
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If magSigma is negative, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1607,7 +1642,7 @@ SELECT scisql_abMagToFluxSigma(20.5, 0.01);
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
-			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+			<li class="">If either fluxMag0 or dn is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1661,7 +1696,8 @@ SELECT scisql_dnToAbMag(src.psfFlux, ccd.fluxMag0)
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
-			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+			<li class="">If either dnSigma or fluxMag0Sigma is negative, NULL is returned.</li>
+			<li class="">If either dn or fluxMag0 is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1703,7 +1739,7 @@ SELECT scisql_dnToAbMagSigma(
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
-			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+			<li class="">If fluxMag0 is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1759,7 +1795,8 @@ SELECT scisql_dnToFlux(src.psfFlux, ccd.fluxMag0)
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
-			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+			<li class="">If either dnSigma or fluxMag0Sigma is negative, NULL is returned.</li>
+			<li class="">If fluxMag0 is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1792,7 +1829,8 @@ SELECT scisql_dnToAbMagSigma(
 		<h5>Notes</h5>
 		<ul class="notes">
 			<li class="">The flux argument must be convertible to type DOUBLE PRECISION.</li>
-			<li class="">If the flux argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If the flux argument is negative, zero, NULL, NaN, or +/-Inf,
+            NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1832,7 +1870,8 @@ SELECT scisql_fluxToAbMag(rFlux_PS)
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
-			<li class="">If the flux argument is zero, NULL is returned.</li>
+			<li class="">If the flux argument is negative or zero, NULL is returned.</li>
+			<li class="">If the fluxSigma argument is negative, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1872,7 +1911,7 @@ SELECT scisql_fluxToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
 		<ul class="notes">
 			<li class="">Both arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If either argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
-			<li class="">If fluxMag0 is zero, NULL is returned.</li>
+			<li class="">If fluxMag0 is negative or zero, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
@@ -1926,6 +1965,8 @@ SELECT scisql_fluxToDn(rFlux_PS, 3.0e+12)
 		<ul class="notes">
 			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
 			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If fluxMag0 is negative or zero, NULL is returned.</li>
+			<li class="">If either fluxSigma or fluxMag0Sigma is negative, NULL is returned.</li>
 		</ul>
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">

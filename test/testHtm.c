@@ -275,6 +275,8 @@ static void testPoints() {
                               "scisql_v3p_htmsort() does not agree "
                               "with scisql_v3_htmid()");
             }
+            SCISQL_ASSERT(scisql_htm_level(id) == level,
+                          "scisql_htm_level() failed");
         }
         for (i = 0; i < NTEST_POINTS; ++i) {
             int64_t eid = results[level][i].id;
@@ -295,6 +297,8 @@ static void testPoints() {
                                       "scisql_v3p_htmsort() does not agree "
                                       "with scisql_v3_htmid()");
                     }
+                    SCISQL_ASSERT(scisql_htm_level(id) == level,
+                                  "scisql_htm_level() failed");
                 }
             }
         }
@@ -311,6 +315,8 @@ static void testPoints() {
             SCISQL_ASSERT(id == eid, "scisql_v3_htmid() did not produce "
                           "expected result (L%d, pt %d)", level, (int)i);
             ids[i] = eid;
+            SCISQL_ASSERT(scisql_htm_level(id) == level,
+                          "scisql_htm_level() failed");
         }
     }
 }
@@ -344,6 +350,8 @@ static void testRandomPoints() {
             int64_t id = scisql_v3_htmid(&pts[i].v, level);
             SCISQL_ASSERT(id == ids[i], "scisql_v3_htmid() does not agree "
                           "with scisql_v3p_htmsort()");
+            SCISQL_ASSERT(scisql_htm_level(id) == level,
+                          "scisql_htm_level() failed");
         }
     }
     free(ids);

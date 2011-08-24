@@ -50,6 +50,12 @@
         <note>
             If any argument is NULL, NaN, or +/-Inf, NULL is returned.
         </note>
+        <note>
+            If fluxMag0 is negative or zero, NULL is returned.
+        </note>
+        <note>
+            If either fluxSigma or fluxMag0Sigma is negative, NULL is returned.
+        </note>
     </notes>
     <example>
         SELECT ${SCISQL_PREFIX}fluxToDnSigma(
@@ -105,14 +111,24 @@ SCISQL_API double SCISQL_VERSIONED_FNAME(fluxToDnSigma, SCISQL_NO_SUFFIX) (
     char *error SCISQL_UNUSED)
 {
     double **a = (double **) args->args;
+    double dnsigma;
     size_t i;
     for (i = 0; i < 4; ++i) {
-        if (args->args[i] == 0) {
+        if (args->args[i] == 0 || SCISQL_ISSPECIAL(*a[i])) {
             *is_null = 1;
             return 0.0;
         }
     }
-    return scisql_flux2dnsigma(*a[0], *a[1], *a[2], *a[3]);
+    if (*a[1] < 0.0 || *a[2] <= 0.0 || *a[3] < 0.0) {
+        *is_null = 1;
+        return 0.0;
+    }
+    dnsigma = scisql_flux2dnsigma(*a[0], *a[1], *a[2], *a[3]);
+    if (SCISQL_ISSPECIAL(dnsigma)) {
+        *is_null = 1;
+        return 0.0;
+    }
+    return dnsigma;
 }
 
 
