@@ -96,7 +96,11 @@ static void permgen_next(permgen *gen) {
     double tmp;
     size_t j, k;
 
-    for (j = gen->n - 2; gen->array[j] > gen->array[j + 1]; --j) { }
+    for (j = gen->n - 2; gen->array[j] > gen->array[j + 1]; --j) {
+        if (j == 0) {
+            return; /* last permutation already generated */
+        }
+    }
     for (k = gen->n - 1; gen->array[j] > gen->array[k]; --k) { }
     tmp = gen->array[k];
     gen->array[k] = gen->array[j];
@@ -126,9 +130,10 @@ static void test(double (*select)(double *, size_t, size_t)) {
         size_t i;
 
         permgen_init(&gen, n);
-        expected = n >> 1;
+        expected = (n >> 1);
         for (i = 0; i < gen.nperms; ++i, permgen_next(&gen)) {
-            actual = (*select)(gen.array, gen.n, n >> 1);
+            memcpy(array, gen.array, n * sizeof(double));
+            actual = (*select)(array, n, n >> 1);
             SCISQL_ASSERT_EQUAL(expected, actual, "median failed on permutaion "
                 "%llu of %llu permutations of 0 .. %d", (unsigned long long) i,
                 (unsigned long long) gen.nperms, (int) n - 1);
