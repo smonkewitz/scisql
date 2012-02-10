@@ -26,7 +26,6 @@
 
 #include "geometry.h"
 
-#include <endian.h>
 #include <string.h>
 
 #ifdef __cplusplus
@@ -202,12 +201,10 @@ SCISQL_LOCAL int scisql_s2cpoly_cv3(const scisql_s2cpoly *cp,
 }
 
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#   warning    Byte order detected as little endian
+#if IS_LITTLE_ENDIAN
 #   define SCISQL_COPY_DBL_BYTES(dst, src) \
     do { memcpy((dst), (src), sizeof(double)); } while(0)
-#elif __BYTE_ORDER == __BIG_ENDIAN
-#   warning    Byte order detected as big endian
+#else
 #   define SCISQL_COPY_DBL_BYTES(dst, src) \
     do { \
         size_t s = 0; \
@@ -215,8 +212,6 @@ SCISQL_LOCAL int scisql_s2cpoly_cv3(const scisql_s2cpoly *cp,
             (dst)[s] = (src)[sizeof(double) - 1 - s]; \
         } \
     } while(0)
-#else
-#   error    Unknown byte order!
 #endif
 
 

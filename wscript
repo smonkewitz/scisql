@@ -72,16 +72,30 @@ def configure(ctx):
                              int main() { return foo() + bar(); }''',
                  define_name='HAVE_ATTRIBUTE_VISIBILITY',
                  execute=True,
+                 mandatory=False,
                  msg='Checking for __attribute__ ((visibility()))')
     ctx.check_cc(fragment='''void foo(int x __attribute__ ((unused))) { }
                              __attribute__ ((unused)) void bar() { }
                              int main() { return 0; }''',
                  define_name='HAVE_ATTRIBUTE_UNUSED',
+                 mandatory=False,
                  msg='Checking for __attribute__ ((unused))')
     ctx.check_cc(fragment='''typedef struct { double a; double b; } test __attribute__ ((aligned(16)));
                              int main() { return 0; }''',
                  define_name='HAVE_ATTRIBUTE_ALIGNED',
+                 mandatory=False,
                  msg='Checking for __attribute__ ((aligned()))')
+    # Check endianness of platform
+    ctx.check_cc(fragment='''union { int val; unsigned char bytes[sizeof(int)]; } u;
+                             int main() {
+                                 u.val = 0x0201;
+                                 return u.bytes[0] != 0x01;
+                             }''',
+                 define_name='IS_LITTLE_ENDIAN',
+                 execute=True,
+                 mandatory=False,
+                 okmsg='ok',
+                 msg='Checking byte order')
 
     # Check for libm
     ctx.check_cc(lib='m', uselib_store='M')
