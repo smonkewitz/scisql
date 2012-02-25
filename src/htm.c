@@ -459,18 +459,20 @@ static _scisql_htmcov _scisql_s2circle_htmcov(const _scisql_htmnode *node,
                                               const scisql_v3 *center,
                                               double dist2)
 {
-    int i0 = scisql_v3_edgedist2(center, node->vert[0], node->vert[1],
-                                 node->edge[0]) <= dist2;
-    int i1 = scisql_v3_edgedist2(center, node->vert[1], node->vert[2],
-                                 node->edge[1]) <= dist2;
-    int i2 = scisql_v3_edgedist2(center, node->vert[2], node->vert[0],
-                                 node->edge[2]) <= dist2;
-    if (i0 != i1 || i1 != i2) {
+    int nin = scisql_v3_dist2(center, node->vert[0]) <= dist2;
+    nin += scisql_v3_dist2(center, node->vert[1]) <= dist2;
+    nin += scisql_v3_dist2(center, node->vert[2]) <= dist2;
+    if (nin == 3) {
+        /* every vertex inside circle */
+        return SCISQL_INSIDE;
+    } else if (nin != 0) {
         return SCISQL_INTERSECT;
     }
-    if (i0 == 1) {
-        /* min distance to every edge is <= circle radius */
-        return SCISQL_INSIDE;
+    if (scisql_v3_edgedist2(center, node->vert[0], node->vert[1], node->edge[0]) <= dist2 ||
+        scisql_v3_edgedist2(center, node->vert[1], node->vert[2], node->edge[1]) <= dist2 ||
+        scisql_v3_edgedist2(center, node->vert[2], node->vert[0], node->edge[2]) <= dist2) {
+        /* min distance to at least one edge is <= circle radius */
+        return SCISQL_INTERSECT;
     }
     /* min distance to every edge is > circle radius - circle
        is either inside triangle or disjoint from it */

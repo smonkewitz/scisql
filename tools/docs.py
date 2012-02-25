@@ -283,7 +283,7 @@ class Section(object):
         self.udfs = []
         self.procs = []
         # Extract example source code
-        exlist = list(elt.iter('example'))
+        exlist = list(elt.getiterator('example'))
         self.examples = map(Example, exlist)
         # Turn <example> tags into <pre> tags with the appropriate prettify attributes
         for ex in exlist:

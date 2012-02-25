@@ -137,12 +137,12 @@ static __inline size_t _median4(const double *array) {
     double c = array[2];
     double d = array[3];
     /* avoids branches, but always requires 6 comparisons. */
-    int i = (((int) a < b) << 5) |
-            (((int) a < c) << 4) |
-            (((int) a < d) << 3) |
-            (((int) b < c) << 2) |
-            (((int) b < d) << 1) |
-             ((int) c < d);
+    int i = (((int) (a < b)) << 5) |
+            (((int) (a < c)) << 4) |
+            (((int) (a < d)) << 3) |
+            (((int) (b < c)) << 2) |
+            (((int) (b < d)) << 1) |
+             ((int) (c < d));
     return (size_t) _lut4[i];
 }
 
@@ -158,16 +158,16 @@ static __inline size_t _median5(const double *array) {
     double d = array[3];
     double e = array[4];
     /* avoids branches, but always performs 10 comparisons */
-    int i = (((int) a < b) << 9) |
-            (((int) a < c) << 8) |
-            (((int) a < d) << 7) |
-            (((int) a < e) << 6) |
-            (((int) b < c) << 5) |
-            (((int) b < d) << 4) |
-            (((int) b < e) << 3) |
-            (((int) c < d) << 2) |
-            (((int) c < e) << 1) |
-             ((int) d < e);
+    int i = (((int) (a < b)) << 9) |
+            (((int) (a < c)) << 8) |
+            (((int) (a < d)) << 7) |
+            (((int) (a < e)) << 6) |
+            (((int) (b < c)) << 5) |
+            (((int) (b < d)) << 4) |
+            (((int) (b < e)) << 3) |
+            (((int) (c < d)) << 2) |
+            (((int) (c < e)) << 1) |
+             ((int) (d < e));
     return (size_t) _lut5[i];
 }
 
