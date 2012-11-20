@@ -136,7 +136,7 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CircleRegion${SCISQL_VSUFFIX} //
 --         subdivision level is decreased. This strategy can reduce the number
 --         of ranges required to represent any input geometry to just 4, but
 --         makes the resulting range list a poorer (coarser, higher area)
---         approximation to the input goemetry.
+--         approximation to the input geometry.
 --     </desc>
 --     <args>
 --         <arg name="centerLon" type="DOUBLE PRECISION" units="deg">
@@ -240,7 +240,7 @@ DROP PROCEDURE IF EXISTS ${SCISQL_PREFIX}s2CPolyRegion${SCISQL_VSUFFIX} //
 --         subdivision level is decreased. This strategy can reduce the number
 --         of ranges required to represent any input geometry to just 4, but
 --         makes the resulting range list a poorer (coarser, higher area)
---         approximation to the input goemetry.
+--         approximation to the input geometry.
 --     </desc>
 --     <args>
 --         <arg name="poly" type="VARBINARY(255)">
