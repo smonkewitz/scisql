@@ -55,6 +55,8 @@ def options(ctx):
                            Defaults to ${PREFIX}/lib/mysql/plugin/; ignored if --mysql-config is used.''')
     ctx.add_option('--mysql-user', type='string', dest='mysql_user', default='root',
                    help='MySQL user name with admin priviledges')
+    ctx.add_option('--mysql-password', type='string', dest='mysql_passwd', default=None,
+                   help='MySQL password for --mysql-user user')
     ctx.add_option('--mysql-socket', type='string', dest='mysql_socket', default='/tmp/mysql.sock',
                    help='UNIX socket file for connecting to MySQL')
 
@@ -75,6 +77,7 @@ def check_mysql(self, **kw):
     self.env.MYSQL_DIR = self.env.PREFIX
     self.end_msg(mysql)
     self.env.MYSQL_USER = self.options.mysql_user
+    self.env.MYSQL_PASSWD = self.options.mysql_passwd
     self.env.MYSQL_SOCKET = self.options.mysql_socket
 
     # Check for the MySQL config script
@@ -131,9 +134,12 @@ def check_mysql(self, **kw):
                     self.fatal('MySQL server version %s violates %s=%s' % (version, constraint, kw[constraint]))
         self.end_msg(version)
 
+    # Fetch MySQL user password if not passed on command line.
+    if self.env.MYSQL_PASSWD == None: #
+        self.env.MYSQL_PASSWD = getpass.getpass('Enter password for MySQL user %s: ' % self.env.MYSQL_USER)
+
     # Write MySQL connection parameters to a file to avoid
     # constantly prompting for them
-    passwd = getpass.getpass('Enter password for MySQL user %s: ' % self.env.MYSQL_USER)
     self.start_msg('Writing MySQL connection parameters')
     my_cnf = self.path.get_bld().make_node('c4che/.my.cnf').abspath()
     with open(my_cnf, 'wb') as f:
@@ -142,6 +148,7 @@ def check_mysql(self, **kw):
         f.write('[mysql]\n')
         f.write('user=%s\n' % self.env.MYSQL_USER)
         f.write('socket=%s\n' % self.env.MYSQL_SOCKET)
+        passwd = self.env.MYSQL_PASSWD
         if len(passwd) != 0:
             f.write('password=%s\n' % passwd)
     self.env.MYSQL_CNF = my_cnf
