@@ -40,19 +40,22 @@ def __parse_version(version):
 
 
 def options(ctx):
+    ctx.add_option('--mysql-dir', type='string', dest='mysql_dir',
+                   help='''Path to the mysql install directory.
+                           Defaults to ${PREFIX}.''')
     ctx.add_option('--mysql', type='string', dest='mysql',
                    help='''Path to the mysql command line client (e.g. /usr/local/bin/mysql).
                            Used to CREATE and DROP the scisql UDFs after installation.
-                           Defaults to ${PREFIX}/bin/mysql.''')
+                           Defaults to ${mysql-dir}/bin/mysql.''')
     ctx.add_option('--mysql-config', type='string', dest='mysql_config',
                    help='''Path to the mysql_config script (e.g. /usr/local/bin/mysql_config).
                            Used to obtain the location of MySQL header files and plugins.''')
     ctx.add_option('--mysql-includes', type='string', dest='mysql_includes',
                    help='''Path to the directory where the MySQL header files are located.
-                           Defaults to ${PREFIX}/include/mysql; ignored if --mysql-config is used.''')
+                           Defaults to ${mysql-dir}/include/mysql; ignored if --mysql-config is used.''')
     ctx.add_option('--mysql-plugins', type='string', dest='mysql_plugins',
                    help='''Path to the MySQL server plugin directory (UDF installation directory).
-                           Defaults to ${PREFIX}/lib/mysql/plugin/; ignored if --mysql-config is used.''')
+                           Defaults to ${mysql-dir}/lib/mysql/plugin/; ignored if --mysql-config is used.''')
     ctx.add_option('--mysql-user', type='string', dest='mysql_user', default='root',
                    help='MySQL user name with admin priviledges')
     ctx.add_option('--mysql-password', type='string', dest='mysql_passwd', default=None,
@@ -62,6 +65,16 @@ def options(ctx):
 
 @Configure.conf
 def check_mysql(self, **kw):
+    self.start_msg('Checking for mysql install')
+    mysql_dir = self.options.mysql_dir
+    if mysql_dir:
+        if not os.path.isdir(mysql_dir) or not os.access(mysql_dir, os.X_OK):
+            self.fatal('--mysql-dir does not identify an accessible directory')
+        self.end_msg(mysql_dir)
+        self.env.MYSQL_DIR = mysql_dir
+    else:
+        self.env.MYSQL_DIR = self.env.PREFIX
+        
     # Check for the MySQL command line client
     self.start_msg('Checking for mysql command line client')
     mysql = self.options.mysql
@@ -70,11 +83,10 @@ def check_mysql(self, **kw):
             self.fatal('--mysql does not identify an executable')
         self.end_msg(mysql)
     else:
-        mysql = os.path.join(self.env.PREFIX, 'bin', 'mysql')
+        mysql = os.path.join(self.env.MYSQL_DIR, 'bin', 'mysql')
         if not os.path.isfile(mysql) or not os.access(mysql, os.X_OK):
-            self.fatal('${PREFIX}/bin/mysql does not identify an executable')
+            self.fatal('{0}/bin/mysql does not identify an executable'.format(self.env.MYSQL_DIR))
     self.env.MYSQL = mysql
-    self.env.MYSQL_DIR = self.env.PREFIX
     self.end_msg(mysql)
     self.env.MYSQL_USER = self.options.mysql_user
     self.env.MYSQL_PASSWD = self.options.mysql_passwd
@@ -88,8 +100,8 @@ def check_mysql(self, **kw):
         includes = self.cmd_and_log([config, '--include'])
         plugins = self.cmd_and_log([config, '--plugindir'])
     else:
-        includes = self.options.mysql_includes or os.path.join(self.env.PREFIX, 'include', 'mysql')
-        plugins = self.options.mysql_plugins or os.path.join(self.env.PREFIX, 'lib', 'mysql', 'plugin')
+        includes = self.options.mysql_includes or os.path.join(self.env.MYSQL_DIR, 'include', 'mysql')
+        plugins = self.options.mysql_plugins or os.path.join(self.env.MYSQL_DIR, 'lib', 'mysql', 'plugin')
 
     # Get include directory
     self.start_msg('Checking for mysql include directory')
