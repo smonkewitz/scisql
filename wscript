@@ -133,9 +133,13 @@ def configure(ctx):
         ctx.start_msg('Writing build parameters')
         dest = ctx.bldnode.make_node(BUILD_INFO_FILE)
         dest.parent.mkdir()
-        parser = ConfigParser.SafeConfigParser(build_cfg)
+        config = ConfigParser.RawConfigParser()
+	section="scisql"
+        config.add_section(section)
+	for key, value in build_cfg.iteritems():
+            config.set(section, key, value) 
         fp_write = open(os.path.join(out, BUILD_INFO_FILE),"w")
-        parser.write(fp_write)
+        config.write(fp_write)
 
         ctx.env.append_value('cfg_files', dest.abspath())
         ctx.end_msg(BUILD_INFO_FILE)
@@ -181,10 +185,10 @@ def build(ctx):
     bin_dir = ctx.path.find_dir('bin')
     ctx.install_files('${PREFIX}/bin', bin_dir.ant_glob('**/*.py'),
                           cwd=bin_dir, relative_trick=True)
-    # tools directory
-    tools_dir = ctx.path.find_dir('tools')
-    ctx.install_files('${PREFIX}/tools', tools_dir.ant_glob('**/*.py'),
-                          cwd=tools_dir, relative_trick=True)
+    # python modules
+    python_dir = ctx.path.find_dir('python')
+    ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
+                          cwd=python_dir, relative_trick=True)
     # scripts directory
     scripts_dir = ctx.path.find_dir('scripts')
     ctx.install_files('${PREFIX}/scripts', scripts_dir.ant_glob('**/*'),

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import ConfigParser
 import fileinput
 import getpass
 import glob
@@ -9,31 +8,10 @@ import logging
 import os
 import shutil
 import stat
-from subprocess import check_output
+from scisql import configure
 import sys
 import tempfile
 import time
-
-STEP_LIST = ['deploy', 'test']
-STEP_DOC = dict(
-    zip(STEP_LIST,
-        [
-        """Deploy sciSQL""",
-        """Launch tests on sciSQL plugin install"""
-        ]
-    )
-)
-
-DEPLOY = STEP_LIST[0]
-TEST = STEP_LIST[0]
-
-def user_yes_no_query(question):
-    sys.stdout.write('\n%s [y/n]\n' % question)
-    while True:
-        try:
-            return strtobool(raw_input().lower())
-        except ValueError:
-            sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
 
 def parse_args():
 
@@ -44,14 +22,14 @@ library in MySQL plugin directory and create UDF''',
             )
 
     # Defining option of each configuration step
-    for step_name in STEP_LIST:
+    for step_name in configure.STEP_LIST:
         parser.add_argument(
             "-{0}".format(step_name[0]),
             "--{0}".format(step_name),
             dest="step_list",
             action='append_const',
             const=step_name,
-            help=STEP_DOC[step_name]
+            help=configure.STEP_DOC[step_name]
             )
 
     # Logging management
@@ -73,6 +51,11 @@ library in MySQL plugin directory and create UDF''',
     parser.add_argument("-f", "--force", dest="force", action='store_true',
             default=False,
             help="forcing removal of existing execution data"
+            )
+
+    parser.add_argument("-T", "--tmp-dir", dest="tmp_dir",
+            default="/tmp",
+            help="""Path to directory where deployment temporary data will be stored."""
             )
 
     parser.add_argument("-m", "--mysql-dir", dest="mysql_dir",
@@ -106,14 +89,13 @@ Used to CREATE and DROP the scisql UDFs after installation."""
 
     # password MUST NOT be displayed by ps command
     if sys.stdin.isatty():
-        #args.mysql_password = getpass.getpass('Enter MySQL password: ')
-        args.mysql_password = "test"
+        args.mysql_password = getpass.getpass('Enter MySQL password: ')
     else:
-        print("Reading MySQL password using stdin")
+        print("Reading MySQL password using standard input")
         args.mysql_password = sys.stdin.readline().rstrip()
 
     if args.step_list is None:
-        args.step_list = STEP_LIST
+        args.step_list = configure.STEP_LIST
 
     args.verbose_level = verbose_dict[args.verbose_str]
     return args
@@ -143,25 +125,13 @@ def check_global_args(args):
             )
 	    exit(1)
 
-
-
-def my_cnf(user, password, socket):
-    temp = tempfile.NamedTemporaryFile(
-            suffix='_my.cnf',
-            prefix='scisql_',
-            dir='/tmp',
-           )
-    lines=[
-        '[mysql]\n',
-        'user={0}\n'.format(user),
-        'password={0}\n'.format(password),
-        'socket={0}\n'.format(socket)
-    ]
-    temp.writelines(lines)
-    temp.seek(0)
-    return temp
-
 def main():
+
+    scisql_dir = os.path.abspath(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "..")
+    )
 
     args = parse_args()
 
@@ -179,26 +149,48 @@ def main():
                         "..")
                 )
 
+    print "XXXXXXXXXXXXXXx PASS : %s" % args.mysql_password
 
-    my_cnf_tmpfile = my_cnf(args.mysql_user, args.mysql_password, args.mysql_socket)
-    logging.debug("Writing MySQL credentials in {0}".format(my_cnf_tmpfile.name))
+    configure.init_config(
+        os.path.join(scisql_dir, "scisql-build-info.cfg"),
+        args.mysql_bin,
+        args.mysql_user,
+        args.mysql_password,
+        args.mysql_socket
+    )
 
-    if DEPLOY in args.step_list:
+    try:
+        print "XXXXXXXX %s" % args.tmp_dir
+        tmp_dir = tempfile.mkdtemp(suffix='-scisql', dir=args.tmp_dir)
+        print "XXXXXXXX %s" % tmp_dir
 
-	logging.info("Deploying sciSQL")
+        scisql_template_dir=os.path.join(scisql_dir, "scripts")
+        configure.apply_templates(scisql_template_dir, tmp_dir)
 
-	logging.info('Checking for mysql plugins directory')
-        if not args.mysql_plugin_dir or not os.path.isdir(args.mysql_plugin_dir):
-            logging.fatal('Invalid/missing MySQL plugin directory. Use --mysql-dir or --mysql-plugin-dir options.')
-	    exit(1)
+        if configure.DEPLOY in args.step_list:
 
-        logging.info("Deploying sciSQL shared library in {0}"
-		.format(args.mysql_plugin_dir)
-        )
-	scisql_lib_dir = os.path.join(scisql_dir,"lib")
-	libs = glob.glob(scisql_lib_dir+os.path.sep+"*.so")
-	for lib in libs:
-	    shutil.copy(lib, args.mysql_plugin_dir)
+            logging.info("Deploying sciSQL")
+
+            logging.info('Checking for mysql plugins directory')
+            if not args.mysql_plugin_dir or not os.path.isdir(args.mysql_plugin_dir):
+                logging.fatal('Invalid/missing MySQL plugin directory. Use --mysql-dir or --mysql-plugin-dir options.')
+                exit(1)
+
+            logging.info("Deploying sciSQL shared library in {0}"
+                .format(args.mysql_plugin_dir)
+            )
+            scisql_lib_dir = os.path.join(scisql_dir,"lib")
+            libs = glob.glob(scisql_lib_dir+os.path.sep+"*.so")
+            for lib in libs:
+                shutil.copy(lib, args.mysql_plugin_dir)
+
+    finally:
+        if logging.getLogger().getEffectiveLevel() > logging.DEBUG:
+            shutil.rmtree(tmp_dir)
+        else:
+            logging.debug("Temporary directory {0} ".format(tmp_dir) + 
+                "not removed in order to enable post-mortem analysis. " +
+                "Remove it manually.")
 
 if __name__ == '__main__':
     main()
