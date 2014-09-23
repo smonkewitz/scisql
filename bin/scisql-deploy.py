@@ -149,10 +149,8 @@ def main():
                         "..")
                 )
 
-    print "XXXXXXXXXXXXXXx PASS : %s" % args.mysql_password
 
     configure.init_config(
-        os.path.join(scisql_dir, "scisql-build-info.cfg"),
         args.mysql_bin,
         args.mysql_user,
         args.mysql_password,
@@ -160,9 +158,7 @@ def main():
     )
 
     try:
-        print "XXXXXXXX %s" % args.tmp_dir
         tmp_dir = tempfile.mkdtemp(suffix='-scisql', dir=args.tmp_dir)
-        print "XXXXXXXX %s" % tmp_dir
 
         scisql_template_dir=os.path.join(scisql_dir, "scripts")
         configure.apply_templates(scisql_template_dir, tmp_dir)

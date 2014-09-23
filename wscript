@@ -22,7 +22,6 @@
 #
 
 from __future__ import with_statement
-import ConfigParser
 import os
 import sys
 import traceback
@@ -43,7 +42,7 @@ VERSION = '0.3'
 top = '.'
 out = 'build'
 
-BUILD_INFO_FILE='scisql-build-info.cfg'
+BUILD_CONST_MODULE='const.py'
 
 def options(ctx):
     ctx.add_option('--client-only', dest='client_only', action='store_true',
@@ -119,30 +118,25 @@ def configure(ctx):
 
     # Create run-time environment for tasks
     if not ctx.options.client_only:
-        build_cfg=dict() 
-        build_cfg['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
-        build_cfg['SCISQL_VERSION'] = VERSION
-        build_cfg['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
         env = os.environ.copy()
+        env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
+        env['SCISQL_VERSION'] = VERSION
+        env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
         env['MYSQL'] = ctx.env.MYSQL
         env['MYSQL_CNF'] = ctx.env.MYSQL_CNF
         env['MYSQL_DIR'] = ctx.env.MYSQL_DIR
-        env.update(build_cfg)
         ctx.env.env = env
 
         ctx.start_msg('Writing build parameters')
-        dest = ctx.bldnode.make_node(BUILD_INFO_FILE)
+        dest = ctx.bldnode.make_node(BUILD_CONST_MODULE)
         dest.parent.mkdir()
-        config = ConfigParser.RawConfigParser()
-	section="scisql"
-        config.add_section(section)
-	for key, value in build_cfg.iteritems():
-            config.set(section, key, value) 
-        fp_write = open(os.path.join(out, BUILD_INFO_FILE),"w")
-        config.write(fp_write)
-
+        dest.write(
+            "SCISQL_PREFIX = \"{0}\"\n".format(ctx.env.SCISQL_PREFIX) +
+	        "SCISQL_VERSION = \"{0}\"\n".format(ctx.env.SCISQL_VERSION) +
+	        "SCISQL_VSUFFIX = \"{0}\"\n".format(ctx.env.SCISQL_VSUFFIX)
+        )
         ctx.env.append_value('cfg_files', dest.abspath())
-        ctx.end_msg(BUILD_INFO_FILE)
+        ctx.end_msg(BUILD_CONST_MODULE)
 
 def build(ctx):
     # UDF shared library
@@ -200,7 +194,7 @@ def build(ctx):
 
     # install build configuration file whose parameters will be used by
     # deployment script
-    ctx.install_files('${PREFIX}', BUILD_INFO_FILE)
+    ctx.install_files('${PREFIX}/python/scisql', BUILD_CONST_MODULE)
 
     if ctx.env.SCISQL_CLIENT_ONLY:
         doc_dir = ctx.path.find_dir('doc')

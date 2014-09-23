@@ -1,4 +1,4 @@
-import ConfigParser
+from scisql import const
 from distutils.util import strtobool
 import logging
 import os
@@ -21,31 +21,15 @@ TEST = STEP_LIST[0]
 def getConfig():
     return config
 
-def read_config(config_file):
+def init_config(mysql_bin, mysql_user, mysql_password, mysql_socket):
 
     global config
-    logger = logging.getLogger()
-    logger.debug("Reading config file : %s" % config_file)
-
-    if not os.path.isfile(config_file):
-        logger.fatal("sciSQL build configuration file not found : %s" % config_file)
-        exit(1)
-
-    parser = ConfigParser.SafeConfigParser()
-    #parser.readfp(io.BytesIO(const.DEFAULT_CONFIG))
-    parser.read(config_file)
-
     config = dict()
-    for section in parser.sections():
-        config[section] = {}
-        for key, val in parser.items(section):
-            config[section][key] = val
-
-    return config
-
-def init_config(build_cfg_file, mysql_bin, mysql_user, mysql_password, mysql_socket):
-
-    parser = read_config(build_cfg_file)
+    section='scisql'
+    config[section] = dict()
+    config[section]['prefix'] = const.SCISQL_PREFIX
+    config[section]['version'] = const.SCISQL_VERSION
+    config[section]['vsuffix'] = const.SCISQL_VSUFFIX
     section='mysqld'
     config[section] = dict()
     config[section]['bin'] = mysql_bin
@@ -63,19 +47,15 @@ def _get_template_params():
     logger = logging.getLogger()
     config = getConfig()
 
-    print "XXXXXXXXXXXXXXXXX %s" % config
-    print "XXXXXXXXXXXXXXx PASS : %s" % config['mysqld']['pass'] 
-
     params_dict = {
     'PATH': os.environ.get('PATH'),
     'MYSQL_BIN': config['mysqld']['bin'],
     'MYSQLD_SOCK': config['mysqld']['sock'],
     'MYSQLD_USER': config['mysqld']['user'],
     'MYSQLD_PASS': config['mysqld']['pass'],
-    'SCISQL_PREFIX': config['scisql']['scisql_prefix'],
-    'SCISQL_VERSION': config['scisql']['scisql_version'],
-    'SCISQL_VSUFFIX': config['scisql']['scisql_vsuffix'],
-    #'SCISQL_TMP_DIR': scisql_tmp_dir,
+    'SCISQL_PREFIX': config['scisql']['prefix'],
+    'SCISQL_VERSION': config['scisql']['version'],
+    'SCISQL_VSUFFIX': config['scisql']['vsuffix'],
     }
 
     logger.debug("Input parameters :\n {0}".format(params_dict))
