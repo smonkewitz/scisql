@@ -59,22 +59,26 @@ def check_mysql(self, **kw):
             self.fatal('--mysql-dir does not identify an accessible directory')
         self.end_msg(mysql_dir)
         self.env.MYSQL_DIR = mysql_dir
-    else:
-        self.env.MYSQL_DIR = self.env.PREFIX
 
     # Check for the MySQL config script
     config = self.options.mysql_config
+    includes=None
     if config:
         if not os.path.isfile(config) or not os.access(config, os.X_OK):
             self.fatal('--mysql-config does not identify an executable')
-        includes = self.cmd_and_log([config, '--include'])
-    else:
-        includes = self.options.mysql_includes or os.path.join(self.env.MYSQL_DIR, 'include', 'mysql')
+        include_flag = self.cmd_and_log([config, '--include'])
+        includes = include_flag.strip('\n\r ')[2:]
+    elif self.options.mysql_includes:
+        includes = self.options.mysql_includes
+    elif self.env.MYSQL_DIR:
+        includes = os.path.join(self.env.MYSQL_DIR, 'include', 'mysql')
 
     # Get include directory
     self.start_msg('Checking for mysql include directory')
-    if not includes or not os.path.isdir(includes):
-        self.fatal('Invalid/missing mysql header directory')
+    if not includes:
+        self.fatal('Undefined mysql header directory, use --help option.')
+    elif not os.path.isdir(includes):
+        self.fatal('Invalid/missing mysql header directory : {0}'.format(includes))
     else:
         self.end_msg(includes)
     self.env.INCLUDES_MYSQL = [includes]
