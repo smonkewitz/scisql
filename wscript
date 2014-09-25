@@ -203,43 +203,8 @@ def build(ctx):
         doc_dir = ctx.path.find_dir('doc')
         ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
                           cwd=doc_dir, relative_trick=True)
-    elif ctx.cmd == 'uninstall' and not ctx.env.SCISQL_CLIENT_ONLY:
-        ctx(rule='${SRC}',
-            source='template/uninstall.py',
-            always=True)
-
-class Deploy(Build.InstallContext):
-    cmd = 'deploy'
-    fun = 'deploy'
-
-def deploy(ctx):
-    build_dir = ctx.path.find_dir(out)
-    ctx.install_files(ctx.env.MYSQL_PLUGIN_DIR, build_dir.ant_glob('**/*.so'), cwd=build_dir)
-    if not ctx.env.SCISQL_CLIENT_ONLY:
-        ctx.add_post_fun(deploy_sql)
+    elif ctx.cmd == 'build':
         ctx.add_post_fun(test)
-
-class DeploySqlContext(Build.InstallContext):
-    cmd = 'deploy_sql'
-    fun = 'deploy_sql'
-
-def deploy_sql(ctx):
-    """Run SQL installation template in a separate build context. The deploy command
-    calls this as a post function, which ensures that the scisql shared library has
-    already been installed.
-    """
-    if not ctx.env.SCISQL_CLIENT_ONLY:
-        dir = os.path.join(ctx.path.get_bld().abspath(), '.mysql')
-        bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
-        bld.init_dirs()
-        bld.env = ctx.env
-        t1 = bld(source='template/deploy.mysql')
-        t2 = bld(source='template/demo.mysql')
-        t1.post()
-        t2.post()
-        t2.tasks[0].set_run_after(t1.tasks[0])
-        bld.compile()
-
 
 class TestContext(Build.BuildContext):
     cmd = 'test'
@@ -292,9 +257,6 @@ def test(ctx):
     tests = Tests()
     tests.utest(source=ctx.path.get_bld().make_node('test/testHtm'))
     tests.utest(source=ctx.path.get_bld().make_node('test/testSelect'))
-    if not ctx.env.SCISQL_CLIENT_ONLY:
-        tests.utest(source=ctx.path.ant_glob('test/test*.py'))
-        tests.utest(source=ctx.path.make_node('tools/docs.py'))
     tests.run(ctx)
 
 
