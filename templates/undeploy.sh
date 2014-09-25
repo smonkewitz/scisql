@@ -9,6 +9,6 @@ export SCISQL_VSUFFIX=${SCISQL_VSUFFIX}
 export SCISQL_VERSION=${SCISQL_VERSION}
 export MYSQL_CNF=${DIR}/my-client.cnf
 
-python ${SCISQL_BASE}/scripts/undeploy.py
+python ${SCISQL_BASE}/tools/undeploy.py
 
 echo "sciSQL undeployment SUCCESSFUL"

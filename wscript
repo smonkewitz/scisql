@@ -174,18 +174,22 @@ def build(ctx):
         install_path=os.path.join(ctx.env.PREFIX, 'test'),
         use='M'
     )
+    # doc directory
+    doc_dir = ctx.path.find_dir('doc')
+    ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
+                          cwd=doc_dir, relative_trick=True)
     # bin directory
     bin_dir = ctx.path.find_dir('bin')
     ctx.install_files('${PREFIX}/bin', bin_dir.ant_glob('**/*.py'),
-                          cwd=bin_dir, relative_trick=True)
+                          chmod=493, cwd=bin_dir, relative_trick=True)
     # python modules
     python_dir = ctx.path.find_dir('python')
     ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
                           cwd=python_dir, relative_trick=True)
-    # script directory
-    script_dir = ctx.path.find_dir('scripts')
-    ctx.install_files('${PREFIX}/scripts', script_dir.ant_glob('**/*'),
-                          cwd=script_dir, relative_trick=True)
+    # tools directory
+    tool_dir = ctx.path.find_dir('tools')
+    ctx.install_files('${PREFIX}/tools', tool_dir.ant_glob('**/*'),
+                          cwd=tool_dir, relative_trick=True)
     # template directory
     template_dir = ctx.path.find_dir('templates')
     ctx.install_files('${PREFIX}/template', template_dir.ant_glob('**/*'),
