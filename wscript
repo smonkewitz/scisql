@@ -122,8 +122,6 @@ def configure(ctx):
         env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
         env['SCISQL_VERSION'] = VERSION
         env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
-        env['MYSQL'] = ctx.env.MYSQL
-        env['MYSQL_CNF'] = ctx.env.MYSQL_CNF
         env['MYSQL_DIR'] = ctx.env.MYSQL_DIR
         ctx.env.env = env
 
