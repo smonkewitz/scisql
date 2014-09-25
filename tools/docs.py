@@ -375,7 +375,7 @@ def extract_docs(root):
     nodes = []
     for file in glob.glob(os.path.join(root, 'src', 'udfs', '*.c')):
         nodes.extend(extract_docs_from_c(file))
-    for file in glob.glob(os.path.join(root, 'scripts', '*.mysql')):
+    for file in glob.glob(os.path.join(root, 'template', '*.mysql')):
         nodes.extend(extract_docs_from_sql(file))
     sections = extract_sections(os.path.join(root, 'tools', 'templates', 'sections.xml'))
     secdict = dict((x.name, x) for x in sections)

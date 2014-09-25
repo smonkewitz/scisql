@@ -2,35 +2,40 @@ from scisql import const
 from distutils.util import strtobool
 import logging
 import os
+import subprocess
 import sys
 import string
 
-STEP_LIST = ['deploy', 'test']
+DEFAULT_STEP_LIST = ['deploy', 'test']
+STEP_LIST = DEFAULT_STEP_LIST + ["undeploy"]
 STEP_DOC = dict(
     zip(STEP_LIST,
         [
-        """Deploy sciSQL""",
-        """Launch tests on sciSQL plugin install"""
+        """Deploy sciSQL plugin in a MySQL running instance""",
+        """Launch tests on sciSQL plugin install """,
+        """Undeploy sciSQL plugin from a MySQL running instance""",
         ]
     )
 )
 
 DEPLOY = STEP_LIST[0]
-TEST = STEP_LIST[0]
+TEST = STEP_LIST[1]
+UNDEPLOY = STEP_LIST[2]
 
 def getConfig():
     return config
 
-def init_config(mysql_bin, mysql_user, mysql_password, mysql_socket):
+def init_config(scisql_base, mysql_bin, mysql_user, mysql_password, mysql_socket):
 
     global config
     config = dict()
-    section='scisql'
+    section = 'scisql'
     config[section] = dict()
+    config[section]['base'] = scisql_base
     config[section]['prefix'] = const.SCISQL_PREFIX
     config[section]['version'] = const.SCISQL_VERSION
     config[section]['vsuffix'] = const.SCISQL_VSUFFIX
-    section='mysqld'
+    section = 'mysqld'
     config[section] = dict()
     config[section]['bin'] = mysql_bin
     config[section]['user'] = mysql_user
@@ -53,6 +58,7 @@ def _get_template_params():
     'MYSQLD_SOCK': config['mysqld']['sock'],
     'MYSQLD_USER': config['mysqld']['user'],
     'MYSQLD_PASS': config['mysqld']['pass'],
+    'SCISQL_BASE': config['scisql']['base'],
     'SCISQL_PREFIX': config['scisql']['prefix'],
     'SCISQL_VERSION': config['scisql']['version'],
     'SCISQL_VSUFFIX': config['scisql']['vsuffix'],
@@ -64,20 +70,12 @@ def _get_template_params():
 
 def _set_perms(file):
     (path, basename) = os.path.split(file)
-    script_list = [
-        "xrootd.sh",
-        "mysql.sh",
-        "css.sh",
-        "scisql.sh",
-        "qserv-czar.sh"
-        ]
-    if (os.path.basename(path) == "bin" or
-        os.path.basename(path) == "init.d" or
-        basename in script_list):
-        os.chmod(file, 0760)
+    script_list = [(step + ".sh") for step in STEP_LIST]
+    if basename in script_list:
+        os.chmod(file, 0740)
     # all other files are configuration files
     else:
-        os.chmod(file, 0660)
+        os.chmod(file, 0640)
 
 def apply_tpl(src_file, target_file):
     """ Creating one configuration file from one template

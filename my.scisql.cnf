@@ -1,5 +1,0 @@
-### used by css (i.e. watcher.py)
-[client]
-user     = root
-password = changeme 
-socket   = /home/fjammes/qserv-run/2014_09.0/var/lib/mysql/mysql.sock

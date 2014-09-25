@@ -140,7 +140,6 @@ def configure(ctx):
 
 def build(ctx):
     # UDF shared library
-    print "XXXXXXXXXXXXXXXXXXXXXXXXXX build"
     libname='scisql-' + ctx.env.SCISQL_PREFIX + VERSION
     if not ctx.env.SCISQL_CLIENT_ONLY:
         ctx.shlib(
@@ -183,10 +182,14 @@ def build(ctx):
     python_dir = ctx.path.find_dir('python')
     ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
                           cwd=python_dir, relative_trick=True)
-    # scripts directory
-    scripts_dir = ctx.path.find_dir('scripts')
-    ctx.install_files('${PREFIX}/scripts', scripts_dir.ant_glob('**/*'),
-                          cwd=scripts_dir, relative_trick=True)
+    # script directory
+    script_dir = ctx.path.find_dir('scripts')
+    ctx.install_files('${PREFIX}/scripts', script_dir.ant_glob('**/*'),
+                          cwd=script_dir, relative_trick=True)
+    # template directory
+    template_dir = ctx.path.find_dir('templates')
+    ctx.install_files('${PREFIX}/template', template_dir.ant_glob('**/*'),
+                          cwd=template_dir, relative_trick=True)
     # python tests
     test_dir = ctx.path.find_dir('test')
     ctx.install_files('${PREFIX}/test', test_dir.ant_glob('**/*.py'),
@@ -202,7 +205,7 @@ def build(ctx):
                           cwd=doc_dir, relative_trick=True)
     elif ctx.cmd == 'uninstall' and not ctx.env.SCISQL_CLIENT_ONLY:
         ctx(rule='${SRC}',
-            source='scripts/uninstall.py',
+            source='template/uninstall.py',
             always=True)
 
 class Deploy(Build.InstallContext):
@@ -221,7 +224,7 @@ class DeploySqlContext(Build.InstallContext):
     fun = 'deploy_sql'
 
 def deploy_sql(ctx):
-    """Run SQL installation scripts in a separate build context. The deploy command
+    """Run SQL installation template in a separate build context. The deploy command
     calls this as a post function, which ensures that the scisql shared library has
     already been installed.
     """
@@ -230,8 +233,8 @@ def deploy_sql(ctx):
         bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
         bld.init_dirs()
         bld.env = ctx.env
-        t1 = bld(source='scripts/deploy.mysql')
-        t2 = bld(source='scripts/demo.mysql')
+        t1 = bld(source='template/deploy.mysql')
+        t2 = bld(source='template/demo.mysql')
         t1.post()
         t2.post()
         t2.tasks[0].set_run_after(t1.tasks[0])

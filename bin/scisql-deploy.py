@@ -16,8 +16,10 @@ import time
 def parse_args():
 
     parser = argparse.ArgumentParser(
-            description='''sciSQL deployment tool. Install sciSQL shared
-library in MySQL plugin directory and create UDF''',
+            description='''sciSQL deployment tool. Install sciSQL plugin in a
+MySQL running instance :\n 
+- install shared library in MySQL plugin directory\n
+- install UDF in MySQL database''',
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
             )
 
@@ -80,9 +82,9 @@ Used to CREATE and DROP the scisql UDFs after installation."""
             help="UNIX socket file for connecting to MySQL"
             )
 
-    parser.add_argument("-u", "--mysql-user", dest="mysql_user",
+    parser.add_argument("-U", "--mysql-user", dest="mysql_user",
             default='root',
-            help="'MySQL user name with admin privileges"
+            help="MySQL user name with admin privileges"
             )
 
     args = parser.parse_args()
@@ -95,7 +97,7 @@ Used to CREATE and DROP the scisql UDFs after installation."""
         args.mysql_password = sys.stdin.readline().rstrip()
 
     if args.step_list is None:
-        args.step_list = configure.STEP_LIST
+        args.step_list = configure.DEFAULT_STEP_LIST
 
     args.verbose_level = verbose_dict[args.verbose_str]
     return args
@@ -143,7 +145,7 @@ def main():
     check_global_args(args)
 
 
-    scisql_dir = os.path.abspath(
+    scisql_base = os.path.abspath(
                     os.path.join(
                         os.path.dirname(os.path.realpath(__file__)),
                         "..")
@@ -151,6 +153,7 @@ def main():
 
 
     configure.init_config(
+        scisql_base,
         args.mysql_bin,
         args.mysql_user,
         args.mysql_password,
@@ -160,7 +163,7 @@ def main():
     try:
         tmp_dir = tempfile.mkdtemp(suffix='-scisql', dir=args.tmp_dir)
 
-        scisql_template_dir=os.path.join(scisql_dir, "scripts")
+        scisql_template_dir=os.path.join(scisql_dir, "template")
         configure.apply_templates(scisql_template_dir, tmp_dir)
 
         if configure.DEPLOY in args.step_list:
@@ -172,6 +175,7 @@ def main():
                 logging.fatal('Invalid/missing MySQL plugin directory. Use --mysql-dir or --mysql-plugin-dir options.')
                 exit(1)
 
+            # TODO : check for existing .so file
             logging.info("Deploying sciSQL shared library in {0}"
                 .format(args.mysql_plugin_dir)
             )
@@ -179,6 +183,18 @@ def main():
             libs = glob.glob(scisql_lib_dir+os.path.sep+"*.so")
             for lib in libs:
                 shutil.copy(lib, args.mysql_plugin_dir)
+            
+            script=os.path.join(tmp_dir, configure.DEPLOY + ".sh")
+            configure.run_command([script])
+
+        if configure.TEST in args.step_list:
+            script=os.path.join(tmp_dir, configure.TEST + ".sh")
+            configure.run_command([script])
+
+        if configure.UNDEPLOY in args.step_list:
+            print "XXXXXXXXXXXXXXXX UNDEPLOY" 
+            script=os.path.join(tmp_dir, configure.UNDEPLOY + ".sh")
+            configure.run_command([script])
 
     finally:
         if logging.getLogger().getEffectiveLevel() > logging.DEBUG:
