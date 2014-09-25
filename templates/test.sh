@@ -1,17 +1,26 @@
 #!/usr/bin/env sh
 
-set -e
 DIR=$(cd "$(dirname "$0")"; pwd -P)                                                                     
 
 export SCISQL_PREFIX=${SCISQL_PREFIX}
 export MYSQL_CNF=${DIR}/my-client.cnf
 export MYSQL=${MYSQL_BIN}
 
+retcode=0
 for testfile in ${SCISQL_BASE}/test/test*.py ${SCISQL_BASE}/tools/docs.py
 do
-    echo "Running ${testfile}"
-    python ${testfile}
-    echo "Test SUCCESSFULL"
+    echo -n "Running ${testfile} : "
+    if python ${testfile}; then
+        echo "OK"
+    else
+        echo "NOK"
+        ${retcode}=1
+    fi
 done
 
-echo "sciSQL deployment tests SUCCESSFUL"
+if [[ ${retcode} -eq 0 ]]; then
+    echo "sciSQL deployment tests SUCCESSFUL"
+else
+    echo "sciSQL deployment tests FAILED"
+fi
+exit ${retcode}
