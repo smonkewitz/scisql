@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import string
+from threading import Thread
 
 DEFAULT_STEP_LIST = ['deploy', 'test']
 STEP_LIST = DEFAULT_STEP_LIST + ["undeploy"]
@@ -130,64 +131,45 @@ def user_yes_no_query(question):
         except ValueError:
             sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
 
-def run_command(cmd_args, stdin_file=None, stdout_file=None, stderr_file=None, loglevel=logging.INFO) :
+def run_command(cmd_args, loglevel=logging.INFO) :
     """ Run a shell command
 
     Keyword arguments
     cmd_args -- a list of arguments
     logger_name -- the name of a logger, if not specified, will log to stdout
 
-    Return a string containing stdout and stderr
     """
     logger = logging.getLogger()
 
     cmd_str= ' '.join(cmd_args)
     logger.log(loglevel, "Running : {0}".format(cmd_str))
 
-    sin = None
-    if stdin_file != None:
-        logger.debug("stdin file : %s" % stdin_file)
-        sin=open(stdin_file,"r")
-
-    sout = None
-    if stdout_file != None:
-        logger.debug("stdout file : %s" % stdout_file)
-        sout=open(stdout_file,"w")
-    else:
-        sout=subprocess.PIPE
-
-    serr = None
-    if stderr_file != None:
-        logger.debug("stderr file : %s" % stderr_file)
-        serr=open(stderr_file,"w")
-    else:
-        serr=subprocess.PIPE
-
-# TODO : use this with python 2.7 :
-#  try :
-#        out = subprocess.check_output(
-#                cmd_args,
-#                stderr=subprocess.STDOUT
-#              )
-#
-#    except subprocess.CalledProcessError as e:
-#        logger.fatal("Error : '%s' %s  while running command : '%s'" %
-#            (e,out,cmd_str)
-#        )
-#        sys.exit(1)
-
     try :
-        process = subprocess.Popen(
-            cmd_args, stdin=sin, stdout=sout, stderr=serr
-        )
 
-        (stdoutdata, stderrdata) = process.communicate()
+        process = subprocess.Popen(cmd_args,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        if stdoutdata != None and len(stdoutdata)>0:
-            logger.info("\tstdout :\n--\n%s--" % stdoutdata)
-        if stderrdata != None and len(stderrdata)>0:
-            logger.info("\tstderr :\n--\n%s--" % stderrdata)
+        def logstream(stream,loggercb):
+            while True:
+                out = stream.readline()
+                if out:
+                    loggercb(out.rstrip())
+                else:
+                    break
 
+        stdout_thread = Thread(target=logstream,
+            args=(process.stdout,lambda s: logger.log(loglevel,"stdout : %s" % s)))
+
+        stderr_thread = Thread(target=logstream,
+            args=(process.stderr,lambda s: logger.log(loglevel,"stderr : %s" % s)))
+
+        stdout_thread.start()
+        stderr_thread.start()
+
+        #while stdout_thread.isAlive() and stderr_thread.isAlive():
+        #    pass
+
+        process.wait()
         if process.returncode!=0 :
             logger.fatal("Error code returned by command : {0} ".format(cmd_str))
             sys.exit(1)
