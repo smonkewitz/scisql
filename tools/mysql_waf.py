@@ -22,22 +22,10 @@
 #
 
 from __future__ import with_statement
-import getpass
-import operator
 import os
-import stat
+import mysqlversion
 
 from waflib import Configure, Logs, Task, TaskGen
-
-__ver = {
-    'atleast_version': operator.ge,
-    'exact_version': operator.eq,
-    'max_version': operator.le,
-}
-
-def __parse_version(version):
-    return tuple(map(int, version.split('.')))
-
 
 def options(ctx):
     ctx.add_option('--mysql-dir', type='string', dest='mysql_dir',
@@ -93,20 +81,11 @@ def check_mysql(self, **kw):
                             define_ret=True,
                             use='MYSQL',
                             msg='Checking for mysql.h')
-    if any(vc in kw for vc in __ver.keys()):
+    if any(vc in kw for vc in mysqlversion.__ver.keys()):
         # Make sure version constraints are satsified
         self.start_msg('Checking MySQL version')
-        try:
-            mv = __parse_version(version)
-        except:
-            self.fatal('Invalid MYSQL_SERVER_VERSION %s' % version)
-        for constraint in __ver.keys():
-            if constraint in kw:
-                try:
-                    dv = __parse_version(kw[constraint])
-                except:
-                    self.fatal('Invalid %s value %s' % (constraint, kw[constraint]))
-                if not __ver[constraint](mv, dv):
-                    self.fatal('MySQL server version %s violates %s=%s' % (version, constraint, kw[constraint]))
+        (ok, msg) = mysqlversion.check(version, **kw)
+        if not ok:
+            self.fatal(msg)
         self.end_msg(version)
 

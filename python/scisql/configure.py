@@ -70,7 +70,7 @@ def _get_template_params():
 
 def _set_perms(file):
     (path, basename) = os.path.split(file)
-    script_list = [(step + ".sh") for step in STEP_LIST]
+    script_list = [(step + ".sh") for step in STEP_LIST] + ["check_mysql_version.sh"]
     if basename in script_list:
         os.chmod(file, 0740)
     # all other files are configuration files

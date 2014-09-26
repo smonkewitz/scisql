@@ -144,13 +144,11 @@ def main():
 
     check_global_args(args)
 
-
     scisql_base = os.path.abspath(
                     os.path.join(
                         os.path.dirname(os.path.realpath(__file__)),
                         "..")
                 )
-
 
     configure.init_config(
         scisql_base,
@@ -169,6 +167,10 @@ def main():
         if configure.DEPLOY in args.step_list:
 
             logging.info("Deploying sciSQL")
+
+            logging.info('Checking for mysql version')
+            script=os.path.join(tmp_dir, "check_mysql_version.sh")
+            configure.run_command([script])
 
             logging.info('Checking for mysql plugins directory')
             if not args.mysql_plugin_dir or not os.path.isdir(args.mysql_plugin_dir):
@@ -192,7 +194,6 @@ def main():
             configure.run_command([script])
 
         if configure.UNDEPLOY in args.step_list:
-            print "XXXXXXXXXXXXXXXX UNDEPLOY" 
             script=os.path.join(tmp_dir, configure.UNDEPLOY + ".sh")
             configure.run_command([script])
 

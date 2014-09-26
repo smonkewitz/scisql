@@ -51,15 +51,15 @@ def options(ctx):
                    help='UDF/stored procedure name prefix (defaulting to %default). ' +
                         'An empty string means: do not prefix.')
     ctx.load('compiler_c')
-    ctx.load('mysql', tooldir='tools')
+    ctx.load('mysql_waf', tooldir='tools')
 
 def configure(ctx):
     ctx.env.SCISQL_CLIENT_ONLY = ctx.options.client_only
     ctx.env.SCISQL_VERSION = VERSION
     ctx.load('compiler_c')
     if not ctx.options.client_only:
-        ctx.load('mysql', tooldir='tools')
-        ctx.check_mysql(atleast_version='5')
+        ctx.load('mysql_waf', tooldir='tools')
+        ctx.check_mysql(atleast_version='5', max_version='5')
         ctx.define('SCISQL_PREFIX', ctx.options.scisql_prefix, quote=False)
         ctx.env.SCISQL_PREFIX = ctx.options.scisql_prefix
 
