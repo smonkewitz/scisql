@@ -60,7 +60,7 @@ def configure(ctx):
     ctx.load('compiler_c')
     if not ctx.options.client_only:
         ctx.load('mysql_waf', tooldir='tools')
-        ctx.check_mysql(atleast_version='5', max_version='5')
+        ctx.check_mysql()
         ctx.define('SCISQL_PREFIX', ctx.options.scisql_prefix, quote=False)
         ctx.env.SCISQL_PREFIX = ctx.options.scisql_prefix
 
@@ -138,8 +138,8 @@ def configure(ctx):
 
 def build(ctx):
     # UDF shared library
-    libname='scisql-' + ctx.env.SCISQL_PREFIX + VERSION
     if not ctx.env.SCISQL_CLIENT_ONLY:
+        libname='scisql-' + ctx.env.SCISQL_PREFIX + VERSION
         ctx.shlib(
             source=ctx.path.ant_glob('src/*.c') +
                    ctx.path.ant_glob('src/udfs/*.c'),
@@ -149,6 +149,8 @@ def build(ctx):
             use='MYSQL M',
             install_path=os.path.join(ctx.env.PREFIX, 'lib')
         )
+
+
     # Off-line spatial indexing tool
     ctx.program(
         source='src/util/index.c src/geometry.c src/htm.c',
@@ -157,19 +159,19 @@ def build(ctx):
         install_path=os.path.join(ctx.env.PREFIX, 'bin'),
         use='M'
     )
-    # C test cases
+    # C test cases, executed in build process, against shared library
     ctx.program(
         source='test/testSelect.c src/select.c',
         includes='src',
         target='test/testSelect',
-        install_path=os.path.join(ctx.env.PREFIX, 'test'),
+        install_path=False,
         use='M'
     )
     ctx.program(
         source='test/testHtm.c src/geometry.c src/htm.c',
         includes='src',
         target='test/testHtm',
-        install_path=os.path.join(ctx.env.PREFIX, 'test'),
+        install_path=False,
         use='M'
     )
     # doc directory
@@ -179,34 +181,32 @@ def build(ctx):
     # bin directory
     bin_dir = ctx.path.find_dir('bin')
     ctx.install_files('${PREFIX}/bin', bin_dir.ant_glob('**/*.py'),
-                          chmod=stat.S_IRWXU, cwd=bin_dir, relative_trick=True)
-    # python modules
-    python_dir = ctx.path.find_dir('python')
-    ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
-                          cwd=python_dir, relative_trick=True)
-    # tools directory
-    tool_dir = ctx.path.find_dir('tools')
-    ctx.install_files('${PREFIX}/tools', tool_dir.ant_glob('**/*'),
-                          cwd=tool_dir, relative_trick=True)
-    # template directory
-    template_dir = ctx.path.find_dir('templates')
-    ctx.install_files('${PREFIX}/templates', template_dir.ant_glob('**/*'),
-                          cwd=template_dir, relative_trick=True)
-    # python tests
-    test_dir = ctx.path.find_dir('test')
-    ctx.install_files('${PREFIX}/test', test_dir.ant_glob('**/*.py'),
-                          cwd=test_dir, relative_trick=True)
+                          chmod=Utils.O755, cwd=bin_dir, relative_trick=True)
 
-    # install build configuration file whose parameters will be used by
-    # deployment script
-    ctx.install_files('${PREFIX}/python/scisql', BUILD_CONST_MODULE)
+    if not ctx.env.SCISQL_CLIENT_ONLY:
+        # install build configuration module whose parameters will be used by
+        # deployment script
+        ctx.install_files('${PREFIX}/python/scisql', BUILD_CONST_MODULE)
 
-    if ctx.env.SCISQL_CLIENT_ONLY:
-        doc_dir = ctx.path.find_dir('doc')
-        ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
-                          cwd=doc_dir, relative_trick=True)
-    elif ctx.cmd == 'build':
+        # python modules
+        python_dir = ctx.path.find_dir('python')
+        ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
+                              cwd=python_dir, relative_trick=True)
+        # tools directory
+        tool_dir = ctx.path.find_dir('tools')
+        ctx.install_files('${PREFIX}/tools', tool_dir.ant_glob('**/*'),
+                              cwd=tool_dir, relative_trick=True)
+        # template directory
+        template_dir = ctx.path.find_dir('templates')
+        ctx.install_files('${PREFIX}/templates', template_dir.ant_glob('**/*'),
+                              cwd=template_dir, relative_trick=True)
+        # python tests
+        test_dir = ctx.path.find_dir('test')
+        ctx.install_files('${PREFIX}/test', test_dir.ant_glob('**/*.py'),
+                              cwd=test_dir, relative_trick=True)
+    if ctx.cmd == 'build':
         ctx.add_post_fun(test)
+
 
 class TestContext(Build.BuildContext):
     cmd = 'test'

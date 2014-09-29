@@ -2,20 +2,28 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)                                                                     
 
+SCISQL_BASE={{SCISQL_BASE}}
 export MYSQL_CNF=${DIR}/my-client.cnf
-export MYSQL=${MYSQL_BIN}
+export MYSQL_BIN={{MYSQL_BIN}}
 
-retcode=0
-if [[ -x ${MYSQL_BIN} ]]; then
+if [ -x "${MYSQL_BIN}" ]; then
     # mysql_config returns client version, whereas above command returns server version
-    MYSQL_VERSION=`echo "SELECT VERSION()" | ${MYSQL} --defaults-file=/tmp/tmpzQW0Kf-scisql/my-client.cnf -N`
+    MYSQL_VERSION=`echo "SELECT VERSION()" | ${MYSQL_BIN} --defaults-file=${MYSQL_CNF} -N`
+    retcode=$?
 else
-    ${retcode}=1    
+    >&2 echo "Invalid MySQL binary : ${MYSQL_BIN}"
+    retcode=1
 fi
 
-if [[ ${retcode} -eq 0 ]]; then
+if [ ${retcode} -eq 0 ]; then
+    echo "MySQL version : ${MYSQL_VERSION}"
+    python ${SCISQL_BASE}/tools/mysqlversion.py --mysqlversion "${MYSQL_VERSION}"
+    retcode=$?
+fi
+
+if [ ${retcode} -eq 0 ]; then
     echo "MySQL version compatibility check SUCCESSFUL"
 else
-    echo "MySQL version compatibility check FAILED"
+    >&2 echo "MySQL version compatibility check FAILED"
 fi
 exit ${retcode}

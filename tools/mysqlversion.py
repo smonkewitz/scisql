@@ -3,16 +3,25 @@ import operator
 import sys
 import json
 
+AT_LEAST_VERSION='at_least_version'
+MAX_VERSION='max_version'
+EXACT_VERSION='exact_version'
+
+SCISQL_CONSTRAINT = dict()
+SCISQL_CONSTRAINT[AT_LEAST_VERSION] = 5
+SCISQL_CONSTRAINT[MAX_VERSION]      = 5
+SCISQL_CONSTRAINT[EXACT_VERSION]    = ['5.1.65', '5.1.73']
+
 __ver = {
-    'atleast_version': operator.ge,
-    'exact_version': operator.eq,
-    'max_version': operator.le,
+    AT_LEAST_VERSION: operator.ge,
+    EXACT_VERSION: operator.eq,
+    MAX_VERSION: operator.le,
 }
 
 def __parse_version(version):
     return tuple(map(int, version.split('.')))
 
-def check(version, **kw):
+def check(version):
 
     ok = True
     msg = None
@@ -21,34 +30,32 @@ def check(version, **kw):
     except:
         msg = 'Invalid MYSQL_SERVER_VERSION {0}'.format(version)
         ok = False
-    for constraint in __ver.keys():
-        if constraint in kw:
-            try:
-                    dv = __parse_version(kw[constraint])
-            except:
-                msg = 'Invalid {0} value {1}'.format(constraint, kw[constraint])
-                ok = False
-            if not __ver[constraint](mv, dv):
-                msg = 'MySQL server version {0} violates {1}={2}'.format(version, constraint, kw[constraint])
-                ok = False
-        return (ok, msg)
+
+    if version in SCISQL_CONSTRAINT[EXACT_VERSION]:
+        ok=True
+    else:
+        for constraint in [AT_LEAST_VERSION, MAX_VERSION]:
+            if constraint in SCISQL_CONSTRAINT:
+                try:
+                        dv = __parse_version(kw[constraint])
+                except:
+                    msg = 'Invalid {0} value {1}'.format(constraint, kw[constraint])
+                    ok = False
+                if not __ver[constraint](mv, dv):
+                    msg = 'MySQL server version {0} violates {1}={2}'.format(version, constraint, kw[constraint])
+                    ok = False
+    return (ok, msg)
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--version', help="toto")
-    parser.add_argument('-c', '--constraints', nargs="+", type=str, help="titi")
+    parser = argparse.ArgumentParser(
+            description='''Check a given MySQL version is compatible with SciSQL''',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+            )
+    parser.add_argument('-v', '--mysqlversion', help="MySQL version number")
     args = parser.parse_args()
 
-    constraints=dict()
-    for c in args.constraints:
-        (key, value) = c.split("=")
-        if key not in __ver.keys():
-            print("ERROR : constraints keys must be in {0}".format( __ver.keys))
-            sys.exit(1)
-        else:
-            constraints[key]=value
-    (ok, msg) = check(args.version, **constraints)
+    (ok, msg) = check(args.mysqlversion)
     if not ok:
         print("ERROR : {0}".format(msg))
         sys.exit(1)

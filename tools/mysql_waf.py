@@ -33,13 +33,13 @@ def options(ctx):
                            Defaults to ${PREFIX}.''')
     ctx.add_option('--mysql-config', type='string', dest='mysql_config',
                    help='''Path to the mysql_config script (e.g. /usr/local/bin/mysql_config).
-                           Used to obtain the location of MySQL header files and plugins.''')
+                           Used to obtain the location of MySQL header files.''')
     ctx.add_option('--mysql-includes', type='string', dest='mysql_includes',
                    help='''Path to the directory where the MySQL header files are located.
                            Defaults to ${mysql-dir}/include/mysql; ignored if --mysql-config is used.''')
 
 @Configure.conf
-def check_mysql(self, **kw):
+def check_mysql(self):
     self.start_msg('Checking for mysql install')
     mysql_dir = self.options.mysql_dir
     if mysql_dir:
@@ -81,11 +81,9 @@ def check_mysql(self, **kw):
                             define_ret=True,
                             use='MYSQL',
                             msg='Checking for mysql.h')
-    if any(vc in kw for vc in mysqlversion.__ver.keys()):
-        # Make sure version constraints are satsified
-        self.start_msg('Checking MySQL version')
-        (ok, msg) = mysqlversion.check(version, **kw)
-        if not ok:
-            self.fatal(msg)
-        self.end_msg(version)
+    self.start_msg('Checking MySQL version')
+    (ok, msg) = mysqlversion.check(version)
+    if not ok:
+        self.fatal(msg)
+    self.end_msg(version)
 
