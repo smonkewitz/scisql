@@ -5,7 +5,6 @@ import os
 import subprocess
 import sys
 import string
-from threading import Thread
 
 DEFAULT_STEP_LIST = ['deploy', 'test']
 STEP_LIST = DEFAULT_STEP_LIST + ["undeploy"]
@@ -70,10 +69,9 @@ def _get_template_params():
     return params_dict
 
 def _set_perms(file):
-    (path, basename) = os.path.split(file)
-    script_list = [(step + ".sh") for step in STEP_LIST] + ["check_mysql_version.sh"]
-    if basename in script_list:
-        os.chmod(file, 0740)
+    extension = os.path.splitext(file)[1]
+    if extension in [".sh"]:
+        os.chmod(file, 0750)
     # all other files are configuration files
     else:
         os.chmod(file, 0640)
@@ -130,58 +128,6 @@ def user_yes_no_query(question):
             return strtobool(raw_input().lower())
         except ValueError:
             sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
-
-def run_command(cmd_args, loglevel=logging.INFO) :
-    """ Run a shell command
-
-    Keyword arguments
-    cmd_args -- a list of arguments
-    logger_name -- the name of a logger, if not specified, will log to stdout
-
-    """
-    logger = logging.getLogger()
-
-    cmd_str= ' '.join(cmd_args)
-    logger.log(loglevel, "Running : {0}".format(cmd_str))
-
-    try :
-
-        process = subprocess.Popen(cmd_args,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        def logstream(stream,loggercb):
-            while True:
-                out = stream.readline()
-                if out:
-                    loggercb(out.rstrip())
-                else:
-                    break
-
-        stdout_thread = Thread(target=logstream,
-            args=(process.stdout,lambda s: logger.log(loglevel,"stdout : %s" % s)))
-
-        stderr_thread = Thread(target=logstream,
-            args=(process.stderr,lambda s: logger.log(loglevel,"stderr : %s" % s)))
-
-        stdout_thread.start()
-        stderr_thread.start()
-
-        #while stdout_thread.isAlive() and stderr_thread.isAlive():
-        #    pass
-
-        process.wait()
-        if process.returncode!=0 :
-            logger.fatal("Error code returned by command : {0} ".format(cmd_str))
-            sys.exit(1)
-
-    except OSError as e:
-        logger.fatal("Error : %s while running command : %s" %
-                     (e,cmd_str))
-        sys.exit(1)
-    except ValueError as e:
-        logger.fatal("Invalid parameter : '%s' for command : %s " % (e,cmd_str))
-        sys.exit(1)
-
 
 class ScisqlConfigTemplate(string.Template):
     delimiter = '{{'

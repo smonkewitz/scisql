@@ -12,13 +12,14 @@ from scisql import configure
 import subprocess
 import sys
 import tempfile
+from threading import Thread
 import time
 
 def parse_args():
 
     parser = argparse.ArgumentParser(
             description='''sciSQL deployment tool. Install sciSQL plugin in a
-MySQL running instance :\n 
+MySQL running instance :\n
 - install shared library in MySQL plugin directory\n
 - install UDF in MySQL database''',
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -64,7 +65,7 @@ MySQL running instance :\n
     parser.add_argument("-m", "--mysql-dir", dest="mysql_dir",
             default=os.getenv("MYSQL_DIR"),
             help="""Path to the mysql install directory.
-		    Default to MYSQL_DIR environement variable value if not empty"""
+                    Default to MYSQL_DIR environement variable value if not empty"""
             )
 
     parser.add_argument("-b", "--mysql-bin", dest="mysql_bin",
@@ -113,20 +114,20 @@ def check_global_args(args):
         logging.fatal('{0} does not  identify an executable. Use --mysql-dir or --mysql options.'
             .format(args.mysql_bin)
         )
-	exit(1)
+        sys.exit(1)
 
     logging.info('Checking for mysql socket')
     if args.mysql_socket is None:
         logging.fatal('Missing MySQL socket. Use --mysql-socket options.')
-	exit(1)
+        sys.exit(1)
     else:
         mode = os.stat(args.mysql_socket).st_mode
         is_socket = stat.S_ISSOCK(mode)
-	if not is_socket:
+        if not is_socket:
             logging.fatal('Invalid MySQL socket. Use --mysql-socket options.'
                 .format(args.mysql_socket)
             )
-	    exit(1)
+            sys.exit(1)
 
 def main():
 
@@ -171,12 +172,12 @@ def main():
 
             logging.info('Checking for mysql version')
             script=os.path.join(tmp_dir, "check_mysql_version.sh")
-            configure.run_command([script])
+            run_command([script])
 
             logging.info('Checking for mysql plugins directory')
             if not args.mysql_plugin_dir or not os.path.isdir(args.mysql_plugin_dir):
                 logging.fatal('Invalid/missing MySQL plugin directory. Use --mysql-dir or --mysql-plugin-dir options.')
-                exit(1)
+                sys.exit(1)
 
             # TODO : check for existing .so file
             logging.info("Deploying sciSQL shared library in {0}"
@@ -186,25 +187,79 @@ def main():
             libs = glob.glob(scisql_lib_dir+os.path.sep+"*.so")
             for lib in libs:
                 shutil.copy(lib, args.mysql_plugin_dir)
-            
+
             script=os.path.join(tmp_dir, configure.DEPLOY + ".sh")
-            configure.run_command([script])
+            run_command([script])
 
         if configure.TEST in args.step_list:
             script=os.path.join(tmp_dir, configure.TEST + ".sh")
-            configure.run_command([script])
+            run_command([script])
 
         if configure.UNDEPLOY in args.step_list:
             script=os.path.join(tmp_dir, configure.UNDEPLOY + ".sh")
-            configure.run_command([script])
+            run_command([script])
 
     finally:
         if logging.getLogger().getEffectiveLevel() > logging.DEBUG:
             shutil.rmtree(tmp_dir)
         else:
-            logging.debug("Temporary directory {0} ".format(tmp_dir) + 
+            logging.debug("Temporary directory {0} ".format(tmp_dir) +
                 "not removed in order to enable post-mortem analysis. " +
                 "Remove it manually.")
+
+def run_command(cmd_args, loglevel=logging.INFO) :
+    """ Run a shell command
+
+    Keyword arguments
+    cmd_args -- a list of arguments
+    logger_name -- the name of a logger, if not specified, will log to stdout
+
+    """
+    logger = logging.getLogger()
+
+    cmd_str= ' '.join(cmd_args)
+    logger.log(loglevel, "Running : {0}".format(cmd_str))
+
+    try :
+
+        process = subprocess.Popen(cmd_args,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        def logstream(stream,loggercb):
+            while True:
+                out = stream.readline()
+                if out:
+                    loggercb(out.rstrip())
+                else:
+                    break
+
+        stdout_thread = Thread(target=logstream,
+            args=(process.stdout,lambda s: logger.log(loglevel,"stdout : %s" % s))
+        )
+
+        stderr_thread = Thread(target=logstream,
+            args=(process.stderr,lambda s: logger.log(loglevel,"stderr : %s" % s))
+        )
+
+        stdout_thread.start()
+        stderr_thread.start()
+
+        process.wait()
+        stdout_thread.join()
+        stderr_thread.join()
+
+        if process.returncode!=0 :
+            logger.fatal("Error code returned by command : {0} ".format(cmd_str))
+            sys.exit(1)
+
+    except OSError as e:
+        logger.fatal("Error : %s while running command : %s" %
+                     (e,cmd_str))
+        sys.exit(1)
+    except ValueError as e:
+        logger.fatal("Invalid parameter : '%s' for command : %s " % (e,cmd_str))
+        sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
