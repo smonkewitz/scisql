@@ -9,6 +9,7 @@ import os
 import shutil
 import stat
 from scisql import configure
+import subprocess
 import sys
 import tempfile
 import time
@@ -161,7 +162,7 @@ def main():
     try:
         tmp_dir = tempfile.mkdtemp(suffix='-scisql', dir=args.tmp_dir)
 
-        scisql_template_dir=os.path.join(scisql_dir, "template")
+        scisql_template_dir=os.path.join(scisql_dir, "templates")
         configure.apply_templates(scisql_template_dir, tmp_dir)
 
         if configure.DEPLOY in args.step_list:

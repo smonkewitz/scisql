@@ -87,7 +87,7 @@ def apply_tpl(src_file, target_file):
     params_dict = _get_template_params()
 
     with open(src_file, "r") as tpl:
-        t = string.Template(tpl.read())
+        t = ScisqlConfigTemplate(tpl.read())
 
     out_cfg = t.safe_substitute(**params_dict)
     for match in t.pattern.findall(t.template):
@@ -182,3 +182,14 @@ def run_command(cmd_args, loglevel=logging.INFO) :
         logger.fatal("Invalid parameter : '%s' for command : %s " % (e,cmd_str))
         sys.exit(1)
 
+
+class ScisqlConfigTemplate(string.Template):
+    delimiter = '{{'
+    pattern = r'''
+    \{\{(?:
+    (?P<escaped>\{\{)|
+    (?P<named>[_a-z][_a-z0-9]*)\}\}|
+    (?P<braced>[_a-z][_a-z0-9]*)\}\}|
+    (?P<invalid>)
+    )
+    '''

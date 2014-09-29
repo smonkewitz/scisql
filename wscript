@@ -23,6 +23,7 @@
 
 from __future__ import with_statement
 import os
+import stat
 import sys
 import traceback
 
@@ -178,7 +179,7 @@ def build(ctx):
     # bin directory
     bin_dir = ctx.path.find_dir('bin')
     ctx.install_files('${PREFIX}/bin', bin_dir.ant_glob('**/*.py'),
-                          chmod=493, cwd=bin_dir, relative_trick=True)
+                          chmod=stat.S_IRWXU, cwd=bin_dir, relative_trick=True)
     # python modules
     python_dir = ctx.path.find_dir('python')
     ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
@@ -189,7 +190,7 @@ def build(ctx):
                           cwd=tool_dir, relative_trick=True)
     # template directory
     template_dir = ctx.path.find_dir('templates')
-    ctx.install_files('${PREFIX}/template', template_dir.ant_glob('**/*'),
+    ctx.install_files('${PREFIX}/templates', template_dir.ant_glob('**/*'),
                           cwd=template_dir, relative_trick=True)
     # python tests
     test_dir = ctx.path.find_dir('test')
