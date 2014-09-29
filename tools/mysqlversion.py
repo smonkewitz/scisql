@@ -1,7 +1,6 @@
 import argparse
 import operator
 import sys
-import json
 
 AT_LEAST_VERSION='at_least_version'
 MAX_VERSION='max_version'
