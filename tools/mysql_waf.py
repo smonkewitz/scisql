@@ -29,14 +29,14 @@ from waflib import Configure, Logs, Task, TaskGen
 
 def options(ctx):
     ctx.add_option('--mysql-dir', type='string', dest='mysql_dir',
-                   help='''Path to the mysql install directory.
-                           Defaults to ${PREFIX}.''')
+                   help="Path to the mysql install directory. "+
+                        "Defaults to ${PREFIX}.")
     ctx.add_option('--mysql-config', type='string', dest='mysql_config',
-                   help='''Path to the mysql_config script (e.g. /usr/local/bin/mysql_config).
-                           Used to obtain the location of MySQL header files.''')
+                   help="Path to the mysql_config script (e.g. /usr/local/bin/mysql_config). "+
+                        "Used to obtain the location of MySQL header files.")
     ctx.add_option('--mysql-includes', type='string', dest='mysql_includes',
-                   help='''Path to the directory where the MySQL header files are located.
-                           Defaults to ${mysql-dir}/include/mysql; ignored if --mysql-config is used.''')
+                   help="Path to the directory where the MySQL header files are located. " +
+                        "Defaults to ${mysql-dir}/include/mysql; ignored if --mysql-config is used.")
 
 @Configure.conf
 def check_mysql(self):

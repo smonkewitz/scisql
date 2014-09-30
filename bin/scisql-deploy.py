@@ -22,7 +22,6 @@ def parse_args():
 MySQL running instance :\n
 - install shared library in MySQL plugin directory\n
 - install UDF in MySQL database''',
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
             )
 
     # Defining option of each configuration step
@@ -48,13 +47,13 @@ MySQL running instance :\n
     parser.add_argument("-v", "--verbose-level", dest="verbose_str",
             choices=verbose_arg_values,
             default='INFO',
-            help="verbosity level"
+            help="verbosity level (default: %(default)s)"
             )
 
     # forcing options which may ask user confirmation
     parser.add_argument("-f", "--force", dest="force", action='store_true',
             default=False,
-            help="forcing removal of existing execution data"
+            help="forcing removal of existing execution data (default: %(default)s)"
             )
 
     parser.add_argument("-T", "--tmp-dir", dest="tmp_dir",
@@ -65,18 +64,18 @@ MySQL running instance :\n
     parser.add_argument("-m", "--mysql-dir", dest="mysql_dir",
             default=os.getenv("MYSQL_DIR"),
             help="""Path to the mysql install directory.
-                    Default to MYSQL_DIR environement variable value if not empty"""
+                    Default to MYSQL_DIR environement variable value if not empty (default: %(default)s)"""
             )
 
     parser.add_argument("-b", "--mysql-bin", dest="mysql_bin",
             default="{mysql_dir}/bin/mysql",
             help="""Path to the mysql command line client (e.g. /usr/local/bin/mysql).
-Used to CREATE and DROP the scisql UDFs after installation."""
+Used to CREATE and DROP the scisql UDFs after installation. (default: %(default)s)"""
             )
 
     parser.add_argument("-P", "--mysql-plugin-dir", dest="mysql_plugin_dir",
             default="{mysql_dir}/lib/mysql/plugin",
-            help="full path to MySQL plugin directory"
+            help="full path to MySQL plugin directory (default: %(default)s)"
             )
 
     parser.add_argument("-S", "--mysql-socket", dest="mysql_socket",
@@ -86,7 +85,7 @@ Used to CREATE and DROP the scisql UDFs after installation."""
 
     parser.add_argument("-U", "--mysql-user", dest="mysql_user",
             default='root',
-            help="MySQL user name with admin privileges"
+            help="MySQL user name with admin privileges (default: %(default)s)"
             )
 
     args = parser.parse_args()
@@ -179,35 +178,33 @@ def main():
                 logging.fatal('Invalid/missing MySQL plugin directory. Use --mysql-dir or --mysql-plugin-dir options.')
                 sys.exit(1)
 
-            # TODO : check for existing .so file
             logging.info("Deploying sciSQL shared library in {0}"
                 .format(args.mysql_plugin_dir)
             )
-            installed_libs = glob.glob(
-                os.path.join(args.mysql_plugin_dir,
-                'libscisql-*.so')
+            scisql_libname = "libscisql-{0}{1}.so".format(const.SCISQL_PREFIX, const.SCISQL_VERSION)
+            # check for existing shared library file of the same version
+            scisql_plugin_lib = os.path.join(
+                args.mysql_plugin_dir,
+                scisql_libname
             )
-            if len(installed_libs) > 0:
-                logging.warn("Previous sciSQL library found in MySQL plugin directory ({0})"
-                    .format(installed_libs) +
-                    ". sciSQL plugin is certainly already deployed."
+            if os.path.isfile(scisql_plugin_lib):
+                logging.warn("Previous sciSQL library of the same version found in MySQL plugin directory ({0})"
+                    .format(scisql_plugin_lib) +
+                    ". sciSQL plugin (version: {0}) is certainly already deployed.".format(const.SCISQL_VERSION)
                 )
                 if args.force or utils.user_yes_no_query(
                     "WARNING: Do you want to replace this shared library"
-                    + " by current one and continue ? This may cause problems."
+                    + " by current one and continue ? Answer 'yes' only if you know what you are doing."
                 ):
-                    for lib in installed_libs:
-                        os.remove(lib)
+                        logging.warn("Forcing sciSQL deployment over an existing sciSQL plugin of the same version.")
                 else:
                     logging.info("Stopping sciSQL deployment,"
                         + "please remove previous sciSQL plugin from MySQL")
                     sys.exit(1)
 
-
-            scisql_lib_dir = os.path.join(scisql_dir,"lib")
             scisql_lib = os.path.join(
-                            scisql_lib_dir,
-                            "libscisql-{0}{1}.so".format(const.SCISQL_PREFIX, const.SCISQL_VERSION)
+                scisql_dir, "lib",
+                scisql_libname
             )
             shutil.copy(scisql_lib, args.mysql_plugin_dir)
 
