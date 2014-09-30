@@ -9,10 +9,10 @@ import os
 import shutil
 import stat
 from scisql import configure
-import subprocess
+from scisql import const
+from scisql import utils
 import sys
 import tempfile
-from threading import Thread
 import time
 
 def parse_args():
@@ -172,7 +172,7 @@ def main():
 
             logging.info('Checking for mysql version')
             script=os.path.join(tmp_dir, "check_mysql_version.sh")
-            run_command([script])
+            utils.run_command([script])
 
             logging.info('Checking for mysql plugins directory')
             if not args.mysql_plugin_dir or not os.path.isdir(args.mysql_plugin_dir):
@@ -183,21 +183,44 @@ def main():
             logging.info("Deploying sciSQL shared library in {0}"
                 .format(args.mysql_plugin_dir)
             )
+            installed_libs = glob.glob(
+                os.path.join(args.mysql_plugin_dir,
+                'libscisql-*.so')
+            )
+            if len(installed_libs) > 0:
+                logging.warn("Previous sciSQL library found in MySQL plugin directory ({0})"
+                    .format(installed_libs) +
+                    ". sciSQL plugin is certainly already deployed."
+                )
+                if args.force or utils.user_yes_no_query(
+                    "WARNING: Do you want to replace this shared library"
+                    + " by current one and continue ? This may cause problems."
+                ):
+                    for lib in installed_libs:
+                        os.remove(lib)
+                else:
+                    logging.info("Stopping sciSQL deployment,"
+                        + "please remove previous sciSQL plugin from MySQL")
+                    sys.exit(1)
+
+
             scisql_lib_dir = os.path.join(scisql_dir,"lib")
-            libs = glob.glob(scisql_lib_dir+os.path.sep+"*.so")
-            for lib in libs:
-                shutil.copy(lib, args.mysql_plugin_dir)
+            scisql_lib = os.path.join(
+                            scisql_lib_dir,
+                            "libscisql-{0}{1}.so".format(const.SCISQL_PREFIX, const.SCISQL_VERSION)
+            )
+            shutil.copy(scisql_lib, args.mysql_plugin_dir)
 
             script=os.path.join(tmp_dir, configure.DEPLOY + ".sh")
-            run_command([script])
+            utils.run_command([script])
 
         if configure.TEST in args.step_list:
             script=os.path.join(tmp_dir, configure.TEST + ".sh")
-            run_command([script])
+            utils.run_command([script])
 
         if configure.UNDEPLOY in args.step_list:
             script=os.path.join(tmp_dir, configure.UNDEPLOY + ".sh")
-            run_command([script])
+            utils.run_command([script])
 
     finally:
         if logging.getLogger().getEffectiveLevel() > logging.DEBUG:
@@ -206,60 +229,6 @@ def main():
             logging.debug("Temporary directory {0} ".format(tmp_dir) +
                 "not removed in order to enable post-mortem analysis. " +
                 "Remove it manually.")
-
-def run_command(cmd_args, loglevel=logging.INFO) :
-    """ Run a shell command
-
-    Keyword arguments
-    cmd_args -- a list of arguments
-    logger_name -- the name of a logger, if not specified, will log to stdout
-
-    """
-    logger = logging.getLogger()
-
-    cmd_str= ' '.join(cmd_args)
-    logger.log(loglevel, "Running : {0}".format(cmd_str))
-
-    try :
-
-        process = subprocess.Popen(cmd_args,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        def logstream(stream,loggercb):
-            while True:
-                out = stream.readline()
-                if out:
-                    loggercb(out.rstrip())
-                else:
-                    break
-
-        stdout_thread = Thread(target=logstream,
-            args=(process.stdout,lambda s: logger.log(loglevel,"stdout : %s" % s))
-        )
-
-        stderr_thread = Thread(target=logstream,
-            args=(process.stderr,lambda s: logger.log(loglevel,"stderr : %s" % s))
-        )
-
-        stdout_thread.start()
-        stderr_thread.start()
-
-        process.wait()
-        stdout_thread.join()
-        stderr_thread.join()
-
-        if process.returncode!=0 :
-            logger.fatal("Error code returned by command : {0} ".format(cmd_str))
-            sys.exit(1)
-
-    except OSError as e:
-        logger.fatal("Error : %s while running command : %s" %
-                     (e,cmd_str))
-        sys.exit(1)
-    except ValueError as e:
-        logger.fatal("Invalid parameter : '%s' for command : %s " % (e,cmd_str))
-        sys.exit(1)
-
 
 if __name__ == '__main__':
     main()

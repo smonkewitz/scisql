@@ -3,7 +3,7 @@
 # add mysqlpython to PYTHONPATH
 # set INSTALL_DIR and PASSWORD
 set -e
-INSTALL_DIR=~/tmp/scisql/
+INSTALL_DIR="$HOME/tmp/scisql"
 PASSWORD="changeme"
 MYSQL_SOCKET="$HOME/qserv-run/2014_09.0/var/lib/mysql/mysql.sock"
 ./configure --mysql-includes=${MYSQL_DIR}/include/mysql/ --prefix=${INSTALL_DIR}

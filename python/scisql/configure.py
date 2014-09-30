@@ -121,14 +121,6 @@ def apply_templates(template_root, dest_root):
 
     return True
 
-def user_yes_no_query(question):
-    sys.stdout.write('\n%s [y/n]\n' % question)
-    while True:
-        try:
-            return strtobool(raw_input().lower())
-        except ValueError:
-            sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
-
 class ScisqlConfigTemplate(string.Template):
     delimiter = '{{'
     pattern = r'''
