@@ -17,8 +17,11 @@ list:
 install:
 	@$(WAF) install
 
-install_sql:
-	@$(WAF) install_sql
+deploy:
+	@$(WAF) deploy
+
+deploy_sql:
+	@$(WAF) deploy_sql
 
 uninstall:
 	@$(WAF) uninstall

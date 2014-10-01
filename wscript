@@ -23,6 +23,7 @@
 
 from __future__ import with_statement
 import os
+import stat
 import sys
 import traceback
 
@@ -42,6 +43,7 @@ VERSION = '0.3'
 top = '.'
 out = 'build'
 
+BUILD_CONST_MODULE='const.py'
 
 def options(ctx):
     ctx.add_option('--client-only', dest='client_only', action='store_true',
@@ -50,17 +52,18 @@ def options(ctx):
                    help='UDF/stored procedure name prefix (defaulting to %default). ' +
                         'An empty string means: do not prefix.')
     ctx.load('compiler_c')
-    ctx.load('mysql', tooldir='tools')
+    ctx.load('mysql_waf', tooldir='tools')
 
 def configure(ctx):
     ctx.env.SCISQL_CLIENT_ONLY = ctx.options.client_only
     ctx.env.SCISQL_VERSION = VERSION
     ctx.load('compiler_c')
     if not ctx.options.client_only:
-        ctx.load('mysql', tooldir='tools')
-        ctx.check_mysql(atleast_version='5')
+        ctx.load('mysql_waf', tooldir='tools')
+        ctx.check_mysql()
         ctx.define('SCISQL_PREFIX', ctx.options.scisql_prefix, quote=False)
         ctx.env.SCISQL_PREFIX = ctx.options.scisql_prefix
+
     ctx.env['CFLAGS'] = ['-Wall',
                          '-Wextra',
                          '-O3'
@@ -116,28 +119,38 @@ def configure(ctx):
 
     # Create run-time environment for tasks
     if not ctx.options.client_only:
-        env = os.environ.copy()    
-        env['MYSQL'] = ctx.env.MYSQL
-        env['MYSQL_CNF'] = ctx.env.MYSQL_CNF
-        env['MYSQL_DIR'] = ctx.env.MYSQL_DIR
+        env = os.environ.copy()
         env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
         env['SCISQL_VERSION'] = VERSION
         env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
         ctx.env.env = env
 
+        ctx.start_msg('Writing build parameters')
+        dest = ctx.bldnode.make_node(BUILD_CONST_MODULE)
+        dest.parent.mkdir()
+        dest.write(
+            "SCISQL_PREFIX = \"{0}\"\n".format(ctx.env.SCISQL_PREFIX) +
+	        "SCISQL_VERSION = \"{0}\"\n".format(ctx.env.SCISQL_VERSION) +
+	        "SCISQL_VSUFFIX = \"{0}\"\n".format(ctx.env.SCISQL_VSUFFIX)
+        )
+        ctx.env.append_value('cfg_files', dest.abspath())
+        ctx.end_msg(BUILD_CONST_MODULE)
 
 def build(ctx):
     # UDF shared library
     if not ctx.env.SCISQL_CLIENT_ONLY:
+        libname='scisql-' + ctx.env.SCISQL_PREFIX + VERSION
         ctx.shlib(
             source=ctx.path.ant_glob('src/*.c') +
                    ctx.path.ant_glob('src/udfs/*.c'),
             includes='src',
-            target='scisql-' + ctx.env.SCISQL_PREFIX + VERSION,
+            target=libname,
             name='scisql',
             use='MYSQL M',
-            install_path=ctx.env.MYSQL_PLUGIN_DIR
+            install_path=os.path.join(ctx.env.PREFIX, 'lib')
         )
+
+
     # Off-line spatial indexing tool
     ctx.program(
         source='src/util/index.c src/geometry.c src/htm.c',
@@ -146,7 +159,7 @@ def build(ctx):
         install_path=os.path.join(ctx.env.PREFIX, 'bin'),
         use='M'
     )
-    # C test cases
+    # C test cases, executed in build process, against shared library
     ctx.program(
         source='test/testSelect.c src/select.c',
         includes='src',
@@ -161,39 +174,38 @@ def build(ctx):
         install_path=False,
         use='M'
     )
-    if ctx.env.SCISQL_CLIENT_ONLY:
-        doc_dir = ctx.path.find_dir('doc')
-        ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
+    # doc directory
+    doc_dir = ctx.path.find_dir('doc')
+    ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
                           cwd=doc_dir, relative_trick=True)
-    if ctx.cmd == 'install' and not ctx.env.SCISQL_CLIENT_ONLY:
-        ctx.add_post_fun(install_sql)
-        ctx.add_post_fun(test)
-    elif ctx.cmd == 'uninstall' and not ctx.env.SCISQL_CLIENT_ONLY:
-        ctx(rule='${SRC}',
-            source='scripts/uninstall.py',
-            always=True)
+    # bin directory
+    bin_dir = ctx.path.find_dir('bin')
+    ctx.install_files('${PREFIX}/bin', bin_dir.ant_glob('**/*.py'),
+                          chmod=Utils.O755, cwd=bin_dir, relative_trick=True)
 
-
-class InstallSqlContext(Build.InstallContext):
-    cmd = 'install_sql'
-    fun = 'install_sql'
-
-def install_sql(ctx):
-    """Run SQL installation scripts in a separate build context. The install command
-    calls this as a post function, which ensures that the scisql shared library has
-    already been installed.
-    """
     if not ctx.env.SCISQL_CLIENT_ONLY:
-        dir = os.path.join(ctx.path.get_bld().abspath(), '.mysql')
-        bld = Build.BuildContext(top_dir=ctx.top_dir, run_dir=ctx.run_dir, out_dir=dir)
-        bld.init_dirs()
-        bld.env = ctx.env
-        t1 = bld(source='scripts/install.mysql')
-        t2 = bld(source='scripts/demo.mysql')
-        t1.post()
-        t2.post()
-        t2.tasks[0].set_run_after(t1.tasks[0])
-        bld.compile()
+        # install build configuration module whose parameters will be used by
+        # deployment script
+        ctx.install_files('${PREFIX}/python/scisql', BUILD_CONST_MODULE)
+
+        # python modules
+        python_dir = ctx.path.find_dir('python')
+        ctx.install_files('${PREFIX}/python', python_dir.ant_glob('**/*.py'),
+                              cwd=python_dir, relative_trick=True)
+        # tools directory
+        tool_dir = ctx.path.find_dir('tools')
+        ctx.install_files('${PREFIX}/tools', tool_dir.ant_glob('**/*'),
+                              cwd=tool_dir, relative_trick=True)
+        # template directory
+        template_dir = ctx.path.find_dir('templates')
+        ctx.install_files('${PREFIX}/templates', template_dir.ant_glob('**/*'),
+                              cwd=template_dir, relative_trick=True)
+        # python tests
+        test_dir = ctx.path.find_dir('test')
+        ctx.install_files('${PREFIX}/test', test_dir.ant_glob('**/*.py'),
+                              cwd=test_dir, relative_trick=True)
+    if ctx.cmd == 'build':
+        ctx.add_post_fun(test)
 
 
 class TestContext(Build.BuildContext):
@@ -247,9 +259,6 @@ def test(ctx):
     tests = Tests()
     tests.utest(source=ctx.path.get_bld().make_node('test/testHtm'))
     tests.utest(source=ctx.path.get_bld().make_node('test/testSelect'))
-    if not ctx.env.SCISQL_CLIENT_ONLY:
-        tests.utest(source=ctx.path.ant_glob('test/test*.py'))
-        tests.utest(source=ctx.path.make_node('tools/docs.py'))
     tests.run(ctx)
 
 

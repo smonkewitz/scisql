@@ -375,7 +375,7 @@ def extract_docs(root):
     nodes = []
     for file in glob.glob(os.path.join(root, 'src', 'udfs', '*.c')):
         nodes.extend(extract_docs_from_c(file))
-    for file in glob.glob(os.path.join(root, 'scripts', '*.mysql')):
+    for file in glob.glob(os.path.join(root, 'template', '*.mysql')):
         nodes.extend(extract_docs_from_sql(file))
     sections = extract_sections(os.path.join(root, 'tools', 'templates', 'sections.xml'))
     secdict = dict((x.name, x) for x in sections)
@@ -474,8 +474,13 @@ def main():
     sections = extract_docs(root)
     if len(args) == 0 or args[0] == 'test_docs':
         nfail = run_doc_examples(sections)
-        if nfail != 0:
-            sys.exit(1)
+        # Above files may have been created by test procedure
+        for f in ['scisql_demo_htmid10.tsv', 'scisql_demo_ccds.tsv']:
+            filename = os.path.join("tmp", f)
+            if os.path.exists(filename):
+                os.remove(filename)
+            if nfail != 0:
+                sys.exit(1)
     else:
         if not _have_mako:
             parser.error("You must install mako 0.4.x to generate documentation")
