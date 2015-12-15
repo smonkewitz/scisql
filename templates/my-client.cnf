@@ -3,3 +3,6 @@
 user     = {{MYSQLD_USER}}
 password = {{MYSQLD_PASS}}
 socket   = {{MYSQLD_SOCK}}
+
+[mysql]
+local-infile=1
