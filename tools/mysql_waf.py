@@ -40,7 +40,7 @@ def options(ctx):
 
 @Configure.conf
 def check_mysql(self):
-    self.start_msg('Checking for mysql install')
+    self.start_msg('Checking for mysql/mariadb install')
     mysql_dir = self.options.mysql_dir
     if mysql_dir:
         if not os.path.isdir(mysql_dir) or not os.access(mysql_dir, os.X_OK):
