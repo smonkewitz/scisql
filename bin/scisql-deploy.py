@@ -16,7 +16,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
             description='''sciSQL deployment tool. Install sciSQL plugin in a
-Mariadb/MySQL running instance :\n
+MariaDB/MySQL running instance :\n
 - install shared library in MariaDB/MySQL plugin directory\n
 - install UDF in MariaDB/MySQL database''',
 )

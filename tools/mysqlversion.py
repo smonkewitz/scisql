@@ -31,7 +31,6 @@ _CMP = {
 }
 
 def _to_tuple(version):
-    print version.split('.')
     return tuple(int(i) for i in version.split('.'))
 
 

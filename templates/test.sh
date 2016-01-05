@@ -11,6 +11,7 @@ retcode=0
 for testfile in ${SCISQL_BASE}/test/test*.py ${SCISQL_BASE}/tools/docs.py
 do
     test_msg="Test ${testfile} :"
+    echo "Running ${test_msg}"
     if python "${testfile}"; then
         echo "${test_msg} SUCCESS"
     else
