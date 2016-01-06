@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-import fileinput
 import getpass
-import glob
 import logging
 import os
 import shutil
@@ -13,16 +11,15 @@ from scisql import const
 from scisql import utils
 import sys
 import tempfile
-import time
 
 def parse_args():
 
     parser = argparse.ArgumentParser(
             description='''sciSQL deployment tool. Install sciSQL plugin in a
-MySQL running instance :\n
-- install shared library in MySQL plugin directory\n
-- install UDF in MySQL database''',
-            )
+MariaDB/MySQL running instance :\n
+- install shared library in MariaDB/MySQL plugin directory\n
+- install UDF in MariaDB/MySQL database''',
+)
 
     # Defining option of each configuration step
     for step_name in configure.STEP_LIST:
@@ -62,9 +59,9 @@ MySQL running instance :\n
             )
 
     parser.add_argument("-m", "--mysql-dir", dest="mysql_dir",
-            default=os.getenv("MYSQL_DIR"),
-            help="""Path to the mysql install directory.
-                    Default to MYSQL_DIR environement variable value if not empty (default: %(default)s)"""
+            default=os.getenv("MARIADB_DIR"),
+            help="""Path to the MariaDB/MySQL install directory.
+                    Default to MARIADB_DIR environement variable value if not empty (default: %(default)s)"""
             )
 
     parser.add_argument("-b", "--mysql-bin", dest="mysql_bin",
@@ -74,8 +71,8 @@ Used to CREATE and DROP the scisql UDFs after installation. (default: %(default)
             )
 
     parser.add_argument("-P", "--mysql-plugin-dir", dest="mysql_plugin_dir",
-            default="{mysql_dir}/lib/mysql/plugin",
-            help="full path to MySQL plugin directory (default: %(default)s)"
+            default="{mysql_dir}/lib/plugin",
+            help="full path to MariaDB/MySQL plugin directory (default: %(default)s)"
             )
 
     parser.add_argument("-S", "--mysql-socket", dest="mysql_socket",
@@ -92,9 +89,9 @@ Used to CREATE and DROP the scisql UDFs after installation. (default: %(default)
 
     # password MUST NOT be displayed by ps command
     if sys.stdin.isatty():
-        args.mysql_password = getpass.getpass('Enter MySQL password: ')
+        args.mysql_password = getpass.getpass('Enter MySQL/MariaDB password: ')
     else:
-        print("Reading MySQL password using standard input")
+        print("Reading MySQL/MariaDB password using standard input")
         args.mysql_password = sys.stdin.readline().rstrip()
 
     if args.step_list is None:
@@ -206,6 +203,12 @@ def main():
                 scisql_dir, "lib",
                 scisql_libname
             )
+
+            # Required by MariaDB: see
+            # https://mariadb.com/kb/en/mariadb/create-function-udf/#upgrading-a-udf
+            script = os.path.join(tmp_dir, configure.UNDEPLOY + ".sh")
+            utils.run_command([script])
+
             shutil.copy(scisql_lib, args.mysql_plugin_dir)
 
             script=os.path.join(tmp_dir, configure.DEPLOY + ".sh")

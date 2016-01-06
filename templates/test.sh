@@ -1,20 +1,21 @@
 #!/usr/bin/env sh
 
-DIR=$(cd "$(dirname "$0")"; pwd -P)                                                                     
+DIR=$(cd "$(dirname "$0")"; pwd -P)
 
-SCISQL_BASE={{SCISQL_BASE}}
-export SCISQL_PREFIX={{SCISQL_PREFIX}}
+SCISQL_BASE='{{SCISQL_BASE}}'
+export SCISQL_PREFIX='{{SCISQL_PREFIX}}'
 export MYSQL_CNF=${DIR}/my-client.cnf
-export MYSQL={{MYSQL_BIN}}
+export MYSQL='{{MYSQL_BIN}}'
 
 retcode=0
 for testfile in ${SCISQL_BASE}/test/test*.py ${SCISQL_BASE}/tools/docs.py
 do
-    echo -n "Running ${testfile} : "
-    if python ${testfile}; then
-        echo "PASS"
+    test_msg="Test ${testfile} :"
+    echo "Running ${test_msg}"
+    if python "${testfile}"; then
+        echo "${test_msg} SUCCESS"
     else
-        echo "FAIL"
+        echo "${test_msg} FAILURE"
         retcode=1
     fi
 done

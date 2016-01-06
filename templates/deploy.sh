@@ -13,4 +13,4 @@ do
     ${MYSQL_BIN} --defaults-file=${MYSQL_CNF} < ${SQL_FILE}
 done
 
-echo "sciSQL procedures loading in MySQL SUCCESSFUL"
+echo "sciSQL procedures loading in MySQL/MariaDB SUCCESSFUL"

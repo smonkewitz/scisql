@@ -2,56 +2,88 @@ import argparse
 import operator
 import sys
 
-AT_LEAST_VERSION='at_least_version'
-MAX_VERSION='max_version'
-EXACT_VERSION='exact_version'
+_MIN_VERSION = 'min_version'
+_MAX_VERSION = 'max_version'
+_EXACT_VERSION = 'exact_version'
 
-SCISQL_CONSTRAINT = dict()
-SCISQL_CONSTRAINT[AT_LEAST_VERSION] = 5
-SCISQL_CONSTRAINT[MAX_VERSION]      = 5
-SCISQL_CONSTRAINT[EXACT_VERSION]    = ['5.1.65', '5.1.73']
+_MYSQL = "MySQL"
+_MARIADB = "MariaDB"
 
-__ver = {
-    AT_LEAST_VERSION: operator.ge,
-    EXACT_VERSION: operator.eq,
-    MAX_VERSION: operator.le,
+# Constraints for compatible MySQL/MariaDB versions
+_DB_CONSTRAINT = {
+    _MYSQL: {
+        _MIN_VERSION: 5,
+        _MAX_VERSION: 5,
+        _EXACT_VERSION: ['5.1.65', '5.1.73']
+    },
+    _MARIADB: {
+        _MIN_VERSION: 10,
+        _MAX_VERSION: 10,
+        _EXACT_VERSION: ['10.1.9-MariaDB']
+    },
+
 }
 
-def __parse_version(version):
-    return tuple(map(int, version.split('.')))
+_CMP = {
+    _MIN_VERSION: operator.ge,
+    _EXACT_VERSION: operator.eq,
+    _MAX_VERSION: operator.le,
+}
+
+def _to_tuple(version):
+    return tuple(int(i) for i in version.split('.'))
+
+
+def _parse_version(version):
+
+    db_name = None
+
+    mariadb_prefix = "-"+_MARIADB
+
+    if version.endswith(mariadb_prefix):
+        db_name = _MARIADB
+	num_version = version[:-len(mariadb_prefix)]
+    else:
+        db_name = _MYSQL
+	num_version = version
+
+    nums = _to_tuple(num_version)
+    return (db_name, nums)
 
 def check(version):
 
     ok = True
     msg = None
     try:
-        mv = __parse_version(version)
-    except:
+        (db_name, version_nums) = _parse_version(version)
+    except ValueError:
         msg = 'Invalid MYSQL_SERVER_VERSION {0}'.format(version)
         ok = False
+        return (ok, msg)
 
-    if version in SCISQL_CONSTRAINT[EXACT_VERSION]:
-        ok=True
-    else:
-        for constraint in [AT_LEAST_VERSION, MAX_VERSION]:
-            if constraint in SCISQL_CONSTRAINT:
-                try:
-                        dv = __parse_version(kw[constraint])
-                except:
-                    msg = 'Invalid {0} value {1}'.format(constraint, kw[constraint])
-                    ok = False
-                if not __ver[constraint](mv, dv):
-                    msg = 'MySQL server version {0} violates {1}={2}'.format(version, constraint, kw[constraint])
-                    ok = False
+    db_constraints = _DB_CONSTRAINT[db_name]
+    if not version in db_constraints[_EXACT_VERSION]:
+        for constraint_name in [_MIN_VERSION, _MAX_VERSION]:
+            constraint_value = db_constraints[constraint_name]
+            try:
+                constraint_nums = _to_tuple(constraint_value)
+            except:
+                msg = 'Invalid {0} value {1}'.format(constraint_name, constraint_value)
+                ok = False
+            comparison_op = _CMP[constraint_name]
+            if not comparison_op(version_nums, constraint_nums):
+                msg = '{0} server version {1} violates {2}={3}'.format(db_name, version, constraint_name, constraint_value)
+                ok = False
+
     return (ok, msg)
 
 def main():
 
     parser = argparse.ArgumentParser(
-            description='''Check a given MySQL version is compatible with SciSQL''',
+            description='''Check if a given MySQL/MariaDB version is compatible with SciSQL''',
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
             )
-    parser.add_argument('-v', '--mysqlversion', help="MySQL version number")
+    parser.add_argument('-v', '--mysqlversion', help="MySQL/MariaDB version number")
     args = parser.parse_args()
 
     (ok, msg) = check(args.mysqlversion)
