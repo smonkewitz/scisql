@@ -178,7 +178,7 @@ def main():
             logging.info("Deploying sciSQL shared library in {0}"
                 .format(args.mysql_plugin_dir)
             )
-            scisql_libname = "libscisql-{0}{1}.so".format(const.SCISQL_PREFIX, const.SCISQL_VERSION)
+            scisql_libname = const.SCISQL_LIBNAME
             # check for existing shared library file of the same version
             scisql_plugin_lib = os.path.join(
                 args.mysql_plugin_dir,

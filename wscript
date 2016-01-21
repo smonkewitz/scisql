@@ -114,6 +114,7 @@ def configure(ctx):
     ctx.define(APPNAME.upper() + '_VERSION_NUM',
                versions[0]*100**2 + versions[1]*100 + versions[2])
     ctx.env.SCISQL_VSUFFIX = '_' + '_'.join(map(str, versions))
+    ctx.env.SCISQL_LIBNAME = ctx.env['cshlib_PATTERN'] % ('scisql-' + ctx.env.SCISQL_PREFIX + VERSION)
     ctx.define('SCISQL_VSUFFIX', ctx.env.SCISQL_VSUFFIX, quote=False)
     ctx.write_config_header('src/config.h')
 
@@ -123,15 +124,16 @@ def configure(ctx):
         env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
         env['SCISQL_VERSION'] = VERSION
         env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
+        env['SCISQL_LIBNAME'] = ctx.env.SCISQL_LIBNAME
         ctx.env.env = env
-
         ctx.start_msg('Writing build parameters')
         dest = ctx.bldnode.make_node(BUILD_CONST_MODULE)
         dest.parent.mkdir()
         dest.write(
             "SCISQL_PREFIX = \"{0}\"\n".format(ctx.env.SCISQL_PREFIX) +
-	        "SCISQL_VERSION = \"{0}\"\n".format(ctx.env.SCISQL_VERSION) +
-	        "SCISQL_VSUFFIX = \"{0}\"\n".format(ctx.env.SCISQL_VSUFFIX)
+            "SCISQL_VERSION = \"{0}\"\n".format(ctx.env.SCISQL_VERSION) +
+            "SCISQL_VSUFFIX = \"{0}\"\n".format(ctx.env.SCISQL_VSUFFIX) +
+            "SCISQL_LIBNAME = \"{0}\"\n".format(ctx.env.SCISQL_LIBNAME)
         )
         ctx.env.append_value('cfg_files', dest.abspath())
         ctx.end_msg(BUILD_CONST_MODULE)
@@ -149,7 +151,6 @@ def build(ctx):
             use='MYSQL M',
             install_path=os.path.join(ctx.env.PREFIX, 'lib')
         )
-
 
     # Off-line spatial indexing tool
     ctx.program(
