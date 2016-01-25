@@ -35,6 +35,7 @@ def init_config(scisql_base, mysql_bin, mysql_user, mysql_password, mysql_socket
     config[section]['prefix'] = const.SCISQL_PREFIX
     config[section]['version'] = const.SCISQL_VERSION
     config[section]['vsuffix'] = const.SCISQL_VSUFFIX
+    config[section]['libname'] = const.SCISQL_LIBNAME
     section = 'mysqld'
     config[section] = dict()
     config[section]['bin'] = mysql_bin
@@ -62,6 +63,7 @@ def _get_template_params():
     'SCISQL_PREFIX': config['scisql']['prefix'],
     'SCISQL_VERSION': config['scisql']['version'],
     'SCISQL_VSUFFIX': config['scisql']['vsuffix'],
+    'SCISQL_LIBNAME': config['scisql']['libname'],
     }
 
     logger.debug("Input parameters :\n {0}".format(params_dict))

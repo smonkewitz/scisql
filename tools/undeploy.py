@@ -78,15 +78,15 @@ def _parseMyCnf(my_cnf):
     return kw
 
 
-def dropUdf(cursor, udf, prefix, version, vsuffix, versioned=True):
+def dropUdf(cursor, udf, prefix, vsuffix, libname, versioned=True):
     if versioned:
         cursor.execute('DROP FUNCTION IF EXISTS %s%s%s' % (prefix, udf, vsuffix))
     # Drop unversioned shim if it corresponds to the version of sciSQL
     # being uninstalled
     cursor.execute('''SELECT COUNT(*) FROM mysql.func
                       WHERE name = "%s%s" AND
-                            dl = "libscisql-%s%s.so"''' % 
-                   (prefix, udf, prefix, version))
+                            dl = "%s"''' %
+                   (prefix, udf, libname))
     n = cursor.fetchall()[0][0]
     if n == 1:
         cursor.execute('DROP FUNCTION IF EXISTS %s%s' % (prefix, udf))
@@ -111,16 +111,16 @@ def dropProc(cursor, proc, prefix, vsuffix):
 
 def uninstall():
     prefix = os.environ['SCISQL_PREFIX']
-    version = os.environ['SCISQL_VERSION']
     vsuffix = os.environ['SCISQL_VSUFFIX']
+    libname = os.environ['SCISQL_LIBNAME']
     conn = sql.connect(**_parseMyCnf(os.environ['MYSQL_CNF']))
     try:
         cursor = conn.cursor()
         try:
             cursor.execute('USE mysql')
             for udf in _udfs:
-                dropUdf(cursor, udf, prefix, version, vsuffix)
-            dropUdf(cursor, 'getVersion', prefix, version, vsuffix, False)
+                dropUdf(cursor, udf, prefix, vsuffix, libname)
+            dropUdf(cursor, 'getVersion', prefix, vsuffix, libname, False)
             for proc in _procs:
                 dropProc(cursor, proc, prefix, vsuffix)
             cursor.execute('DROP DATABASE IF EXISTS scisql_demo')
