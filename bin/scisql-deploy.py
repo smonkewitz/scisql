@@ -125,7 +125,7 @@ def check_global_args(args):
         is_socket = stat.S_ISSOCK(mode)
         if not is_socket:
             logging.fatal(
-                'Invalid MySQL socket. Use --mysql-socket options.'.format(args.mysql_socket)
+                'Invalid MySQL socket: {0}. Use --mysql-socket options.'.format(args.mysql_socket)
             )
             sys.exit(1)
 

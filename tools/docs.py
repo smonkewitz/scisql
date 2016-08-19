@@ -347,8 +347,8 @@ def extract_docs_from_c(filename):
             elt = etree.XML(xml)
             docs.append(ast(elt))
         except:
-            sys.stderr.write("Failed to parse documentation block:\n\n%s\n\n" % xml)
-            sys.stderr.write(traceback.format_exc())
+            print("Failed to parse documentation block:\n\n%s\n\n" % xml, file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
     return docs
 
 
@@ -372,8 +372,8 @@ def extract_docs_from_sql(filename):
             elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
             docs.append(ast(elt))
         except ValueError:
-            sys.stderr.write("Failed to parse documentation block:\n\n%s\n\n" % xml)
-            sys.stderr.write(traceback.format_exc())
+            print("Failed to parse documentation block:\n\n%s\n\n" % xml, file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
     return docs
 
 
@@ -425,7 +425,8 @@ def _test(obj):
                 with open(os.devnull, 'wb') as devnull:
                     subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
             except subprocess.CalledProcessError:
-                sys.stderr.write("Failed to run documentation example:\n\n%s\n\n" % ex.source)
+                print("Failed to run documentation example:\n\n%s\n\n" % ex.source,
+                      file=sys.stderr)
                 nfail += 1
     return nfail 
 

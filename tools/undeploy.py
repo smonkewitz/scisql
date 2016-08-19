@@ -67,16 +67,17 @@ _procs = ['s2CircleRegion',
 
 def _parseMyCnf(my_cnf):
     parser = ConfigParser()
-    parser.read_file(open(my_cnf), my_cnf)
-    kw = {}
-    for section in parser.sections():
-        for key, val in parser[section].items():
-            if key == 'user':
-                kw['user'] = val
-            elif key == 'password':
-                kw['passwd'] = val
-            elif key == 'socket':
-                kw['unix_socket'] = val
+    with open(my_cnf) as conf_file:
+        parser.read_file(conf_file, my_cnf)
+        kw = {}
+        for section in parser.sections():
+            for key, val in parser[section].items():
+                if key == 'user':
+                    kw['user'] = val
+                elif key == 'password':
+                    kw['passwd'] = val
+                elif key == 'socket':
+                    kw['unix_socket'] = val
     return kw
 
 
