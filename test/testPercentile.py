@@ -21,8 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
-
 import math
 import random
 import sys
@@ -43,28 +41,30 @@ class PercentileTestCase(MySqlUdfTestCase):
         """
         for n in (101, 10001):
             with self.tempTable("Percentile", ("x DOUBLE PRECISION",)) as t:
-                values = [(v,) for v in xrange(n)]
+                values = [(v,) for v in range(n)]
                 random.shuffle(values)
                 t.insertMany(values)
                 stmt = "SELECT %spercentile(x, 25) FROM Percentile" % self._prefix
                 rows = self.query(stmt)
                 quartile = math.floor(0.25 * (n - 1))
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
-                self.assertAlmostEqual(rows[0][0], quartile, 15,
+                self.assertAlmostEqual(
+                    rows[0][0], quartile, 15,
                     "quartile of integers [0 .. %d] not close enough to %f" % (n - 1, quartile))
                 t.insert((n))
                 quartile += 0.25
                 rows = self.query(stmt)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
-                self.assertAlmostEqual(rows[0][0], quartile, 15,
+                self.assertAlmostEqual(
+                    rows[0][0], quartile, 15,
                     "quartile of integers [0 .. %d] not close enough to %f" % (n, quartile))
 
     def testGroups(self):
         with self.tempTable("Percentile", ("grp INTEGER",
                                            "percent TINYINT",
                                            "x DOUBLE PRECISION")) as t:
-            for grp in xrange(3):
-                values = [(grp, grp*25, v) for v in xrange(101)]
+            for grp in range(3):
+                values = [(grp, grp*25, v) for v in range(101)]
                 random.shuffle(values)
                 t.insertMany(values)
             stmt = "SELECT %spercentile(x, percent) FROM Percentile GROUP BY grp" % self._prefix
@@ -80,4 +80,3 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     if not runner.run(suite).wasSuccessful():
         sys.exit(1)
-

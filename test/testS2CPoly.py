@@ -21,8 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
-
 import random
 import sys
 import unittest
@@ -35,9 +33,12 @@ class S2CPolyTestCase(MySqlUdfTestCase):
     """
     def setUp(self):
         random.seed(123456789)
-        x = (0, 0);  nx = (180, 0)
-        y = (90, 0); ny = (270, 0)
-        z = (0, 90); nz = (0, -90)
+        x = (0, 0)
+        nx = (180, 0)
+        y = (90, 0)
+        ny = (270, 0)
+        z = (0, 90)
+        nz = (0, -90)
         self._tris = [(x, y, z),
                       (y, nx, z),
                       (nx, ny, z),
@@ -65,8 +66,9 @@ class S2CPolyTestCase(MySqlUdfTestCase):
     def testConstArgs(self):
         """Test with constant arguments.
         """
-        for i in xrange(8):
-            a = [0, 0, 0, 0, 90, 0, 0, 90]; a[i] = None
+        for i in range(8):
+            a = [0, 0, 0, 0, 90, 0, 0, 90]
+            a[i] = None
             self._s2PtInCPoly(0, *a)
             self._s2PtInCPolyBin(0, *a)
         for d in (-91, 91):
@@ -90,11 +92,11 @@ class S2CPolyTestCase(MySqlUdfTestCase):
         self.assertRaises(Exception, self._s2PtInCPolyBin,
                           (self, None, 0, 0, 0, 0, 90, 0))
         for t in self._tris:
-            for i in xrange(100):
+            for i in range(100):
                 ra = random.uniform(0.0, 360.0)
                 dec = random.uniform(-90.0, 90.0)
                 if ((t[2][1] > 0 and (dec < 0.0 or ra < t[0][0] or ra > t[1][0])) or
-                    (t[2][1] < 0 and (dec > 0.0 or ra < t[1][0] or ra > t[0][0]))):
+                        (t[2][1] < 0 and (dec > 0.0 or ra < t[1][0] or ra > t[0][0]))):
                     self._s2PtInCPoly(0, ra, dec, *flatten(t))
                     self._s2PtInCPolyBin(0, ra, dec, *flatten(t))
                 else:
@@ -103,7 +105,7 @@ class S2CPolyTestCase(MySqlUdfTestCase):
         # Test with vertices specified in clockwise order
         for t in self._tris:
             rt = tuple(reversed(t))
-            for i in xrange(100):
+            for i in range(100):
                 ra = random.uniform(0.0, 360.0)
                 dec = random.uniform(-90.0, 90.0)
                 if ((t[2][1] > 0 and (dec < 0.0 or ra < t[0][0] or ra > t[1][0])) or
@@ -126,21 +128,21 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                                         "decl2 DOUBLE PRECISION",
                                         "ra3 DOUBLE PRECISION",
                                         "decl3 DOUBLE PRECISION",
-                                        "poly VARBINARY(255)")) as t:
-            inFirst = 0
+                                        "poly VARBINARY(255)")):
+            in_first = 0
             for t in self._tris:
-                for i in xrange(100):
+                for i in range(100):
                     ra = random.uniform(0.0, 360.0)
                     dec = random.uniform(-90.0, 90.0)
                     if ((t[2][1] > 0 and (dec < 0.0 or ra < t[0][0] or ra > t[1][0])) or
-                        (t[2][1] < 0 and (dec > 0.0 or ra < t[1][0] or ra > t[0][0]))):
+                            (t[2][1] < 0 and (dec > 0.0 or ra < t[1][0] or ra > t[0][0]))):
                         inside = 0
                     else:
                         inside = 1
                     tf = self._tris[0]
                     if not ((tf[2][1] > 0 and (dec < 0.0 or ra < tf[0][0] or ra > tf[1][0])) or
                             (tf[2][1] < 0 and (dec > 0.0 or ra < tf[1][0] or ra > tf[0][0]))):
-                        inFirst += 1
+                        in_first += 1
                     stmt = """INSERT INTO S2CPoly
                               VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)""" % (
                                (inside, ra, dec) + flatten(t))
@@ -166,13 +168,13 @@ class S2CPolyTestCase(MySqlUdfTestCase):
                    self._prefix, ",".join(map(dbparam, flatten(self._tris[0]))))
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
-            self.assertEqual(rows[0][0], inFirst, "%s did not return %d" % (stmt, inFirst))
+            self.assertEqual(rows[0][0], in_first, "%s did not return %d" % (stmt, in_first))
             stmt = """SELECT COUNT(*) FROM S2CPoly
                       WHERE %ss2PtInCPoly(ra, decl, %ss2CPolyToBin(%s)) = 1""" % (
                    self._prefix, self._prefix, ",".join(map(dbparam, flatten(self._tris[0]))))
             rows = self.query(stmt)
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
-            self.assertEqual(rows[0][0], inFirst, "%s did not return %d" % (stmt, inFirst))
+            self.assertEqual(rows[0][0], in_first, "%s did not return %d" % (stmt, in_first))
             # Test with varying position and polygon
             stmt = """SELECT COUNT(*) FROM S2CPoly
                       WHERE %ss2PtInCPoly(ra, decl,
@@ -191,4 +193,3 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     if not runner.run(suite).wasSuccessful():
         sys.exit(1)
-

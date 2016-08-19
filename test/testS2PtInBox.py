@@ -40,12 +40,14 @@ class S2PtInBoxTestCase(MySqlUdfTestCase):
     def testConstArgs(self):
         """Test UDF with constant arguments.
         """
-        for i in xrange(6):
-            a = [0.0]*6; a[i] = None
+        for i in range(6):
+            a = [0.0]*6
+            a[i] = None
             self._s2PtInBox(0, *a)
         for d in (-91.0, 91.0):
             for i in (1, 3, 5):
-                a = [0.0]*6; a[i] = d
+                a = [0.0]*6
+                a[i] = d
                 self._s2PtInBox(None, *a)
         for ra_min, ra_max in ((370.0, 10.0), (50.0, -90.0), (400.0, -400.0)):
             self._s2PtInBox(None, 0.0, 0.0, ra_min, 0.0, ra_max, 0.0)
@@ -60,4 +62,3 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     if not runner.run(suite).wasSuccessful():
         sys.exit(1)
-

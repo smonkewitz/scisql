@@ -1,8 +1,6 @@
 from scisql import const
-from distutils.util import strtobool
 import logging
 import os
-import subprocess
 import sys
 import string
 
@@ -11,40 +9,39 @@ STEP_LIST = DEFAULT_STEP_LIST + ["undeploy"]
 STEP_DOC = dict(
     zip(STEP_LIST,
         [
-        """Deploy sciSQL plugin in a MySQL running instance""",
-        """Launch tests on sciSQL plugin install """,
-        """Undeploy sciSQL plugin from a MySQL running instance""",
-        ]
-    )
+            "Deploy sciSQL plugin in a MySQL running instance",
+            "Launch tests on sciSQL plugin install ",
+            "Undeploy sciSQL plugin from a MySQL running instance",
+        ])
 )
 
 DEPLOY = STEP_LIST[0]
 TEST = STEP_LIST[1]
 UNDEPLOY = STEP_LIST[2]
+CONFIG = dict()
+
 
 def getConfig():
-    return config
+    return CONFIG
+
 
 def init_config(scisql_base, mysql_bin, mysql_user, mysql_password, mysql_socket):
 
-    global config
-    config = dict()
+    global CONFIG
     section = 'scisql'
-    config[section] = dict()
-    config[section]['base'] = scisql_base
-    config[section]['prefix'] = const.SCISQL_PREFIX
-    config[section]['version'] = const.SCISQL_VERSION
-    config[section]['vsuffix'] = const.SCISQL_VSUFFIX
-    config[section]['libname'] = const.SCISQL_LIBNAME
+    CONFIG[section] = dict()
+    CONFIG[section]['base'] = scisql_base
+    CONFIG[section]['prefix'] = const.SCISQL_PREFIX
+    CONFIG[section]['version'] = const.SCISQL_VERSION
+    CONFIG[section]['vsuffix'] = const.SCISQL_VSUFFIX
+    CONFIG[section]['libname'] = const.SCISQL_LIBNAME
     section = 'mysqld'
-    config[section] = dict()
-    config[section]['bin'] = mysql_bin
-    config[section]['user'] = mysql_user
-    config[section]['pass'] = mysql_password
-    config[section]['sock'] = mysql_socket
+    CONFIG[section] = dict()
+    CONFIG[section]['bin'] = mysql_bin
+    CONFIG[section]['user'] = mysql_user
+    CONFIG[section]['pass'] = mysql_password
+    CONFIG[section]['sock'] = mysql_socket
 
-def getConfig():
-    return config
 
 def _get_template_params():
     """ Compute templates parameters from Qserv meta-configuration file
@@ -54,29 +51,31 @@ def _get_template_params():
     config = getConfig()
 
     params_dict = {
-    'PATH': os.environ.get('PATH'),
-    'MYSQL_BIN': config['mysqld']['bin'],
-    'MYSQLD_SOCK': config['mysqld']['sock'],
-    'MYSQLD_USER': config['mysqld']['user'],
-    'MYSQLD_PASS': config['mysqld']['pass'],
-    'SCISQL_BASE': config['scisql']['base'],
-    'SCISQL_PREFIX': config['scisql']['prefix'],
-    'SCISQL_VERSION': config['scisql']['version'],
-    'SCISQL_VSUFFIX': config['scisql']['vsuffix'],
-    'SCISQL_LIBNAME': config['scisql']['libname'],
+        'PATH': os.environ.get('PATH'),
+        'MYSQL_BIN': config['mysqld']['bin'],
+        'MYSQLD_SOCK': config['mysqld']['sock'],
+        'MYSQLD_USER': config['mysqld']['user'],
+        'MYSQLD_PASS': config['mysqld']['pass'],
+        'SCISQL_BASE': config['scisql']['base'],
+        'SCISQL_PREFIX': config['scisql']['prefix'],
+        'SCISQL_VERSION': config['scisql']['version'],
+        'SCISQL_VSUFFIX': config['scisql']['vsuffix'],
+        'SCISQL_LIBNAME': config['scisql']['libname'],
     }
 
     logger.debug("Input parameters :\n {0}".format(params_dict))
 
     return params_dict
 
+
 def _set_perms(file):
     extension = os.path.splitext(file)[1]
     if extension in [".sh"]:
-        os.chmod(file, 0750)
+        os.chmod(file, 0o750)
     # all other files are configuration files
     else:
-        os.chmod(file, 0640)
+        os.chmod(file, 0o640)
+
 
 def apply_tpl(src_file, target_file):
     """ Creating one configuration file from one template
@@ -92,7 +91,7 @@ def apply_tpl(src_file, target_file):
     out_cfg = t.safe_substitute(**params_dict)
     for match in t.pattern.findall(t.template):
         name = match[1]
-        if len(name) != 0 and not params_dict.has_key(name):
+        if len(name) != 0 and name not in params_dict:
             logger.fatal("Template \"%s\" in file %s is not defined in configuration tool", name, src_file)
             sys.exit(1)
 
@@ -101,6 +100,7 @@ def apply_tpl(src_file, target_file):
         os.makedirs(os.path.dirname(target_file))
     with open(target_file, "w") as cfg:
         cfg.write(out_cfg)
+
 
 def apply_templates(template_root, dest_root):
 
@@ -122,6 +122,7 @@ def apply_templates(template_root, dest_root):
             _set_perms(target_file)
 
     return True
+
 
 class ScisqlConfigTemplate(string.Template):
     delimiter = '{{'

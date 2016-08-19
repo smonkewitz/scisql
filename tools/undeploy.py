@@ -21,60 +21,62 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    from configparser import ConfigParser
+
 import os
 import re
 import MySQLdb as sql
 
 
-_udfs = [ 'angSep',
-          's2CircleHtmRanges',
-          's2CPolyHtmRanges',
-          's2CPolyToBin',
-          's2HtmId',
-          's2HtmLevel',
-          's2PtInBox',
-          's2PtInCircle',
-          's2PtInCPoly',
-          's2PtInEllipse',
-          'median',
-          'percentile',
-          'abMagToDn',
-          'abMagToDnSigma',
-          'abMagToFlux',
-          'abMagToFluxSigma',
-          'dnToAbMag',
-          'dnToAbMagSigma',
-          'dnToFlux',
-          'dnToFluxSigma',
-          'fluxToAbMag',
-          'fluxToAbMagSigma',
-          'fluxToDn',
-          'fluxToDnSigma',
-          'extractInt64',
-          'raiseError',
-        ]
-
-_procs = [ 's2CircleRegion',
-           's2CPolyRegion',
-           'grantPermissions',
+_udfs = ['angSep',
+         's2CircleHtmRanges',
+         's2CPolyHtmRanges',
+         's2CPolyToBin',
+         's2HtmId',
+         's2HtmLevel',
+         's2PtInBox',
+         's2PtInCircle',
+         's2PtInCPoly',
+         's2PtInEllipse',
+         'median',
+         'percentile',
+         'abMagToDn',
+         'abMagToDnSigma',
+         'abMagToFlux',
+         'abMagToFluxSigma',
+         'dnToAbMag',
+         'dnToAbMagSigma',
+         'dnToFlux',
+         'dnToFluxSigma',
+         'fluxToAbMag',
+         'fluxToAbMagSigma',
+         'fluxToDn',
+         'fluxToDnSigma',
+         'extractInt64',
+         'raiseError',
          ]
+
+_procs = ['s2CircleRegion',
+          's2CPolyRegion',
+          'grantPermissions',
+          ]
 
 
 def _parseMyCnf(my_cnf):
-    if not isinstance(my_cnf, basestring):
-        raise RuntimeError('invalid MySQL options file path')
+    parser = ConfigParser()
+    parser.read_file(open(my_cnf), my_cnf)
     kw = {}
-    with open(my_cnf, 'rb') as f:
-        for line in f:
-           kv = [s.strip() for s in line.split('=')]
-           if len(kv) == 2:
-               if kv[0] == 'user':
-                   kw['user'] = kv[1]
-               elif kv[0] == 'password':
-                   kw['passwd'] = kv[1]
-               elif kv[0] == 'socket':
-                   kw['unix_socket'] = kv[1]
+    for section in parser.sections():
+        for key, val in parser[section].items():
+            if key == 'user':
+                kw['user'] = val
+            elif key == 'password':
+                kw['passwd'] = val
+            elif key == 'socket':
+                kw['unix_socket'] = val
     return kw
 
 
@@ -134,4 +136,3 @@ def uninstall():
 
 if __name__ == '__main__':
     uninstall()
-

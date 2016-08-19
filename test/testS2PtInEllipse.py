@@ -21,8 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
-
 import math
 import random
 import sys
@@ -40,18 +38,18 @@ def s2PtInEllipse(ra, dec, ra_cen, dec_cen, smaa, smia, ang):
     theta = math.radians(ra_cen)
     phi = math.radians(dec_cen)
     ang = math.radians(ang)
-    sinTheta = math.sin(theta)
-    cosTheta = math.cos(theta)
-    sinPhi = math.sin(phi)
-    cosPhi = math.cos(phi)
-    sinAng = math.sin(ang)
-    cosAng = math.cos(ang)
+    sin_theta = math.sin(theta)
+    cos_theta = math.cos(theta)
+    sin_phi = math.sin(phi)
+    cos_phi = math.cos(phi)
+    sin_ang = math.sin(ang)
+    cos_ang = math.cos(ang)
     # get coords of input point in (N,E) basis
-    n = cosPhi * v[2] - sinPhi * (sinTheta * v[1] + cosTheta * v[0])
-    e = cosTheta * v[1] - sinTheta * v[0]
+    n = cos_phi * v[2] - sin_phi * (sin_theta * v[1] + cos_theta * v[0])
+    e = cos_theta * v[1] - sin_theta * v[0]
     # rotate by negated major axis angle
-    x = sinAng * e + cosAng * n
-    y = cosAng * e - sinAng * n
+    x = sin_ang * e + cos_ang * n
+    y = cos_ang * e - sin_ang * n
     # scale by inverse of semi-axis-lengths
     x /= math.radians(smaa / 3600.0)
     y /= math.radians(smia / 3600.0)
@@ -80,7 +78,7 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
     def testConstArgs(self):
         """Test with constant arguments.
         """
-        for i in xrange(7):
+        for i in range(7):
             a = [0.0]*7; a[i] = None
             self._s2PtInEllipse(0, *a)
         for d in (-91.0, 91.0):
@@ -89,18 +87,18 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
         self._s2PtInEllipse(None, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0)
         self._s2PtInEllipse(None, 0.0, 0.0, 0.0, 0.0, 2.0, -1.0, 0.0)
         self._s2PtInEllipse(None, 0.0, 0.0, 0.0, 0.0, 36001.0, 1.0, 0.0)
-        for i in xrange(10):
+        for i in range(10):
             ra_cen = random.uniform(0.0, 360.0)
             dec_cen = random.uniform(-90.0, 90.0)
             smaa = random.uniform(0.0001, 36000.0)
             smia = random.uniform(0.00001, smaa)
             ang = random.uniform(-180.0, 180.0)
-            for j in xrange(100):
-                smaaDeg = smaa / 3600.0
-                delta = smaaDeg / math.cos(math.radians(dec_cen))
+            for j in range(100):
+                smaa_deg = smaa / 3600.0
+                delta = smaa_deg / math.cos(math.radians(dec_cen))
                 ra = random.uniform(ra_cen - delta, ra_cen + delta)
-                dec = random.uniform(max(dec_cen - smaaDeg, -90.0),
-                                     min(dec_cen + smaaDeg, 90.0))
+                dec = random.uniform(max(dec_cen - smaa_deg, -90.0),
+                                     min(dec_cen + smaa_deg, 90.0))
                 r = s2PtInEllipse(ra, dec, ra_cen, dec_cen, smaa, smia, ang)
                 if r is True:
                     self._s2PtInEllipse(1, ra, dec, ra_cen, dec_cen, smaa, smia, ang)
@@ -118,21 +116,21 @@ class S2PtInEllipseTestCase(MySqlUdfTestCase):
                                               "smaa DOUBLE PRECISION",
                                               "smia DOUBLE PRECISION",
                                               "posAng DOUBLE PRECISION")) as t:
-            for i in xrange(1000):
+            for i in range(1000):
                 ra_cen = random.uniform(0.0, 360.0)
                 dec_cen = random.uniform(-90.0, 90.0)
                 smaa = random.uniform(0.0001, 36000.0)
                 smia = random.uniform(0.00001, smaa)
                 ang = random.uniform(-180.0, 180.0)
-                smaaDeg = smaa / 3600.0
-                delta = smaaDeg / math.cos(math.radians(dec_cen))
+                smaa_deg = smaa / 3600.0
+                delta = smaa_deg / math.cos(math.radians(dec_cen))
                 ra = random.uniform(ra_cen - delta, ra_cen + delta)
-                dec = random.uniform(max(dec_cen - smaaDeg, -90.0),
-                                     min(dec_cen + smaaDeg, 90.0))
+                dec = random.uniform(max(dec_cen - smaa_deg, -90.0),
+                                     min(dec_cen + smaa_deg, 90.0))
                 r = s2PtInEllipse(ra, dec, ra_cen, dec_cen, smaa, smia, ang)
-                if r == True:
+                if r is True:
                     t.insert((1, ra, dec, ra_cen, dec_cen, smaa, smia, ang))
-                elif r == False:
+                elif r is False:
                     t.insert((0, ra, dec, ra_cen, dec_cen, smaa, smia, ang))
             stmt = """SELECT COUNT(*) FROM S2PtInEllipse
                       WHERE inside != %ss2PtInEllipse(
@@ -147,4 +145,3 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     if not runner.run(suite).wasSuccessful():
         sys.exit(1)
-

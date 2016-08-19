@@ -21,11 +21,14 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
-
 import math
 import os
 import unittest
+
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    from configparser import ConfigParser
 
 import MySQLdb as sql
 
@@ -45,33 +48,36 @@ def flatten(l, ltypes=(list, tuple)):
         i += 1
     return ltype(l)
 
+
 class ColumnName(str):
     pass
+
 
 def dbparam(x):
     if x is None:
         return 'NULL'
     elif isinstance(x, ColumnName):
         return "`" + x + "`"
-    elif isinstance(x, basestring):
+    elif isinstance(x, bytes):
+        return "'" + str(x) + "'"
+    elif isinstance(x, str):
         return "'" + x + "'"
     else:
         return repr(x)
 
+
 def _parseMyCnf(my_cnf):
-    if not isinstance(my_cnf, basestring):
-        raise RuntimeError('invalid MySQL options file path')
+    parser = ConfigParser()
+    parser.read_file(open(my_cnf), my_cnf)
     kw = {}
-    with open(my_cnf, 'rb') as f:
-        for line in f:
-           kv = [s.strip() for s in line.split('=')]
-           if len(kv) == 2:
-               if kv[0] == 'user':
-                   kw['user'] = kv[1]
-               elif kv[0] == 'password':
-                   kw['passwd'] = kv[1]
-               elif kv[0] == 'socket':
-                   kw['unix_socket'] = kv[1]
+    for section in parser.sections():
+        for key, val in parser[section].items():
+            if key == 'user':
+                kw['user'] = val
+            elif key == 'password':
+                kw['passwd'] = val
+            elif key == 'socket':
+                kw['unix_socket'] = val
     return kw
 
 
@@ -125,15 +131,17 @@ class TempTable(object):
         return False
 
     def drop(self):
-        self._cursor.execute("DROP TABLE IF EXISTS " +  self._name)
+        self._cursor.execute("DROP TABLE IF EXISTS " + self._name)
 
     def insert(self, row):
         self._cursor.execute("INSERT INTO %s VALUES (%s)" %
-            (self._name, ",".join(["%s"] * len(self._cols))), row)
+                             (self._name, ",".join(["%s"] * len(self._cols))),
+                             row)
 
     def insertMany(self, rows):
         self._cursor.executemany("INSERT INTO %s VALUES (%s)" %
-            (self._name, ",".join(["%s"] * len(self._cols))), rows)
+                                 (self._name, ",".join(["%s"] * len(self._cols))),
+                                 rows)
 
 
 def angSep(ra1, dec1, ra2, dec2):
@@ -145,4 +153,3 @@ def angSep(ra1, dec1, ra2, dec2):
         return 180.0
     else:
         return 2.0 * math.degrees(math.asin(s))
-
