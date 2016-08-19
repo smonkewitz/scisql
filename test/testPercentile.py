@@ -51,7 +51,7 @@ class PercentileTestCase(MySqlUdfTestCase):
                 self.assertAlmostEqual(
                     rows[0][0], quartile, 15,
                     "quartile of integers [0 .. %d] not close enough to %f" % (n - 1, quartile))
-                t.insert((n))
+                t.insert((n,))
                 quartile += 0.25
                 rows = self.query(stmt)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")

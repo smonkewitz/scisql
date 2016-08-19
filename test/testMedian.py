@@ -50,7 +50,7 @@ class MedianTestCase(MySqlUdfTestCase):
                 self.assertAlmostEqual(
                     rows[0][0], median, 15,
                     "median() of integers [0 .. %d) not close enough to %f" % (n, median))
-                t.insert(n)
+                t.insert((n,))
                 median = 0.5 * n
                 rows = self.query(stmt)
                 self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
