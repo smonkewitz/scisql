@@ -21,7 +21,7 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
+from __future__ import print_function
 import itertools
 import glob
 import optparse
@@ -34,17 +34,18 @@ import tempfile
 import traceback
 try:
     import xml.etree.cElementTree as etree
-except:
+except ImportError:
     import xml.etree.ElementTree as etree
 
 _have_mako = True
 try:
     from mako.template import Template
     from mako.lookup import TemplateLookup
-except:
+except ImportError:
     _have_mako = False
 
 # -- Helper functions ----
+
 
 def _extract_content(elt, maybe_empty=False):
     i = len(elt.tag)
@@ -56,14 +57,18 @@ def _extract_content(elt, maybe_empty=False):
         raise RuntimeError('<%s> is empty or contains only whitespace' % elt.tag)
     return s
 
+
 def _check_attrib(elt, attrib):
     for key in elt.keys():
         if key not in attrib:
-            raise RuntimeError('<%s> has illegal attribute %s' % (parent.tag, key))
+            raise RuntimeError('<%s> has illegal attribute %s' % (elt.tag, key))
 
-def _find_one(parent, tag, required=True, attrib=[]):
+
+def _find_one(parent, tag, required=True, attrib=None):
+    if attrib is None:
+        attrib = []
     elts = parent.findall(tag)
-    if elts == None or len(elts) == 0:
+    if elts is None or len(elts) == 0:
         if required:
             raise RuntimeError('<%s> must contain exactly one <%s> child' % (parent.tag, tag))
         return None
@@ -72,9 +77,12 @@ def _find_one(parent, tag, required=True, attrib=[]):
     _check_attrib(elts[0], set(attrib))
     return elts[0]
 
-def _find_many(parent, tag, required=True, attrib=[]):
+
+def _find_many(parent, tag, required=True, attrib=None):
+    if attrib is None:
+        attrib = []
     elts = parent.findall(tag)
-    if elts == None or len(elts) == 0:
+    if elts is None or len(elts) == 0:
         if required:
             raise RuntimeError('<%s> must contain at least one <%s> child' % (parent.tag, tag))
         return []
@@ -82,6 +90,7 @@ def _find_many(parent, tag, required=True, attrib=[]):
     for elt in elts:
         _check_attrib(elt, attrib)
     return elts
+
 
 def _validate_children(parent, child_tags):
     child_tags = set(child_tags)
@@ -104,8 +113,10 @@ class Description(object):
         desc = _find_one(parent, 'desc')
         self.full = _extract_content(desc).strip()
         i = self.full.find(".")
-        if i == -1: self.brief = re.sub(r'\s+', ' ', self.full)
-        else:       self.brief = re.sub(r'\s+', ' ', self.full[:i + 1])
+        if i == -1:
+            self.brief = re.sub(r'\s+', ' ', self.full)
+        else:
+            self.brief = re.sub(r'\s+', ' ', self.full[:i + 1])
 
 
 class Note(object):
@@ -136,12 +147,12 @@ class Example(object):
         # line containing non-whitespace characters
         lines = s.split('\n')
         trim = None
-        for i in xrange(len(lines)):
+        for i in range(len(lines)):
             line = lines[i]
             if len(line.strip()) == 0:
                 lines[i] = ''
                 continue
-            if trim == None:
+            if trim is None:
                 trim = re.match(r'\s*', line).group(0)
             if not line.startswith(trim):
                 raise RuntimeError('inconsistent leading whitespace in <example> source code')
@@ -164,11 +175,11 @@ class Argument(object):
         if self.kind not in ('IN', 'INOUT', 'OUT'):
             raise RuntimeError('<%s> kind attribute value must be "IN", "INOUT", or "OUT"') 
         attr = elt.get('name')
-        if attr == None or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<%s> missing name attribute' % elt.tag)
         self.name = attr.strip()
         attr = elt.get('type')
-        if attr == None or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<%s> missing type attribute' % elt.tag)
         self.type = attr.strip()
         self.units = elt.get('units', '')
@@ -207,11 +218,11 @@ class Udf(object):
         self.aggregate = elt.get('aggregate', 'false') == 'true'
         self.internal = elt.get('internal', 'false') == 'true'
         attr = elt.get('name')
-        if attr == None or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<udf> element has missing or empty name attribute')
         self.name = attr.strip()
         attr = elt.get('return_type')
-        if attr == None or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<udf> element has missing or empty return_type attribute')
         self.return_type = attr.strip()
         self.section = elt.get('section', 'misc')
@@ -220,7 +231,7 @@ class Udf(object):
         self.description = Description(elt)
         self.examples = map(Example, _find_many(elt, 'example', required=False, attrib=['lang', 'test']))
         notes = _find_one(elt, 'notes', required=False)
-        if notes == None:
+        if notes is None:
             self.notes = []
         else:
             self.notes = map(Note, _find_many(notes, 'note', attrib=['class']))
@@ -240,22 +251,22 @@ class Proc(object):
     """
     def __init__(self, elt):
         _check_attrib(elt, ['internal', 'name', 'section'])
-        _validate_children(elt, ['desc','notes','args','example'])
+        _validate_children(elt, ['desc', 'notes', 'args', 'example'])
         self.internal = elt.get('internal', 'false') == 'true'
         attr = elt.get('name')
-        if attr == None  or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<proc> element has missing or empty name attribute')
         self.name = attr.strip()
         self.section = elt.get('section', 'misc')
         args = _find_one(elt, 'args', required=False)
-        if args == None:
+        if args is None:
             self.args = []
         else:
             self.args = ArgumentList(args, ['kind', 'name', 'type', 'units']).args
         self.description = Description(elt)
         self.examples = map(Example, _find_many(elt, 'example', required=False, attrib=['lang', 'test']))
         notes = _find_one(elt, 'notes', required=False)
-        if notes == None:
+        if notes is None:
             self.notes = []
         else:
             self.notes = map(Note, _find_many(notes, 'note', attrib=['class']))
@@ -273,11 +284,11 @@ class Section(object):
     """
     def __init__(self, elt):
         attr = elt.get('name')
-        if attr == None  or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<section> element has missing or empty name attribute')
         self.name = attr.strip()
         attr = elt.get('title')
-        if attr == None  or len(attr.strip()) == 0:
+        if attr is None or len(attr.strip()) == 0:
             raise RuntimeError('<section> element has missing or empty title attribute')
         self.title = attr.strip()
         self.udfs = []
@@ -305,6 +316,7 @@ def ast(elt):
     else:
         raise RuntimeError('Unrecognized XML element <%s>' % elt.tag)
 
+
 def extract_docs_from_c(filename):
     with open(filename, 'rb') as f:
         text = f.read()
@@ -327,7 +339,7 @@ def extract_docs_from_c(filename):
         stripped_lines = []
         for line in lines:
             m = re.match(r'\s*\*', line)
-            if m != None:
+            if m is not None:
                 line = line[len(m.group(0)):]
             stripped_lines.append(string.Template(line).safe_substitute(os.environ))
         xml = '\n'.join(stripped_lines)
@@ -335,9 +347,10 @@ def extract_docs_from_c(filename):
             elt = etree.XML(xml)
             docs.append(ast(elt))
         except:
-            print >>sys.stderr, "Failed to parse documentation block:\n\n%s\n\n" % xml
-            print >>sys.stderr, traceback.format_exception_only(sys.exc_type, sys.exc_value)
+            print("Failed to parse documentation block:\n\n%s\n\n" % xml, file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
     return docs
+
 
 def extract_docs_from_sql(filename):
     comments = []
@@ -345,7 +358,7 @@ def extract_docs_from_sql(filename):
         block = '' 
         for line in f:
             m = re.match(r'\s*--', line)
-            if m != None:
+            if m is not None:
                 block += line[len(m.group(0)):]
             else:
                 if len(block) > 0:
@@ -358,10 +371,11 @@ def extract_docs_from_sql(filename):
         try:
             elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
             docs.append(ast(elt))
-        except:
-            print >>sys.stderr, "Failed to parse documentation block:\n\n%s\n\n" % xml
-            print >>sys.stderr, traceback.format_exception_only(sys.exc_type, sys.exc_value)
+        except ValueError:
+            print("Failed to parse documentation block:\n\n%s\n\n" % xml, file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
     return docs
+
 
 def extract_sections(filename):
     with open(filename, 'rb') as f:
@@ -370,6 +384,7 @@ def extract_sections(filename):
     if elt.tag != 'sections':
         raise RuntimeError('Root element of a section documentation file must be <section>!')
     return map(Section, _find_many(elt, 'section', attrib=['name', 'title']))
+
 
 def extract_docs(root):
     nodes = []
@@ -386,7 +401,7 @@ def extract_docs(root):
             secdict[x.section].procs.append(x)
     for sec in sections:
         sec.udfs.sort(key=lambda x: x.name)
-        sec.procs.sort(key = lambda x: x.name)
+        sec.procs.sort(key=lambda x: x.name)
     return sections
 
 
@@ -400,19 +415,21 @@ def _test(obj):
         with tempfile.TemporaryFile() as source:
             if ex.lang == 'sql':
                 source.write('USE scisql_demo;\n\n')
-                args = [ os.environ['MYSQL'], '--defaults-file=%s' % os.environ['MYSQL_CNF'] ]
+                args = [os.environ['MYSQL'], '--defaults-file=%s' % os.environ['MYSQL_CNF']]
             else:
-                args = [ '/bin/bash' ]
+                args = ['/bin/bash']
             source.write(ex.source)
             source.flush()
             source.seek(0)
             try:
                 with open(os.devnull, 'wb') as devnull:
                     subprocess.check_call(args, shell=False, stdin=source, stdout=devnull)
-            except:
-                print >>sys.stderr, "Failed to run documentation example:\n\n%s\n\n" % ex.source
+            except subprocess.CalledProcessError:
+                print("Failed to run documentation example:\n\n%s\n\n" % ex.source,
+                      file=sys.stderr)
                 nfail += 1
     return nfail 
+
 
 def run_doc_examples(sections):
     """Runs all examples marked as testable in the sciSQL documentation.
@@ -424,8 +441,8 @@ def run_doc_examples(sections):
             nfail += _test(elt)
     return nfail
 
-# -- Documentation generation ----
 
+# -- Documentation generation ----
 def gen_docs(root, sections, html=True):
     """Generates documentation for sciSQL, either in HTML or as a set of
     MySQL tables (for the LSST schema browser).
@@ -465,6 +482,7 @@ usage = """
     metadata_scisql.sql
 """
 
+
 def main():
     parser = optparse.OptionParser(usage=usage)
     opts, args = parser.parse_args()
@@ -488,4 +506,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -27,20 +27,22 @@ _CMP = {
     _MAX_VERSION: operator.le,
 }
 
+
 def _to_tuple(version):
     return tuple(int(i) for i in version.split('.'))
 
+
 def _parse_version(version):
-    db_name = None
     mariadb_prefix = "-"+_MARIADB
     if version.endswith(mariadb_prefix):
         db_name = _MARIADB
-	num_version = version[:-len(mariadb_prefix)]
+        num_version = version[:-len(mariadb_prefix)]
     else:
         db_name = _MYSQL
-	num_version = version
+        num_version = version
     nums = _to_tuple(num_version)
-    return (db_name, nums)
+    return db_name, nums
+
 
 def check(version):
     ok = True
@@ -50,9 +52,9 @@ def check(version):
     except ValueError:
         msg = 'Invalid MYSQL_SERVER_VERSION {0}'.format(version)
         ok = False
-        return (ok, msg)
+        return ok, msg
     db_constraints = _DB_CONSTRAINT[db_name]
-    if not version in db_constraints[_EXACT_VERSION]:
+    if version not in db_constraints[_EXACT_VERSION]:
         for constraint_name in [_MIN_VERSION, _MAX_VERSION]:
             if constraint_name not in db_constraints:
                 continue
@@ -62,7 +64,8 @@ def check(version):
                 msg = '{0} server version {1} violates {2}={3}'.format(
                     db_name, version, constraint_name, constraint_nums)
                 ok = False
-    return (ok, msg)
+    return ok, msg
+
 
 def main():
     parser = argparse.ArgumentParser(

@@ -21,8 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
-
 import math
 import random
 import sys
@@ -47,19 +45,20 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
     def testConstArgs(self):
         """Test with constant arguments.
         """
-        for i in xrange(5):
-            a = [0.0]*5; a[i] = None
+        for i in range(5):
+            a = [0.0]*5
+            a[i] = None
             self._s2PtInCircle(0, *a)
         for d in (-91.0, 91.0):
             self._s2PtInCircle(None, 0.0, d, 0.0, 0.0, 0.0)
             self._s2PtInCircle(None, 0.0, 0.0, 0.0, d, 0.0)
         for r in (-1.0, 181.0):
             self._s2PtInCircle(None, 0.0, 0.0, 0.0, 0.0, r)
-        for i in xrange(10):
+        for i in range(10):
             ra_cen = random.uniform(0.0, 360.0)
             dec_cen = random.uniform(-90.0, 90.0)
             radius = random.uniform(0.0001, 10.0)
-            for j in xrange(100):
+            for j in range(100):
                 delta = radius / math.cos(math.radians(dec_cen))
                 ra = random.uniform(ra_cen - delta, ra_cen + delta)
                 dec = random.uniform(max(dec_cen - radius, -90.0),
@@ -89,7 +88,7 @@ class S2PtInCircleTestCase(MySqlUdfTestCase):
             self.assertEqual(len(rows), 1, stmt + " returned multiple rows")
             self.assertEqual(rows[0][0], 0, "%s detected %d disagreements" % (stmt, rows[0][0]))
             # Add many more rows
-            for i in xrange(1000):
+            for i in range(1000):
                 ra_cen = random.uniform(0.0, 360.0)
                 dec_cen = random.uniform(-90.0, 90.0)
                 radius = random.uniform(0.0001, 10.0)
@@ -116,4 +115,3 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     if not runner.run(suite).wasSuccessful():
         sys.exit(1)
-

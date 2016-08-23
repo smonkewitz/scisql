@@ -21,8 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
-
 import random
 import sys
 import unittest
@@ -45,24 +43,25 @@ class AngSepTestCase(MySqlUdfTestCase):
             self.assertEqual(rows[0][0], None, stmt + " did not return NULL.")
         else:
             self.assertAlmostEqual(rows[0][0], result, 11,
-                stmt + " not close enough to %s" % dbparam(result))
+                                   stmt + " not close enough to %s" % dbparam(result))
 
     def testConstArgs(self):
         """Test with constant arguments.
         """
-        for i in xrange(4):
-            a = [0.0]*4; a[i] = None
+        for i in range(4):
+            a = [0.0]*4
+            a[i] = None
             self._angSep(None, *a)
         for d in (-91.0, 91.0):
             self._angSep(None, 0.0, d, 0.0, 0.0)
             self._angSep(None, 0.0, 0.0, 0.0, d)
         for d in (0.0, 90.0, -90.0):
             self._angSep(0.0, 0.0, d, 0.0, d)
-        for i in xrange(100):
-            args = [ random.uniform(0.0, 360.0),
-                     random.uniform(-90.0, 90.0),
-                     random.uniform(0.0, 360.0),
-                     random.uniform(-90.0, 90.0) ]
+        for i in range(100):
+            args = [random.uniform(0.0, 360.0),
+                    random.uniform(-90.0, 90.0),
+                    random.uniform(0.0, 360.0),
+                    random.uniform(-90.0, 90.0)]
             self._angSep(angSep(*args), *args)
 
     def testColumnArgs(self):
@@ -77,14 +76,14 @@ class AngSepTestCase(MySqlUdfTestCase):
                      random.uniform(0.0, 360.0),
                      random.uniform(-90.0, 90.0),
                      random.uniform(0.0, 360.0),
-                     random.uniform(-90.0, 90.0)) for i in xrange(100)]
+                     random.uniform(-90.0, 90.0)) for i in range(100)]
             t.insertMany(rows)
             stmt = """SELECT i, %sangSep(ra1, decl1, ra2, decl2) FROM AngSep
                       ORDER BY i""" % self._prefix
             for res in self.query(stmt):
                 self.assertAlmostEqual(res[1], angSep(*rows[res[0]][1:]), 11,
-                    "angSep(" + ",".join(map(repr, rows[res[0]][1:])) +
-                    "): Python and MySQL UDF do not agree to 11 decimal places")
+                                       "angSep(" + ",".join(map(repr, rows[res[0]][1:])) +
+                                       "): Python and MySQL UDF don't agree to 11 decimal places")
 
 
 if __name__ == "__main__":
@@ -92,4 +91,3 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     if not runner.run(suite).wasSuccessful():
         sys.exit(1)
-
