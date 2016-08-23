@@ -71,13 +71,12 @@ def _parseMyCnf(my_cnf):
         parser.readfp(conf_file, my_cnf)
         kw = {}
         for section in parser.sections():
-            for key, val in parser[section].items():
-                if key == 'user':
-                    kw['user'] = val
-                elif key == 'password':
-                    kw['passwd'] = val
-                elif key == 'socket':
-                    kw['unix_socket'] = val
+            if parser.has_option(section, 'user'):
+                kw['user'] = parser.get(section, 'user')
+            if parser.has_option(section, 'password'):
+                kw['passwd'] = parser.get(section, 'password')
+            if parser.has_option(section, 'socket'):
+                kw['unix_socket'] = parser.get(section, 'socket')
     return kw
 
 
