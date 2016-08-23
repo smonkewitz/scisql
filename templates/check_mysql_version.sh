@@ -3,6 +3,7 @@
 DIR=$(cd "$(dirname "$0")"; pwd -P)                                                                     
 
 SCISQL_BASE={{SCISQL_BASE}}
+export DYLD_LIBRARY_PATH=${LSST_LIBRARY_PATH}
 export MYSQL_CNF=${DIR}/my-client.cnf
 export MYSQL_BIN={{MYSQL_BIN}}
 

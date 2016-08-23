@@ -1,8 +1,9 @@
 #!/usr/bin/env sh
 
 set -e
-DIR=$(cd "$(dirname "$0")"; pwd -P)                                                                     
+DIR=$(cd "$(dirname "$0")"; pwd -P)
 
+export DYLD_LIBRARY_PATH=${LSST_LIBRARY_PATH}
 MYSQL_CNF=${DIR}/my-client.cnf
 MYSQL_BIN={{MYSQL_BIN}}
 
