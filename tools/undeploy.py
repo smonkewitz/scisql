@@ -68,7 +68,7 @@ _procs = ['s2CircleRegion',
 def _parseMyCnf(my_cnf):
     parser = ConfigParser()
     with open(my_cnf) as conf_file:
-        parser.read_file(conf_file, my_cnf)
+        parser.readfp(conf_file, my_cnf)
         kw = {}
         for section in parser.sections():
             for key, val in parser[section].items():
