@@ -21,7 +21,7 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
+from __future__ import print_function
 import itertools
 import glob
 import optparse
