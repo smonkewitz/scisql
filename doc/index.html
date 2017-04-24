@@ -40,6 +40,7 @@
 	<h3><a href="#s2">Spherical Geometry</a></h3>
 
 		
+		<h4>UDFs</h4>
 		<ul class="section_nav">
 			<li><a href="#s2-scisql_angSep" title="Returns the angular separation in degrees between two positions on the unit sphere.">scisql_angSep</a></li>
 			<li><a href="#s2-scisql_s2CPolyHtmRanges" title="Returns a binary-string representation of HTM ID ranges overlapping a spherical convex polygon.">scisql_s2CPolyHtmRanges</a></li>
@@ -51,6 +52,11 @@
 			<li><a href="#s2-scisql_s2PtInCPoly" title="Returns 1 if the point (lon, lat) lies inside the given spherical convex polygon and 0 otherwise.">scisql_s2PtInCPoly</a></li>
 			<li><a href="#s2-scisql_s2PtInCircle" title="Returns 1 if the point (lon, lat) lies inside the given spherical circle and 0 otherwise.">scisql_s2PtInCircle</a></li>
 			<li><a href="#s2-scisql_s2PtInEllipse" title="Returns 1 if the point (lon, lat) lies inside the given spherical ellipse and 0 otherwise.">scisql_s2PtInEllipse</a></li>
+		</ul>
+		<h4>Stored Procedures</h4>
+		<ul class="section_nav">
+			<li><a href="#s2-scisql_s2CPolyRegion" title="Creates a temporary table `scisql.">scisql_s2CPolyRegion</a></li>
+			<li><a href="#s2-scisql_s2CircleRegion" title="Creates a temporary table `scisql.">scisql_s2CircleRegion</a></li>
 		</ul>
 
 	</li>
@@ -91,10 +97,15 @@
 	<h3><a href="#misc">Miscellaneous</a></h3>
 
 		
+		<h4>UDFs</h4>
 		<ul class="section_nav">
 			<li><a href="#misc-scisql_extractInt64" title="Extracts a 64-bit integer stored in host byte order from a binary string.">scisql_extractInt64</a></li>
 			<li><a href="#misc-scisql_getVersion" title="Returns the version of the sciSQL library in use.">scisql_getVersion</a></li>
 			<li><a href="#misc-scisql_raiseError" title="Fails with an optional error message.">scisql_raiseError</a></li>
+		</ul>
+		<h4>Stored Procedures</h4>
+		<ul class="section_nav">
+			<li><a href="#misc-scisql_grantPermissions" title="Gives a user connecting from the specified host permission to call sciSQL stored procedures and to create/use temporary tables in the scisql database.">scisql_grantPermissions</a></li>
 		</ul>
 
 	</li>
@@ -124,9 +135,8 @@
         <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License version 2.0</a>.
         </p>
         <ul>
-                <li><a href="https://launchpad.net/scisql">Official site</a></li>
-                <li><a href="https://bugs.launchpad.net/scisql/+filebug">Report a bug</a></li>
-                <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
+                <li><a href="https://github.com/smonkewitz/scisql">Source code</a></li>
+                <li><a href="https://github.com/smonkewitz/scisql/issues/new">Report a bug</a></li>
         </ul>
         <p>
         sciSQL is also distributed with a pair of Javascript libraries. These are:
@@ -158,13 +168,14 @@
         <h3>Prerequisites</h3>
         <dl>
                 <dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
+                <dt><a href="http://python-future.org/index.html">Python future 0.16 or later</a></dt>
                 <dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
                 <dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
                 <dd>
                         This is a Python DB API 2.0 implementation for MySQL, and is
                         required when running the unit tests and uninstalling sciSQL.
                 </dd>
-                <dt><a href="http://www.makotemplates.org/download.html">Mako 0.4.x</a></dt>
+                <dt><a href="http://www.makotemplates.org/download.html">Mako 0.4 or later</a></dt>
                 <dd>
                         This Python templating library is required when
                         rebuilding release documentation.
@@ -1330,6 +1341,134 @@ SELECT objectId, ra_PS, decl_PS
 </pre>
 	</div>
 
+	<h2>Stored Procedures</h2>
+	
+	<div id="proc-s2-scisql_s2CPolyRegion" class="proc">
+		<h3><a name="s2-scisql_s2CPolyRegion"></a>scisql.scisql_s2CPolyRegion</h3>
+		<table class="signature">
+			<tr>
+				<td class="decl" colspan="5">PROCEDURE scisql.scisql_s2CPolyRegion (
+				</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">poly</td>
+				<td class="argtype">VARBINARY(255),</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Binary-string representation of a polygon.</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
+			</tr>
+			<tr>
+				<td class="decl" colspan="5">)</td>
+			</tr>
+		</table>
+		<div class="description">
+			Creates a temporary table `scisql.Region` containing HTM ID ranges
+         for the HTM triangles overlapping the given spherical convex polygon.
+         A maximum of 256 ranges will be returned. If the number of ID ranges 
+         at the
+         desired subdivision level exceeds this number, then the effective
+         subdivision level is decreased. This strategy can reduce the number
+         of ranges required to represent any input geometry to just 4, but
+         makes the resulting range list a poorer (coarser, higher area)
+         approximation to the input geometry.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The `scisql.Region` table is allowed to exist prior to calling
+             scisql_s2CPolyRegion() - if it does, its contents are completely
+             replaced.</li>
+			<li class="">Before using this stored procedure, an adminstrator must GRANT
+             the required permissions (e.g. using scisql_grantPermissions()).</li>
+			<li class="">If any input is NULL, the procedure will fail.</li>
+			<li class="">If poly is not a valid binary-string representation of a polygon
+             (e.g. as produced by scisql_s2CPolyToBin()), the procedure will fail.</li>
+			<li class="">If level does not lie in the range [0, 24], the procedure will
+             fail.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CALL scisql.scisql_s2CPolyRegion(scisql_s2CPolyToBin(0,0, 1,0, 0,1), 20);
+SELECT * FROM scisql.Region;
+</pre>
+	</div>
+
+	
+	<div id="proc-s2-scisql_s2CircleRegion" class="proc">
+		<h3><a name="s2-scisql_s2CircleRegion"></a>scisql.scisql_s2CircleRegion</h3>
+		<table class="signature">
+			<tr>
+				<td class="decl" colspan="5">PROCEDURE scisql.scisql_s2CircleRegion (
+				</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">centerLon</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle center longitude angle.</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">centerLat</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle center latitude angle.</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">radius</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">deg</td>
+				<td class="argdesc">Circle radius.</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">level</td>
+				<td class="argtype">INTEGER</td>
+				<td class="argunits"></td>
+				<td class="argdesc">HTM subdivision level, must be in range [0, 24].</td>
+			</tr>
+			<tr>
+				<td class="decl" colspan="5">)</td>
+			</tr>
+		</table>
+		<div class="description">
+			Creates a temporary table `scisql.Region` containing HTM ID ranges
+         for the HTM triangles overlapping the given circle. A maximum of 
+         256 ranges will be returned. If the number of ID ranges at the
+         desired subdivision level exceeds this number, then the effective
+         subdivision level is decreased. This strategy can reduce the number
+         of ranges required to represent any input geometry to just 4, but
+         makes the resulting range list a poorer (coarser, higher area)
+         approximation to the input geometry.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The `scisql.Region` table is allowed to exist prior to calling
+             scisql_s2CircleRegion() - if it does, its contents are completely
+             replaced.</li>
+			<li class="">Before using this stored procedure, an adminstrator must GRANT
+             the required permissions (e.g. using scisql_grantPermissions()).</li>
+			<li class="">If any input is NULL, NaN or +/-Inf, the procedure will fail.</li>
+			<li class="">If centerLat does not lie in the [-90, 90] degree range, the
+             procedure will fail.</li>
+			<li class="">If level does not lie in the range [0, 24], the procedure will
+             fail.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CALL scisql.scisql_s2CircleRegion(0, 0, 0.5, 20);
+SELECT * FROM scisql.Region;
+</pre>
+	</div>
+
 </div> <!-- end of #section-s2 -->
 
 <div id="section-photometry" class="section">
@@ -2082,6 +2221,49 @@ SELECT scisql_getVersion();
 		<h5>Examples</h5>
 		<pre class="prettyprint lang-sql linenums">
 SELECT scisql_raiseError('Lorem ipsum dolor');
+</pre>
+	</div>
+
+	<h2>Stored Procedures</h2>
+	
+	<div id="proc-misc-scisql_grantPermissions" class="proc">
+		<h3><a name="misc-scisql_grantPermissions"></a>scisql.scisql_grantPermissions</h3>
+		<table class="signature">
+			<tr>
+				<td class="decl" colspan="5">PROCEDURE scisql.scisql_grantPermissions (
+				</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">user</td>
+				<td class="argtype">VARCHAR(255),</td>
+				<td class="argunits"></td>
+				<td class="argdesc">User name - may not contain wildcards.</td>
+			</tr>
+			<tr>
+				<td class="argkind">IN</td>
+				<td class="argname">host</td>
+				<td class="argtype">VARCHAR(255)</td>
+				<td class="argunits"></td>
+				<td class="argdesc">Host name - wildcards ('%') are allowed.</td>
+			</tr>
+			<tr>
+				<td class="decl" colspan="5">)</td>
+			</tr>
+		</table>
+		<div class="description">
+			Gives a user connecting from the specified host permission to call
+         sciSQL stored procedures and to create/use temporary tables in the
+         scisql database.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">You must have MySQL admin priviledges (including GRANT OPTION)
+             to call this stored procedure.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+CALL scisql.scisql_grantPermissions('bob', 'localhost');
 </pre>
 	</div>
 
