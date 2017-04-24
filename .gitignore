@@ -1,4 +1,4 @@
 *.pyc
 /build/
-.waf-1.6.11-*
+.waf*
 .lock-waf*
