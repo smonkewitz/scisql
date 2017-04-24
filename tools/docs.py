@@ -22,6 +22,9 @@
 #
 
 from __future__ import print_function
+from builtins import map
+from builtins import range
+from builtins import object
 import itertools
 import glob
 import optparse
@@ -46,10 +49,20 @@ except ImportError:
 
 # -- Helper functions ----
 
+class ScisqlConfigTemplate(string.Template):
+    delimiter = '{{'
+    pattern = r'''
+    \{\{(?:
+    (?P<escaped>\{\{)|
+    (?P<named>[_a-z][_a-z0-9]*)\}\}|
+    (?P<braced>[_a-z][_a-z0-9]*)\}\}|
+    (?P<invalid>)
+    )
+    '''
 
 def _extract_content(elt, maybe_empty=False):
     i = len(elt.tag)
-    s = etree.tostring(elt, "utf-8")
+    s = etree.tostring(elt, "utf-8").decode()
     i = s.find(">") + 1
     j = s.rfind("<")
     s = s[i:j]
@@ -195,7 +208,7 @@ class ArgumentList(object):
     def __init__(self, elt, attrib):
         _validate_children(elt, ['arg'])
         self.varargs = elt.get('varargs', 'false') == 'true'
-        self.args = map(Argument, _find_many(elt, 'arg', required=False, attrib=attrib))
+        self.args = [Argument(x) for x in _find_many(elt, 'arg', required=False, attrib=attrib)]
 
 
 class Udf(object):
@@ -226,15 +239,14 @@ class Udf(object):
             raise RuntimeError('<udf> element has missing or empty return_type attribute')
         self.return_type = attr.strip()
         self.section = elt.get('section', 'misc')
-        self.arglists = map(lambda x: ArgumentList(x, ['name', 'type', 'units']),
-                            _find_many(elt, 'args', attrib=['varargs'])) 
+        self.arglists = [ArgumentList(x, ['name', 'type', 'units']) for x in _find_many(elt, 'args', attrib=['varargs'])] 
         self.description = Description(elt)
-        self.examples = map(Example, _find_many(elt, 'example', required=False, attrib=['lang', 'test']))
+        self.examples = [Example(x) for x in _find_many(elt, 'example', required=False, attrib=['lang', 'test'])]
         notes = _find_one(elt, 'notes', required=False)
         if notes is None:
             self.notes = []
         else:
-            self.notes = map(Note, _find_many(notes, 'note', attrib=['class']))
+            self.notes = [Note(x) for x in _find_many(notes, 'note', attrib=['class'])]
 
 
 class Proc(object):
@@ -264,12 +276,12 @@ class Proc(object):
         else:
             self.args = ArgumentList(args, ['kind', 'name', 'type', 'units']).args
         self.description = Description(elt)
-        self.examples = map(Example, _find_many(elt, 'example', required=False, attrib=['lang', 'test']))
+        self.examples = [Example(x) for x in _find_many(elt, 'example', required=False, attrib=['lang', 'test'])]
         notes = _find_one(elt, 'notes', required=False)
         if notes is None:
             self.notes = []
         else:
-            self.notes = map(Note, _find_many(notes, 'note', attrib=['class']))
+            self.notes = [Note(x) for x in _find_many(notes, 'note', attrib=['class'])]
 
 
 class Section(object):
@@ -295,12 +307,12 @@ class Section(object):
         self.procs = []
         # Extract example source code
         exlist = list(elt.getiterator('example'))
-        self.examples = map(Example, exlist)
+        self.examples = [Example(x) for x in exlist]
         # Turn <example> tags into <pre> tags with the appropriate prettify attributes
         for ex in exlist:
             ex.tag = 'pre'
             lang = ex.get('lang', 'sql')
-            for k in ex.keys():
+            for k in list(ex.keys()):
                 del ex.attrib[k]
             ex.set('class', 'prettyprint lang-%s linenums' % lang)
         self.content = _extract_content(elt)
@@ -318,7 +330,7 @@ def ast(elt):
 
 
 def extract_docs_from_c(filename):
-    with open(filename, 'rb') as f:
+    with open(filename, 'r') as f:
         text = f.read()
     # Extract comment blocks from file - note that nested comment blocks
     # are not dealt with properly
@@ -354,7 +366,7 @@ def extract_docs_from_c(filename):
 
 def extract_docs_from_sql(filename):
     comments = []
-    with open(filename, 'rb') as f:
+    with open(filename, 'r') as f:
         block = '' 
         for line in f:
             m = re.match(r'\s*--', line)
@@ -369,7 +381,7 @@ def extract_docs_from_sql(filename):
         if xml.find("</udf>") == -1 and xml.find("</proc>") == -1:
             continue
         try:
-            elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
+            elt = etree.XML(ScisqlConfigTemplate(xml).safe_substitute(os.environ))
             docs.append(ast(elt))
         except ValueError:
             print("Failed to parse documentation block:\n\n%s\n\n" % xml, file=sys.stderr)
@@ -378,19 +390,19 @@ def extract_docs_from_sql(filename):
 
 
 def extract_sections(filename):
-    with open(filename, 'rb') as f:
+    with open(filename, 'r') as f:
         xml = f.read()
     elt = etree.XML(string.Template(xml).safe_substitute(os.environ))
     if elt.tag != 'sections':
         raise RuntimeError('Root element of a section documentation file must be <section>!')
-    return map(Section, _find_many(elt, 'section', attrib=['name', 'title']))
+    return [Section(x) for x in _find_many(elt, 'section', attrib=['name', 'title'])]
 
 
 def extract_docs(root):
     nodes = []
     for file in glob.glob(os.path.join(root, 'src', 'udfs', '*.c')):
         nodes.extend(extract_docs_from_c(file))
-    for file in glob.glob(os.path.join(root, 'template', '*.mysql')):
+    for file in glob.glob(os.path.join(root, 'templates', '*.mysql')):
         nodes.extend(extract_docs_from_sql(file))
     sections = extract_sections(os.path.join(root, 'tools', 'templates', 'sections.xml'))
     secdict = dict((x.name, x) for x in sections)
@@ -450,12 +462,12 @@ def gen_docs(root, sections, html=True):
     lookup = TemplateLookup(directories=[os.path.join(root, 'tools', 'templates')])
     if html:
         template = lookup.get_template('index.mako')
-        with open(os.path.join(root, 'doc', 'index.html'), 'wb') as f:
+        with open(os.path.join(root, 'doc', 'index.html'), 'w') as f:
             f.write(template.render(sections=sections,
                                     SCISQL_VERSION=os.environ['SCISQL_VERSION']))
     else:
         template = lookup.get_template('lsst_schema_browser.mako')
-        with open('metadata_scisql.sql', 'wb') as f:
+        with open('metadata_scisql.sql', 'w') as f:
             f.write(template.render(sections=sections,
                                     SCISQL_VERSION=os.environ['SCISQL_VERSION']))
 
