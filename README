@@ -14,14 +14,17 @@ and stored procedures.
 Installation prerequisites:
 ---------------------------
 
-- Python 2.5.x or later   (http://www.python.org/download/)
-- MySQL server 5.x        (http://dev.mysql.com/downloads/)
-- MySQLdb 1.2.x           (http://sourceforge.net/projects/mysql-python/)
-- Mako 0.4.x              (http://www.makotemplates.org/download.html)
+- Python 2.5.x or later       (http://www.python.org/download/)
+- Python future 0.16 or later (http://python-future.org/index.html)
+- MySQL server 5.x            (http://dev.mysql.com/downloads/)
+- MySQLdb 1.2.x               (http://sourceforge.net/projects/mysql-python/)
+- Mako 0.4 or later           (http://www.makotemplates.org/download.html)
 
 MySQLdb, a Python DB API 2.0 implementation for MySQL, is required in order
 to run the unit tests and uninstall sciSQL. The Mako templating library is
-required only if you wish to rebuild the HTML documentation.
+required only if you wish to rebuild the HTML documentation. The Python
+future library is required to allow building this software with both Python
+versions 2 and 3.
  
 In order to install the UDFs, you need write permission to the MySQL server
 plug-in directory as well as a MySQL account with admin priviledges.
