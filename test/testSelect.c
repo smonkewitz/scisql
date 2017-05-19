@@ -80,7 +80,7 @@ static size_t factorial(size_t n) {
 static void permgen_init(permgen *gen, size_t n) {
     size_t i;
 
-    if (n == 0 || gen == 0 || n > 10) {
+    if (n < 2 || gen == 0 || n > 10) {
         fprintf(stderr, "Invalid arguments to permutation generator "
                 "initialization function\n");
         exit(1);
@@ -125,8 +125,8 @@ static void test(double (*select)(double *, size_t, size_t)) {
     array = (double *) malloc(MAX_N*sizeof(double));
     SCISQL_ASSERT_NOT_EQUAL(array, 0, "memory allocation failed");
 
-    /* Test all possible permutations of n distinct values, for n = 1..9 */
-    for (n = 1; n <= 10; ++n) {
+    /* Test all possible permutations of n distinct values, for n = 2..9 */
+    for (n = 2; n <= 10; ++n) {
         permgen gen;
         size_t i;
 
