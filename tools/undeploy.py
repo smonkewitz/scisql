@@ -21,8 +21,10 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
+from future import standard_library
+standard_library.install_aliases()
 try:
-    from ConfigParser import ConfigParser
+    from configparser import ConfigParser
 except ImportError:
     from configparser import ConfigParser
 

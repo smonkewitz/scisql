@@ -96,7 +96,9 @@ static void permgen_init(permgen *gen, size_t n) {
 static void permgen_next(permgen *gen) {
     double tmp;
     size_t j, k;
-
+    if (gen->n < 2) {
+       return; /* there is only one permutation */
+    }
     for (j = gen->n - 2; gen->array[j] > gen->array[j + 1]; --j) {
         if (j == 0) {
             return; /* last permutation already generated */

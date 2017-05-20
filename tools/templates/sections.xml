@@ -12,9 +12,8 @@
         <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License version 2.0</a>.
         </p>
         <ul>
-                <li><a href="https://launchpad.net/scisql">Official site</a></li>
-                <li><a href="https://bugs.launchpad.net/scisql/+filebug">Report a bug</a></li>
-                <li><a href="https://answers.launchpad.net/scisql/+addquestion">Ask a question</a></li>
+                <li><a href="https://github.com/smonkewitz/scisql">Source code</a></li>
+                <li><a href="https://github.com/smonkewitz/scisql/issues/new">Report a bug</a></li>
         </ul>
         <p>
         sciSQL is also distributed with a pair of Javascript libraries. These are:
@@ -44,13 +43,14 @@
         <h3>Prerequisites</h3>
         <dl>
                 <dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
+                <dt><a href="http://python-future.org/index.html">Python future 0.16 or later</a></dt>
                 <dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
                 <dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
                 <dd>
                         This is a Python DB API 2.0 implementation for MySQL, and is
                         required when running the unit tests and uninstalling sciSQL.
                 </dd>
-                <dt><a href="http://www.makotemplates.org/download.html">Mako 0.4.x</a></dt>
+                <dt><a href="http://www.makotemplates.org/download.html">Mako 0.4 or later</a></dt>
                 <dd>
                         This Python templating library is required when
                         rebuilding release documentation.

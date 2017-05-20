@@ -106,7 +106,7 @@ def configure(ctx):
     # Add scisql version to configuration header
     ctx.define(APPNAME.upper() + '_VERSION_STRING', VERSION)
     ctx.define(APPNAME.upper() + '_VERSION_STRING_LENGTH', len(VERSION))
-    versions = map(int, VERSION.split('.'))
+    versions = [int(v) for v in VERSION.split('.')]
     if len(versions) < 3:
         versions.extend([0]*(3 - len(versions)))
     for v, n in zip(versions, ('MAJOR', 'MINOR', 'PATCH')):
@@ -269,7 +269,7 @@ class HtmlDocsContext(Build.BuildContext):
 
 def html_docs(ctx):
     if not _have_mako:
-        ctx.fatal('You must install mako 0.4.x to generate HTML documentation')
+        ctx.fatal('You must install mako 0.4+ to generate HTML documentation')
     ctx(rule='${SRC} html_docs',
         source='tools/docs.py',
         always=True)
@@ -281,7 +281,7 @@ class LsstDocsContext(Build.BuildContext):
 
 def lsst_docs(ctx):
     if not _have_mako:
-        ctx.fatal('You must install mako 0.4.x to generate LSST documentation')
+        ctx.fatal('You must install mako 0.4+ to generate LSST documentation')
     ctx(rule='${SRC} lsst_docs',
         source='tools/docs.py',
         always=True)
