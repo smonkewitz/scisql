@@ -24,7 +24,7 @@
 from future import standard_library
 standard_library.install_aliases()
 try:
-    from configparser import ConfigParser
+    from ConfigParser import ConfigParser
 except ImportError:
     from configparser import ConfigParser
 
