@@ -32,7 +32,7 @@ except ImportError:
 
 try:
    stringTypes = (str, unicode)
-except TypeError:
+except NameError:
    stringTypes = (str,)
 
 import MySQLdb as sql
