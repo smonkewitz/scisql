@@ -25,7 +25,10 @@ def run_command(cmd_args, loglevel=logging.INFO) :
 
     try:
 
-        process = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # universal_newlines=True is to make sure that pipes are open in text mode
+        # to make it return strings in Python3 using Python2-compatible API
+        process = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   universal_newlines=True)
 
         def logstream(stream, loggercb):
             while True:

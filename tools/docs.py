@@ -424,7 +424,7 @@ def _test(obj):
     for ex in obj.examples:
         if not ex.test or ex.lang not in ('sql', 'bash'):
             continue
-        with tempfile.TemporaryFile() as source:
+        with tempfile.TemporaryFile("w+t") as source:
             if ex.lang == 'sql':
                 source.write('USE scisql_demo;\n\n')
                 args = [os.environ['MYSQL'], '--defaults-file=%s' % os.environ['MYSQL_CNF']]
