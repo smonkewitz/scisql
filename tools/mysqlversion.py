@@ -10,6 +10,8 @@ _EXACT_VERSION = 'exact_version'
 _MYSQL = "MySQL"
 _MARIADB = "MariaDB"
 
+_MARIADB_VERSION_PREFIXES = [ "MariaDB", "MariaDB-1~jessie" ]
+
 # Constraints for compatible MySQL/MariaDB versions
 _DB_CONSTRAINT = {
     _MYSQL: {
@@ -18,7 +20,7 @@ _DB_CONSTRAINT = {
     },
     _MARIADB: {
         _MIN_VERSION: (10, 1),
-        _EXACT_VERSION: ['10.1.9-MariaDB']
+        _EXACT_VERSION: ['10.1.9-MariaDB', '10.1.26-MariaDB-1~jessie']
     },
 }
 
@@ -34,11 +36,13 @@ def _to_tuple(version):
 
 
 def _parse_version(version):
-    mariadb_prefix = "-"+_MARIADB
-    if version.endswith(mariadb_prefix):
-        db_name = _MARIADB
-        num_version = version[:-len(mariadb_prefix)]
-    else:
+    db_name = None
+    for prefix in _MARIADB_VERSION_PREFIXES:
+        mariadb_prefix = "-"+prefix
+        if version.endswith(mariadb_prefix):
+            db_name = _MARIADB
+            num_version = version[:-len(mariadb_prefix)]
+    if not db_name:
         db_name = _MYSQL
         num_version = version
     nums = _to_tuple(num_version)
