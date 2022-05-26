@@ -15,6 +15,7 @@
 
     Authors:
         - Serge Monkewitz, IPAC/Caltech
+        - Fritz Mueller, SLAC National Accelerator Laboratory
 
     Work on this project has been sponsored by LSST and SLAC/DOE.
 
@@ -66,6 +67,18 @@ SCISQL_INLINE double scisql_flux2ab(double flux) {
 /*  Converts calibrated flux error (erg/cm**2/sec/Hz) to an AB magnitude error.
  */
 SCISQL_INLINE double scisql_flux2absigma(double flux, double fluxsigma) {
+    return SCISQL_5_OVER_2LOG10 * fluxsigma / flux;
+}
+
+/*  Converts a calibrated flux (nanojansky) to an AB magnitude.
+ */
+SCISQL_INLINE double scisql_nanojansky2ab(double flux) {
+    return -2.5 * log10(flux) + 31.4;
+}
+
+/*  Converts calibrated flux error (nanojansky) to an AB magnitude error.
+ */
+SCISQL_INLINE double scisql_nanojansky2absigma(double flux, double fluxsigma) {
     return SCISQL_5_OVER_2LOG10 * fluxsigma / flux;
 }
 
@@ -132,6 +145,19 @@ SCISQL_INLINE double scisql_ab2flux(double mag) {
  */
 SCISQL_INLINE double scisql_ab2fluxsigma(double mag, double magsigma) {
     return magsigma * scisql_ab2flux(mag) * SCISQL_2LOG10_OVER_5;
+}
+
+/*  Converts an AB magnitude to a calibrated flux (nanojansky).
+ */
+SCISQL_INLINE double scisql_ab2nanojansky(double mag) {
+    return pow(10.0, -0.4*(mag - 31.4));
+}
+
+/*  Converts an AB magnitude error to a calibrated flux error 
+    (nanojanksy).
+ */
+SCISQL_INLINE double scisql_ab2nanojanskysigma(double mag, double magsigma) {
+    return magsigma * scisql_ab2nanojansky(mag) * SCISQL_2LOG10_OVER_5;
 }
 
 /*  Converts an AB magnitude to a raw DN value.
