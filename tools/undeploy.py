@@ -70,7 +70,7 @@ _procs = ['s2CircleRegion',
 def _parseMyCnf(my_cnf):
     parser = ConfigParser()
     with open(my_cnf) as conf_file:
-        parser.readfp(conf_file, my_cnf)
+        parser.read_file(conf_file, my_cnf)
         kw = {}
         for section in parser.sections():
             if parser.has_option(section, 'user'):
@@ -105,7 +105,7 @@ def dropProc(cursor, proc, prefix, vsuffix):
                       WHERE name = "%s%s" AND db = "scisql"''' % (prefix, proc))
     rows = cursor.fetchall()
     if len(rows) == 1:
-        body = rows[0][0]
+        body = str(rows[0][0].decode())
         pat = r'^\s*BEGIN\s+CALL\s+%s%s%s\s*\(.*\)\s*;\s*END\s*$' % (
               prefix, proc, vsuffix)
         if re.match(pat, body):
