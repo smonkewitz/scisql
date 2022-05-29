@@ -6,7 +6,7 @@ the project contains user defined functions (UDFs) and stored procedures for
 MySQL in the areas of spherical geometry, statistics, and photometry. It is
 distributed under the terms of the Apache License version 2.0.
 
-    Note that the doc/index.html file in the sciSQL distribution contains
+    Note that the docs/index.html file in the sciSQL distribution contains
 all the instructions below, as well as documentation for all the sciSQL UDFs
 and stored procedures.
 

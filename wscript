@@ -175,10 +175,10 @@ def build(ctx):
         install_path=False,
         use='M'
     )
-    # doc directory
-    doc_dir = ctx.path.find_dir('doc')
-    ctx.install_files('${PREFIX}/doc', doc_dir.ant_glob('**/*'),
-                          cwd=doc_dir, relative_trick=True)
+    # docs directory
+    docs_dir = ctx.path.find_dir('docs')
+    ctx.install_files('${PREFIX}/docs', docs_dir.ant_glob('**/*'),
+                          cwd=docs_dir, relative_trick=True)
     # bin directory
     bin_dir = ctx.path.find_dir('bin')
     ctx.install_files('${PREFIX}/bin', bin_dir.ant_glob('**/*.py'),
