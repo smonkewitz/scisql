@@ -2,6 +2,7 @@ from __future__ import print_function
 import argparse
 import operator
 import sys
+import re
 
 _MIN_VERSION = 'min_version'
 _MAX_VERSION = 'max_version'
@@ -34,10 +35,10 @@ def _to_tuple(version):
 
 
 def _parse_version(version):
-    mariadb_prefix = "-"+_MARIADB
-    if version.endswith(mariadb_prefix):
+    match = re.match(r'([0-9.]+)-MariaDB', version)
+    if match:
         db_name = _MARIADB
-        num_version = version[:-len(mariadb_prefix)]
+        num_version = match[1]
     else:
         db_name = _MYSQL
         num_version = version

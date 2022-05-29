@@ -70,6 +70,8 @@
 			<li><a href="#photometry-scisql_abMagToDnSigma" title="Converts an AB magnitude error to a raw flux error in DN.">scisql_abMagToDnSigma</a></li>
 			<li><a href="#photometry-scisql_abMagToFlux" title="Converts an AB magnitude to a calibrated flux.">scisql_abMagToFlux</a></li>
 			<li><a href="#photometry-scisql_abMagToFluxSigma" title="Converts an AB magnitude error to a calibrated flux error.">scisql_abMagToFluxSigma</a></li>
+			<li><a href="#photometry-scisql_abMagToNanojansky" title="Converts an AB magnitude to a calibrated flux.">scisql_abMagToNanojansky</a></li>
+			<li><a href="#photometry-scisql_abMagToNanojanskySigma" title="Converts an AB magnitude error to a calibrated flux error.">scisql_abMagToNanojanskySigma</a></li>
 			<li><a href="#photometry-scisql_dnToAbMag" title="Converts a raw flux in DN to an AB magnitude.">scisql_dnToAbMag</a></li>
 			<li><a href="#photometry-scisql_dnToAbMagSigma" title="Converts a raw flux error to an AB magnitude error.">scisql_dnToAbMagSigma</a></li>
 			<li><a href="#photometry-scisql_dnToFlux" title="Converts a raw flux in DN to a calibrated (AB) flux.">scisql_dnToFlux</a></li>
@@ -78,6 +80,8 @@
 			<li><a href="#photometry-scisql_fluxToAbMagSigma" title="Converts a calibrated (AB) flux error to an AB magnitude error.">scisql_fluxToAbMagSigma</a></li>
 			<li><a href="#photometry-scisql_fluxToDn" title="Converts a calibrated (AB) flux to a raw DN value.">scisql_fluxToDn</a></li>
 			<li><a href="#photometry-scisql_fluxToDnSigma" title="Converts a calibrated (AB) flux error to raw flux error in DN.">scisql_fluxToDnSigma</a></li>
+			<li><a href="#photometry-scisql_nanojanskyToAbMag" title="Converts a calibrated (AB) flux to an AB magnitude.">scisql_nanojanskyToAbMag</a></li>
+			<li><a href="#photometry-scisql_nanojanskyToAbMagSigma" title="Converts a calibrated (AB) flux error to an AB magnitude error.">scisql_nanojanskyToAbMagSigma</a></li>
 		</ul>
 
 	</li>
@@ -1639,6 +1643,74 @@ SELECT scisql_abMagToFluxSigma(20.5, 0.01);
 	</div>
 
 	
+	<div id="udf-photometry-scisql_abMagToNanojansky" class="udf">
+		<h3><a name="photometry-scisql_abMagToNanojansky"></a>scisql_abMagToNanojansky</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_abMagToNanojansky (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">mag</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">AB magnitude to convert to a calibrated flux.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts an AB magnitude to a calibrated flux.
+        The return value is in nanojanskys.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The mag argument must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If the mag argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_abMagToNanojansky(20.5);
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_abMagToNanojanskySigma" class="udf">
+		<h3><a name="photometry-scisql_abMagToNanojanskySigma"></a>scisql_abMagToNanojanskySigma</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_abMagToNanojanskySigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">mag</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">AB magnitude.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">magSigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">mag</td>
+				<td class="argdesc">Standard deviation of mag.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts an AB magnitude error to a calibrated flux error.
+        The return value is in nanojanskys.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If magSigma is negative, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_abMagToNanojanskySigma(20.5, 0.01);
+</pre>
+	</div>
+
+	
 	<div id="udf-photometry-scisql_dnToAbMag" class="udf">
 		<h3><a name="photometry-scisql_dnToAbMag"></a>scisql_dnToAbMag</h3>
 		<table class="signature">
@@ -1999,6 +2071,80 @@ SELECT scisql_fluxToDnSigma(
         rFlux_PS, rFlux_PS_Sigma, 3.0e+12, 0.0)
     FROM Object
     WHERE rFlux_PS IS NOT NULL
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_nanojanskyToAbMag" class="udf">
+		<h3><a name="photometry-scisql_nanojanskyToAbMag"></a>scisql_nanojanskyToAbMag</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_nanojanskyToAbMag (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">flux</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">nanojansky</td>
+				<td class="argdesc">Calibrated flux to convert to an AB magnitude.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts a calibrated (AB) flux to an AB magnitude.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">The flux argument must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If the flux argument is negative, zero, NULL, NaN, or +/-Inf,
+            NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_nanojanskyToAbMag(rFlux_PS)
+    FROM Object
+    WHERE rFlux_PS IS NOT NULL
+    LIMIT 10;
+</pre>
+	</div>
+
+	
+	<div id="udf-photometry-scisql_nanojanskyToAbMagSigma" class="udf">
+		<h3><a name="photometry-scisql_nanojanskyToAbMagSigma"></a>scisql_nanojanskyToAbMagSigma</h3>
+		<table class="signature">
+			<tr><td class="decl" colspan="5">FUNCTION scisql_nanojanskyToAbMagSigma (
+			</td></tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">flux</td>
+				<td class="argtype">DOUBLE PRECISION,</td>
+				<td class="argunits">nanojansky</td>
+				<td class="argdesc">Calibrated (AB) flux.</td>
+			</tr>
+			<tr>
+				<td class="argkind">&nbsp;</td>
+				<td class="argname">fluxSigma</td>
+				<td class="argtype">DOUBLE PRECISION</td>
+				<td class="argunits">nanojansky</td>
+				<td class="argdesc">Standard deviation of flux.</td>
+			</tr>
+			<tr><td class="decl" colspan="5">) RETURNS DOUBLE PRECISION</td></tr>
+		</table>
+		<div class="description">
+			Converts a calibrated (AB) flux error to an AB magnitude error.
+		</div>
+		<h5>Notes</h5>
+		<ul class="notes">
+			<li class="">All arguments must be convertible to type DOUBLE PRECISION.</li>
+			<li class="">If any argument is NULL, NaN, or +/-Inf, NULL is returned.</li>
+			<li class="">If the flux argument is negative or zero, NULL is returned.</li>
+			<li class="">If the fluxSigma argument is negative, NULL is returned.</li>
+		</ul>
+		<h5>Examples</h5>
+		<pre class="prettyprint lang-sql linenums">
+SELECT scisql_nanojanskyToAbMagSigma(rFlux_PS, rFlux_PS_Sigma)
+    FROM Object
+    WHERE rFlux_PS IS NOT NULL and rFlux_PS_Sigma IS NOT NULL
     LIMIT 10;
 </pre>
 	</div>

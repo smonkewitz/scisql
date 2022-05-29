@@ -47,10 +47,10 @@ ul {
 }
 #index {
 	left: 25px;
-	width: 223px;
+	width: 233px;
 }
 #title {
-	left: 250px;
+	left: 260px;
 	width: 100%;
 	border-left: 1px solid #99B;
 }
@@ -58,7 +58,7 @@ ul {
 #nav {
 	position: fixed;
 	top: 74px; left: 25px;
-	width: 225px;
+	width: 235px;
 	border-right: 1px solid #99B;
 	overflow: auto;
 }
@@ -98,7 +98,7 @@ ul {
 }
 
 #content {
-	margin: 74px 0 0 250px; padding: 0;
+	margin: 74px 0 0 260px; padding: 0;
 	border: none;
 	border-left: 1px solid #99B;
 }
