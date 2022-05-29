@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 #
-# Copyright (C) 2011 Serge Monkewitz
+# Copyright (C) 2011-2022 the SciSQL authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
