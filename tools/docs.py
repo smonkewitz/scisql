@@ -455,21 +455,14 @@ def run_doc_examples(sections):
 
 
 # -- Documentation generation ----
-def gen_docs(root, sections, html=True):
-    """Generates documentation for sciSQL, either in HTML or as a set of
-    MySQL tables (for the LSST schema browser).
+def gen_docs(root, sections):
+    """Generates documentation for sciSQL in HTML.
     """
     lookup = TemplateLookup(directories=[os.path.join(root, 'tools', 'templates')])
-    if html:
-        template = lookup.get_template('index.mako')
-        with open(os.path.join(root, 'doc', 'index.html'), 'w') as f:
-            f.write(template.render(sections=sections,
-                                    SCISQL_VERSION=os.environ['SCISQL_VERSION']))
-    else:
-        template = lookup.get_template('lsst_schema_browser.mako')
-        with open('metadata_scisql.sql', 'w') as f:
-            f.write(template.render(sections=sections,
-                                    SCISQL_VERSION=os.environ['SCISQL_VERSION']))
+    template = lookup.get_template('index.mako')
+    with open(os.path.join(root, 'docs', 'index.html'), 'w') as f:
+        f.write(template.render(sections=sections,
+                                SCISQL_VERSION=os.environ['SCISQL_VERSION']))
 
 
 # -- Usage and command line processing
@@ -486,19 +479,14 @@ usage = """
 
 %prog html_docs 
 
-    Generate HTML documentation for sciSQL in doc/index.html.
-
-%prog lsst_docs
-
-    Generate documentation in LSST schema browser format in
-    metadata_scisql.sql
+    Generate HTML documentation for sciSQL in docs/index.html.
 """
 
 
 def main():
     parser = optparse.OptionParser(usage=usage)
     opts, args = parser.parse_args()
-    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test_docs', 'html_docs', 'lsst_docs')):
+    if len(args) > 1 or (len(args) == 1 and args[0] not in ('test_docs', 'html_docs')):
         parser.error("Too many arguments or illegal command")
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     sections = extract_docs(root)
@@ -514,7 +502,7 @@ def main():
     else:
         if not _have_mako:
             parser.error("You must install mako 0.4.x to generate documentation")
-        gen_docs(root, sections, html=(args[0] == 'html_docs'))
+        gen_docs(root, sections)
 
 if __name__ == '__main__':
     main()

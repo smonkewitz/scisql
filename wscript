@@ -274,15 +274,3 @@ def html_docs(ctx):
         source='tools/docs.py',
         always=True)
 
-
-class LsstDocsContext(Build.BuildContext):
-    cmd = 'lsst_docs'
-    fun = 'lsst_docs'
-
-def lsst_docs(ctx):
-    if not _have_mako:
-        ctx.fatal('You must install mako 0.4+ to generate LSST documentation')
-    ctx(rule='${SRC} lsst_docs',
-        source='tools/docs.py',
-        always=True)
-
