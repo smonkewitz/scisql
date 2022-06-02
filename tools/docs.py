@@ -439,8 +439,9 @@ def _test(obj):
             except subprocess.CalledProcessError:
                 print("Failed to run documentation example:\n\n%s\n\n" % ex.source,
                       file=sys.stderr)
+                sys.stdout.flush()
                 nfail += 1
-    return nfail 
+    return nfail
 
 
 def run_doc_examples(sections):
