@@ -59,7 +59,7 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(abMagToFlux, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(abMagToFlux, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)

@@ -100,13 +100,13 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(angSep, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(angSep, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message
 ) {
     size_t i;
-    my_bool maybe_null = 0, const_item = 1;
+    SCISQL_BOOL maybe_null = 0, const_item = 1;
     if (args->arg_count != 4 && args->arg_count != 6) {
         snprintf(message, MYSQL_ERRMSG_SIZE,
                  SCISQL_UDF_NAME(angSep) " expects 4 or 6 arguments");

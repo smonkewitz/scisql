@@ -121,13 +121,13 @@ typedef struct {
 } _scisql_ptpoly_state;
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInCPoly, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(s2PtInCPoly, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
 {
     size_t i;
-    my_bool const_item = 1, const_pos = 1, const_poly = 1;
+    SCISQL_BOOL const_item = 1, const_pos = 1, const_poly = 1;
 
     if (args->arg_count != 3) {
         if (args->arg_count < 8 ||

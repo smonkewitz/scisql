@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_FNAME(getVersion, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_FNAME(getVersion, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)

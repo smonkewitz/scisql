@@ -101,13 +101,13 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2CPolyToBin, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(s2CPolyToBin, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
 {
     size_t i;
-    my_bool const_item = 1;
+    SCISQL_BOOL const_item = 1;
     if (args->arg_count < 6 ||
         args->arg_count > 2 * SCISQL_MAX_VERTS ||
         (args->arg_count & 1) != 0) {

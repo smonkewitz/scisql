@@ -110,13 +110,13 @@ typedef struct {
 } _scisql_s2ellipse;
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInEllipse, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(s2PtInEllipse, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
 {
     int i;
-    my_bool const_item = 1, const_ellipse = 1;
+    SCISQL_BOOL const_item = 1, const_ellipse = 1;
     if (args->arg_count != 7) {
         snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInEllipse)
                  " expects exactly 7 arguments");

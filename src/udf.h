@@ -59,11 +59,18 @@
 #define SCISQL_UDF_NAME(name) \
     SCISQL_STRINGIZE(SCISQL_VERSIONED_FNAME(name, SCISQL_NO_SUFFIX))
 
+/*  Macros to address API type differences between MySQL 8 and MariaDB 10.
+ */
+#ifdef LIBMARIADB
+#define SCISQL_BOOL my_bool
+#else
+#define SCISQL_BOOL bool
+#endif
 
 /*  Implements an unversioned init function in terms of the versioned one.
  */
 #define SCISQL_UDF_INIT(name) \
-    SCISQL_API my_bool SCISQL_FNAME(name, _init) ( \
+    SCISQL_API SCISQL_BOOL SCISQL_FNAME(name, _init) ( \
         UDF_INIT *initid, \
         UDF_ARGS *args, \
         char *message) \
