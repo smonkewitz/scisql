@@ -61,8 +61,8 @@ def configure(ctx):
     if not ctx.options.client_only:
         ctx.load('mysql_waf', tooldir='tools')
         ctx.check_mysql()
-        ctx.define('SCISQL_PREFIX', ctx.options.scisql_prefix, quote=False)
-        ctx.env.SCISQL_PREFIX = ctx.options.scisql_prefix
+    ctx.define('SCISQL_PREFIX', ctx.options.scisql_prefix, quote=False)
+    ctx.env.SCISQL_PREFIX = ctx.options.scisql_prefix
 
     ctx.env['CFLAGS'] = ['-Wall',
                          '-Wextra',
@@ -119,13 +119,14 @@ def configure(ctx):
     ctx.write_config_header('src/config.h')
 
     # Create run-time environment for tasks
+    env = os.environ.copy()
+    env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
+    env['SCISQL_VERSION'] = VERSION
+    env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
+    env['SCISQL_LIBNAME'] = ctx.env.SCISQL_LIBNAME
+    ctx.env.env = env
+
     if not ctx.options.client_only:
-        env = os.environ.copy()
-        env['SCISQL_PREFIX'] = ctx.env.SCISQL_PREFIX
-        env['SCISQL_VERSION'] = VERSION
-        env['SCISQL_VSUFFIX'] = ctx.env.SCISQL_VSUFFIX
-        env['SCISQL_LIBNAME'] = ctx.env.SCISQL_LIBNAME
-        ctx.env.env = env
         ctx.start_msg('Writing build parameters')
         dest = ctx.bldnode.make_node(BUILD_CONST_MODULE)
         dest.parent.mkdir()
