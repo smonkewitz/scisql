@@ -30,9 +30,8 @@ jobs:
       - name: deploy
         run: |
           sudo chmod a+w /usr/lib/mysql/plugin
-          echo '' | PYTHONPATH=/usr/local/python scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
   MySQL:
-    if: ${{ false }}  # disable for now until portability problems addressed
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
@@ -43,6 +42,12 @@ jobs:
         uses: ankane/setup-mysql@v1
         with:
           mysql-version: 8.0
+      - name: Adjust MySQL config
+        run: |
+          echo "[mysqld]"                 | sudo tee -a /etc/mysql/conf.d/scisql.cnf
+          echo "secure_file_priv = ''"    | sudo tee -a /etc/mysql/conf.d/scisql.cnf
+          echo "local_infile = 1"         | sudo tee -a /etc/mysql/conf.d/scisql.cnf
+          sudo systemctl restart mysql
       - name: Install add'l packages
         run: |
           pip3 install future mako mysqlclient
@@ -56,7 +61,7 @@ jobs:
       - name: deploy
         run: |
           sudo chmod a+w /usr/lib/mysql/plugin
-          echo '' | PYTHONPATH=/usr/local/python scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py --mysql-bin=/usr/bin/mysql --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
   Docs:
     runs-on: ubuntu-latest
     steps:

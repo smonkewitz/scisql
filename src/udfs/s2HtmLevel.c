@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2HtmLevel, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(s2HtmLevel, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)

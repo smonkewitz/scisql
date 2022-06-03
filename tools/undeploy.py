@@ -105,11 +105,11 @@ def dropProc(cursor, proc, prefix, vsuffix):
                    (prefix, proc, vsuffix))
     # Drop unversioned shim if it calls the versioned procedure defined
     # by this version of sciSQL
-    cursor.execute('''SELECT body_utf8 FROM mysql.proc
-                      WHERE name = "%s%s" AND db = "scisql"''' % (prefix, proc))
+    cursor.execute('''SELECT routine_definition FROM information_schema.routines
+                      WHERE routine_name = "%s%s" AND routine_schema = "scisql"''' % (prefix, proc))
     rows = cursor.fetchall()
     if len(rows) == 1:
-        body = str(rows[0][0].decode())
+        body = rows[0][0]
         pat = r'^\s*BEGIN\s+CALL\s+%s%s%s\s*\(.*\)\s*;\s*END\s*$' % (
               prefix, proc, vsuffix)
         if re.match(pat, body):

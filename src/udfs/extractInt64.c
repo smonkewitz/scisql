@@ -66,7 +66,7 @@ typedef union {
 } _scisql_int64_bytes;
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(extractInt64, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(extractInt64, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)

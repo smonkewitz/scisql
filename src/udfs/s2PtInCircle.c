@@ -93,13 +93,13 @@ typedef struct {
 } _scisql_dist2_cache;
 
 
-SCISQL_API my_bool SCISQL_VERSIONED_FNAME(s2PtInCircle, _init) (
+SCISQL_API SCISQL_BOOL SCISQL_VERSIONED_FNAME(s2PtInCircle, _init) (
     UDF_INIT *initid,
     UDF_ARGS *args,
     char *message)
 {
     size_t i;
-    my_bool const_item = 1;
+    SCISQL_BOOL const_item = 1;
     if (args->arg_count != 5) {
         snprintf(message, MYSQL_ERRMSG_SIZE, SCISQL_UDF_NAME(s2PtInCircle)
                  " expects exactly 5 arguments");

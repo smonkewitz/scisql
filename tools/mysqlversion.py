@@ -39,12 +39,12 @@ _MARIADB = "MariaDB"
 # Constraints for compatible MySQL/MariaDB versions
 _DB_CONSTRAINT = {
     _MYSQL: {
-        _MIN_VERSION: (5, 0),
-        _EXACT_VERSION: ['5.1.65', '5.1.73']
+        _MIN_VERSION: (8, 0),
+        _EXACT_VERSION: []
     },
     _MARIADB: {
         _MIN_VERSION: (10, 1),
-        _EXACT_VERSION: ['10.1.9-MariaDB']
+        _EXACT_VERSION: []
     },
 }
 
@@ -60,14 +60,14 @@ def _to_tuple(version):
 
 
 def _parse_version(version):
-    match = re.match(r'([0-9.]+)-MariaDB', version)
-    if match:
+    match = re.match(r'([0-9.]+)(-(.*))?', version)
+    if not match:
+        return None, None
+    nums = _to_tuple(match[1])
+    if match[3] and match[3].startswith(_MARIADB):
         db_name = _MARIADB
-        num_version = match[1]
     else:
         db_name = _MYSQL
-        num_version = version
-    nums = _to_tuple(num_version)
     return db_name, nums
 
 

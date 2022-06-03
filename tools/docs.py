@@ -440,7 +440,7 @@ def _test(obj):
                 print("Failed to run documentation example:\n\n%s\n\n" % ex.source,
                       file=sys.stderr)
                 nfail += 1
-    return nfail 
+    return nfail
 
 
 def run_doc_examples(sections):
