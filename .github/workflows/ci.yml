@@ -30,7 +30,7 @@ jobs:
       - name: deploy
         run: |
           sudo chmod a+w /usr/lib/mysql/plugin
-          echo '' | PYTHONPATH=/usr/local/python scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
   MySQL:
     runs-on: ubuntu-latest
     steps:
@@ -61,7 +61,7 @@ jobs:
       - name: deploy
         run: |
           sudo chmod a+w /usr/lib/mysql/plugin
-          echo '' | PYTHONPATH=/usr/local/python scisql-deploy.py --mysql-bin=/usr/bin/mysql --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py --mysql-bin=/usr/bin/mysql --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
   Docs:
     runs-on: ubuntu-latest
     steps:
