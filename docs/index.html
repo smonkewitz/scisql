@@ -30,7 +30,7 @@
 	</li>
 	<li>
 		
-	<h3><a href="#install">Build, Installation &amp; Deployment</a></h3>
+	<h3><a href="#install">Build, Installation, and Deployment</a></h3>
 
 		
 
@@ -130,11 +130,10 @@
 	
         <div class="section-docs">
         <p>
-        sciSQL provides science-specific tools and extensions for SQL. Currently, the project
-        contains user defined functions (UDFs) and stored procedures for MySQL in the areas
-        of spherical geometry, statistics, and photometry. The project was motivated by the
-        needs of the <a href="http://www.lsst.org/">Large Synoptic Survey Telescope</a> (LSST)
-        and has been sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
+        sciSQL provides science-specific tools and extensions for SQL. Currently, the project contains user
+        defined functions (UDFs) and stored procedures for MySQL or MariaDB in the areas of spherical
+        geometry, statistics, and photometry. The project was motivated by the needs of the <a href="http://www.lsst.org/">Rubin Observatory Legacy Survey of Space and Time</a> (LSST) and has been
+        sponsored by LSST and <a href="http://slac.stanford.edu/">SLAC</a> /
         <a href="http://www.energy.gov/">DOE</a>. sciSQL is distributed under the terms of the
         <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License version 2.0</a>.
         </p>
@@ -173,10 +172,11 @@
         <dl>
                 <dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
                 <dt><a href="http://python-future.org/index.html">Python future 0.16 or later</a></dt>
-                <dt><a href="http://dev.mysql.com/downloads/">MySQL server 5.x</a></dt>
-                <dt><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb 1.2.x</a></dt>
+                <dt><a href="https://dev.mysql.com/downloads/mysql/">MySQL server 8.x</a> -or-
+                  <a href="https://mariadb.com/downloads/">MariaDB server 10.x</a></dt>
+                <dt><a href="https://github.com/PyMySQL/mysqlclient">mysqlclient 2.1.x or later</a></dt>
                 <dd>
-                        This is a Python DB API 2.0 implementation for MySQL, and is
+                        This is a Python DB API 2.0 implementation for MySQL/MariaDB, and is
                         required when running the unit tests and uninstalling sciSQL.
                 </dd>
                 <dt><a href="http://www.makotemplates.org/download.html">Mako 0.4 or later</a></dt>
@@ -186,8 +186,8 @@
                 </dd>
         </dl>
         <p>
-        In order to install the UDFs, you will need write permission to the MySQL server
-        plug-in directory, as well as a MySQL account with admin priviledges.
+        In order to install the UDFs, you will need write permission to the MySQL/MariaDB server
+        plug-in directory, as well as a MySQL/MariaDB account with admin priviledges.
         </p>
 
         <h3 class="warning">Databases reserved for sciSQL use</h3>
@@ -217,13 +217,15 @@
         <p>
         Run <tt>./configure</tt> from the top-level sciSQL directory. Passing <tt>--help</tt>
         will yield a list of configuration options. Here are the ones most likely to require
-        tweaking:
+        tweaking if <tt>./configure</tt> doesn't work straight out of the box on your system:
         </p>
         <dl>
-                <dt><tt>--prefix</tt></dt>
-                <dd>Set this to the top-level directory which will contains sciSQL tools and shared library</dd>
+                <dt><tt>--mysql-dir</tt></dt>
+                <dd>Set this to the top-level of the MySQL/MariaDB server install tree</dd>
+                <dt><tt>--mysql-config</tt></dt>
+                <dd>Point to <tt>mysql_config</tt> or <tt>mariadb_config</tt> configuration tool</dd>
                 <dt><tt>--mysql-includes</tt></dt>
-                <dd>Set this to the top-level directory where the MySQL header files are located</dd>
+                <dd>Point to MySQL/MariaDB headers (<tt>mysql.h</tt> and dependents)</dd>
                 <dt><tt>--scisql-prefix</tt></dt>
                 <dd>
                 This string will be used as a prefix for all sciSQL UDF and stored procedure
@@ -233,26 +235,16 @@
         </dl>
         <p>
         If you wish to build/install only the sciSQL client utilities and documentation,
-        run configure with the --client-only option. In this case, a MySQL server or
+        run configure with the <tt>--client-only</tt> option. In this case, a MySQL/MariaDB server or
         client install is not required, the only executable generated is scisql_index
         (a utility which generates HTM indexes for tables of circles or polygons stored
         in tab-separated-value format).
         </p>
 
-        <h3>Build/Install</h3>
+        <h3>Build</h3>
         <p>
-        sciSQL is built, installed, and uninstalled with the usual <tt>make</tt>,
-        <tt>make install</tt>, and <tt>make uninstall</tt> commands.
-        </p>
-        <p>
-        The <tt>build</tt> command also automatically run the sciSQL unit tests.
-        You can re-run the tests anytime with <tt>make test</tt>.
-        </p>
-        <p>
-        The <tt>install</tt> command will he sciSQL UDFs, stored procedures, and
-        databases (including the scisql_demo database). It will also automatically
-        run the sciSQL unit tests.
-        You can re-run the tests anytime with <tt>make test</tt>.
+        sciSQL is built and staged with the usual <tt>make</tt> and <tt>make install</tt>
+        commands.
         </p>
         <p>
         You may wish to regenerate the HTML documentation if you've chosen a
@@ -261,36 +253,40 @@
         To do this, run <tt>make html_docs</tt>.
         </p>
 
-        <h3>Deploying sciSQL in a MySQL instance</h3>
-        <p> Assuming you've installed scisql in $PREFIX, update your PATH and PYTHONPATH as described below:
+        <h3>Deploying sciSQL in a MySQL/MariaDB instance</h3>
+        <p> Assuming you've installed scisql in <tt>$PREFIX</tt>, update your <tt>PATH</tt> and
+        <tt>PYTHONPATH</tt> as described below:
         <pre class="prettyprint lang-bash linenums">
 export PATH="$PREFIX/bin:$PATH"
 export PYTHONPATH="$PREFIX/python:$PATH"</pre>
-        Check that your have access to a local MySQL server instance and run <tt>scisql-deploy.py</tt>. Passing <tt>--help</tt>
-        will yield a list of configuration options. Here are the ones most likely to require
+        Check that you have access to a local server instance and run <tt>scisql-deploy.py</tt>. Passing
+        <tt>--help</tt> will yield a list of configuration options. Here are the ones most likely to require
         tweaking:
         </p>
         <dl>
                 <dt><tt>--mysql-user</tt></dt>
-                <dd>Set this to the name of a MySQL admin user. Default to 'root'</dd>
+                <dd>Set this to the name of a MySQL/MariaDB admin user; defaults to <tt>root</tt></dd>
+                <dt><tt>--mysql-bin</tt></dt>
+                <dd>Point to the <tt>mysql</tt> or <tt>mariadb</tt> command-line client</dd>
                 <dt><tt>--mysql-socket</tt></dt>
-                <dd>Set this to the name of the MySQL server UNIX socket file</dd>
+                <dd>Point to the MySQL/MariaDB server UNIX socket file</dd>
                 <dt><tt>--verbose</tt></dt>
-                <dd>Verbose level, possible value are FATAL, ERROR, WARN, INFO, DEBUG</dd>
+                <dd>Verbosity level; possible value are FATAL, ERROR, WARN, INFO, DEBUG</dd>
         </dl>
         <p>
-        You will be prompted for the MySQL admin user password during configuration.
+        You will be prompted for the MySQL/MariaDB admin user password during configuration.
         If you run <tt>scisql-deploy.py</tt> in a script, you can
         use standard input, for example via a pipe, for providing this password.
         Connection details, including this password, are stored in a temporary directory in a file named
         <tt>my-client.cnf</tt> using the MySQL options file format. This temporary file is removed at the end
-        of the process, unless you set the verbose level to DEBUG
+        of the process, unless you set the verbose level to DEBUG.
         </p>
         <p>
         The <tt>scisql-deploy.py</tt> command will CREATE the sciSQL UDFs, stored procedures, and
         databases (including the scisql_demo database). It will also automatically
-        run the sciSQL integration tests, which check that sciSQL is correctly deployed in MySQL.
-        You can re-run the tests anytime using <tt>--test</tt> option.
+        run the sciSQL integration tests, which check that sciSQL is correctly deployed.
+        You can re-run the tests anytime by invoking <tt>scisql-deploy.py</tt> with the 
+        <tt>--test</tt> option.
         </p>
         <p>
         Finally, note that after installation each UDF will be available under two
@@ -300,17 +296,18 @@ export PYTHONPATH="$PREFIX/python:$PATH"</pre>
         </p>
         <ul><li>foo_bar</li><li>foo_bar_1_2_3</li></ul>
         <p>
-        The <tt>uninstall</tt> command will drop the versioned sciSQL UDFs and stored
+        Invoking <tt>scisql-deploy.py</tt> with the <tt>--undeploy</tt> option
+        will drop the versioned sciSQL UDFs and stored
         procedures. It will also drop the unversioned UDFs/procedures, but only
         if the unversioned UDF/procedure was created by the version of
         sciSQL being uninstalled. As a consequence, it is possible to have
         multiple versions of sciSQL installed at the same time, and the behavior
-        of two versions can be compared from within a single MySQL instance.
+        of two versions can be compared from within a single MySQL/MariaDB instance.
         An unversioned name will resolve to the most recently installed versioned
         name.
         </p>
         <p>
-        The uninstall command will also drop the scisql_demo database.
+        An updeploy will also drop the scisql_demo database.
         </p>
 
         <h3>Rebuilding sciSQL</h3>
@@ -320,47 +317,41 @@ export PYTHONPATH="$PREFIX/python:$PATH"</pre>
         do the following from the top-level sciSQL directory:
         </p>
         <dl>
-        <dt><tt>scisql-deploy.py --mysql-socket=/path/to/mysql/sock --undeploy</tt></dt><dd>Uninstalls the UDFs and stored procedures named <tt>foo_*</tt>.</dd>
-        <dt><tt>make uninstall</tt></dt><dd>Empty sciSQL install directory (i.e. $PREFIX)</dd>
+        <dt><tt>scisql-deploy.py ... --undeploy</tt></dt><dd>Uninstalls the UDFs and stored procedures named <tt>foo_*</tt>.</dd>
         <dt><tt>make distclean</tt></dt><dd>Removes all build products and configuration files.</dd>
         <dt><tt>configure --scisql-prefix=bar_ ...</tt></dt><dd>Reconfigures sciSQL (sets new name prefix).</dd>
         <dt><tt>make</tt></dt><dd>Rebuilds sciSQL.</dd>
-        <dt><tt>make install</tt></dt><dd>Reinstalls sciSQL.</dd>
-        <dt><tt>scisql-deploy.py --mysql-socket=/path/to/mysql/sock</tt></dt><dd>Deploy sciSQL in your MySQL instance.</dd>
+        <dt><tt>make install</tt></dt><dd>Restages sciSQL.</dd>
+        <dt><tt>scisql-deploy.py ...</tt></dt><dd>Redeploys sciSQL</dd>
         </dl>
         <p>
-        No MySQL restart is required. Note that multiple installations of the same
+        No MySQL/MariaDB restart is required. Note that multiple installations of the same
         version of sciSQL with different UDF/procedure name prefixes can coexist on
-        a single MySQL instance.
+        a single MySQL/MariaDB instance.
         </p>
 
-
-        <h3>MySQL server restarts</h3>
+        <h3>MySQL/MariaDB server restarts</h3>
         <p>
         Installing different versions of sciSQL, or multiple copies of the same
-        version with different UDF/procedure name prefixes, does not require a MySQL
+        version with different UDF/procedure name prefixes, does not require a
         server restart.
         </p>
         <p>
         Only sciSQL developers should need to perform restarts. They are
         required when changing the name of a UDF without changing the name of the
-        shared library installed into the MySQL plugin directory. In this case,
+        shared library installed into the server plugin directory. In this case,
         an attempt to install the updated shared library will sometimes result in
-        MySQL reporting that it cannot find symbol names that are actually
-        present. This is presumably due to MySQL server and/or OS level caching
-        effects, and restarting MySQL resolves the problem.
+        MySQL/MariaDB reporting that it cannot find symbol names that are actually
+        present. This is presumably due to server and/or OS level caching
+        effects, and restarting the server resolves the problem.
         </p>
 
         <h3>Reporting bugs and getting help</h3>
         <p>
         If you encounter test-case failures, or think you've identified a
-        bug in the sciSQL code, please file a report here:
+        bug in the sciSQL code, or would just like to ask a question, please
+        <a href="https://github.com/smonkewitz/scisql/issues">submit an issue</a>.
         </p>
-        <p><a href="https://bugs.launchpad.net/scisql/+filebug">https://bugs.launchpad.net/scisql/+filebug</a></p>
-        <p>
-        For other help or inquiries, submit your questions here:
-        </p>
-        <p><a href="https://answers.launchpad.net/scisql/+addquestion">https://answers.launchpad.net/scisql/+addquestion</a></p>
         </div>
 
 
