@@ -1,0 +1,75 @@
+name: CI
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+jobs:
+  MariaDB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Set up MariaDB
+        uses: ankane/setup-mariadb@v1
+        with:
+          mariadb-version: 10.6
+      - name: Install add'l packages
+        run: |
+          sudo apt-get install -y libmariadb-dev
+          pip3 install future mako mysqlclient
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: configure
+        run: ./configure
+      - name: make
+        run: |
+          sudo make install
+      - name: deploy
+        run: |
+          sudo chmod a+w /usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+  MySQL:
+    if: ${{ false }}  # disable for now until portability problems addressed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Set up MySQL
+        uses: ankane/setup-mysql@v1
+        with:
+          mysql-version: 8.0
+      - name: Install add'l packages
+        run: |
+          pip3 install future mako mysqlclient
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: configure
+        run: ./configure
+      - name: make
+        run: |
+          sudo make install
+      - name: deploy
+        run: |
+          sudo chmod a+w /usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+  Docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Install add'l packages
+        run: |
+          pip3 install mako
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: configure
+        run: ./configure --client-only
+      - name: make
+        run: make html_docs
