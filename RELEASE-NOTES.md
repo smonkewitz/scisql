@@ -1,4 +1,4 @@
-### 0.3.11 (upcoming)
+### 0.3.11
 
 * Adds `nanojanskyToAbMag`, `nanojanksyToAbMagSigma`, `abMagToNanojansky` and `abMagToNanojanskySigma`
   photometry UDFs.
