@@ -25,12 +25,14 @@ jobs:
       - name: configure
         run: ./configure
       - name: make
-        run: |
-          sudo make install
+        run: sudo make install test
       - name: deploy
         run: |
           sudo chmod a+w /usr/lib/mysql/plugin
-          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py --mysql-bin=/usr/bin/mariadb --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py \
+            --mysql-bin=/usr/bin/mariadb \
+            --mysql-socket=/run/mysqld/mysqld.sock \
+            --mysql-plugin-dir=/usr/lib/mysql/plugin
   MySQL:
     runs-on: ubuntu-latest
     steps:
@@ -56,12 +58,14 @@ jobs:
       - name: configure
         run: ./configure
       - name: make
-        run: |
-          sudo make install
+        run: sudo make install test
       - name: deploy
         run: |
           sudo chmod a+w /usr/lib/mysql/plugin
-          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py --mysql-bin=/usr/bin/mysql --mysql-socket=/run/mysqld/mysqld.sock --mysql-plugin-dir=/usr/lib/mysql/plugin
+          echo '' | PYTHONPATH=/usr/local/python python -u /usr/local/bin/scisql-deploy.py \
+            --mysql-bin=/usr/bin/mysql \
+            --mysql-socket=/run/mysqld/mysqld.sock \
+            --mysql-plugin-dir=/usr/lib/mysql/plugin
   Docs:
     runs-on: ubuntu-latest
     steps:
@@ -70,8 +74,7 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install add'l packages
-        run: |
-          pip3 install mako
+        run: pip3 install mako
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: configure
