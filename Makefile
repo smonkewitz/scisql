@@ -17,15 +17,6 @@ list:
 install:
 	@$(WAF) install
 
-deploy:
-	@$(WAF) deploy
-
-deploy_sql:
-	@$(WAF) deploy_sql
-
-uninstall:
-	@$(WAF) uninstall
-
 test:
 	@$(WAF) test
 
@@ -35,6 +26,4 @@ html_docs:
 dist:
 	@$(WAF) dist
 
-
-.PHONY: all sharedlib clean dist distclean list install install_sql uninstall create test html_docs
-
+.PHONY: all sharedlib clean distclean list install test html_docs dist 
