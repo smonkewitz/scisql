@@ -21,7 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import print_function
 from builtins import map
 from builtins import range
 from builtins import object
@@ -35,10 +34,7 @@ import subprocess
 import sys
 import tempfile
 import traceback
-try:
-    import xml.etree.cElementTree as etree
-except ImportError:
-    import xml.etree.ElementTree as etree
+import xml.etree.cElementTree as etree
 
 _have_mako = True
 try:

@@ -19,7 +19,7 @@ jobs:
       - name: Install add'l packages
         run: |
           sudo apt-get install -y libmariadb-dev
-          pip3 install future mako mysqlclient
+          pip3 install mako mysqlclient
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: configure
@@ -52,7 +52,7 @@ jobs:
           sudo systemctl restart mysql
       - name: Install add'l packages
         run: |
-          pip3 install future mako mysqlclient
+          pip3 install mako mysqlclient
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: configure

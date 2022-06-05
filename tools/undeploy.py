@@ -21,15 +21,10 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from future import standard_library
-standard_library.install_aliases()
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
-
+import configparser
 import os
 import re
+
 import MySQLdb as sql
 
 
@@ -72,7 +67,7 @@ _procs = ['s2CircleRegion',
 
 
 def _parseMyCnf(my_cnf):
-    parser = ConfigParser()
+    parser = configparser.ConfigParser()
     with open(my_cnf) as conf_file:
         parser.read_file(conf_file, my_cnf)
         kw = {}

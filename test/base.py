@@ -24,16 +24,7 @@
 import math
 import os
 import unittest
-
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
-
-try:
-   stringTypes = (str, unicode)
-except NameError:
-   stringTypes = (str,)
+import configparser
 
 import MySQLdb as sql
 
@@ -65,14 +56,14 @@ def dbparam(x):
         return "`" + x + "`"
     elif isinstance(x, bytes):
         return "'" + str(x.decode()) + "'"
-    elif isinstance(x, stringTypes):
+    elif isinstance(x, str):
         return "'" + x + "'"
     else:
         return repr(x)
 
 
 def _parseMyCnf(my_cnf):
-    parser = ConfigParser()
+    parser = configparser.ConfigParser()
     with open(my_cnf) as conf_file:
         parser.readfp(conf_file, my_cnf)
         kw = {}

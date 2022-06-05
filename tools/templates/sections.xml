@@ -42,8 +42,7 @@
         </p>
         <h3>Prerequisites</h3>
         <dl>
-                <dt><a href="http://www.python.org/download/">Python 2.5.x or later</a></dt>
-                <dt><a href="http://python-future.org/index.html">Python future 0.16 or later</a></dt>
+                <dt><a href="http://www.python.org/download/">Python 3.7.x or later</a></dt>
                 <dt><a href="https://dev.mysql.com/downloads/mysql/">MySQL server 8.x</a> -or-
                   <a href="https://mariadb.com/downloads/">MariaDB server 10.x</a></dt>
                 <dt><a href="https://github.com/PyMySQL/mysqlclient">mysqlclient 2.1.x or later</a></dt>

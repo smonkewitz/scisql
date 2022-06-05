@@ -21,7 +21,6 @@
 # Work on this project has been sponsored by LSST and SLAC/DOE.
 #
 
-from __future__ import with_statement
 import os
 import stat
 import sys

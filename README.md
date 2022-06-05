@@ -13,17 +13,14 @@ for all the sciSQL UDFs and stored procedures.
 Installation prerequisites
 --------------------------
 
-- [Python 2.5.x or later](http://www.python.org/download/)
-- [Python future 0.16 or later](http://python-future.org/index.html)
+- [Python 3.7.x or later](http://www.python.org/download/)
 - [MySQL server 8.x](https://dev.mysql.com/downloads/mysql/) -or- [MariaDB server 10.x](https://mariadb.com/downloads/)
 - [mysqlclient 2.1.x or later](https://github.com/PyMySQL/mysqlclient)
 - [Mako 0.4 or later](http://www.makotemplates.org/download.html)
 
 `mysqlclient`, a Python DB API 2.0 implementation for MySQL/MariaDB, is required
 in order to run the unit tests and uninstall sciSQL. The Mako templating library is
-required only if you wish to rebuild the HTML documentation. The Python
-future library is required to allow building this software with both Python
-versions 2 and 3.
+required only if you wish to rebuild the HTML documentation.
 
 In order to install the UDFs, you need write permission to the MySQL/MariaDB server
 plug-in directory as well as a MySQL/MariaDB account with admin priviledges.
