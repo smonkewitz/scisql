@@ -38,7 +38,7 @@ except:
 
 
 APPNAME = 'scisql'
-VERSION = '0.3'
+VERSION = '0.3.11'
 
 top = '.'
 out = 'build'
